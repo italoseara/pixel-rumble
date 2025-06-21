@@ -4,7 +4,7 @@ Um jogo de plataforma 2D construído com um motor de jogo customizado em Pygame.
 
 > Click [here](README.md) for the English version.
 
-# Visão Geral do Motor
+# Visão Geral da Engine
 
 ## Funcionalidades
 

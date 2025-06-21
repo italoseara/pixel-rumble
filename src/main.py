@@ -55,7 +55,7 @@ class MainScene(Scene):
     def start(self) -> None:
         player = GameObject("Player")
         player.add_component(Transform(x=0, y=20, scale=5))
-        player.add_component(SpriteRenderer("assets/img/player.png", pivot=(0.5, 1)))
+        player.add_component(SpriteRenderer("assets/img/player.png", pivot="mid-bottom"))
         player.add_component(BoxCollider(width=30, height=40, offset=(-15, -40)))
         player.add_component(RigidBody(drag=0.07, gravity=15))
         player.add_component(PlayerController())

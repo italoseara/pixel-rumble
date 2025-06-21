@@ -6,12 +6,14 @@ from engine.ui import Text
 
 
 class PlayerController(Component):
-    def __init__(self, jump_force: float = 800, move_speed: float = 2000) -> None:
+    def __init__(self, jump_force: float = 800, move_speed: float = 1500) -> None:
         super().__init__()
 
         self.flip_x = False
         self.jump_force = jump_force  # Adjust jump force as needed
         self.move_speed = move_speed  # Adjust move speed as needed
+        self.boost = True
+        self.last_boost_time = 0
     
     def start(self) -> None:
         self.flip_x = False
@@ -29,6 +31,14 @@ class PlayerController(Component):
             self.flip_x = False
         if (keys[pg.K_SPACE] or keys[pg.K_w]) and rigid_body.is_grounded:
             rigid_body.add_impulse((0, -self.jump_force))
+        if keys[pg.K_LSHIFT] and self.boost and self.last_boost_time + 0.5 < pg.time.get_ticks() / 1000:
+            impulse_direction = Vector2(-1, 0) if self.flip_x else Vector2(1, 0)
+            rigid_body.add_impulse(impulse_direction * self.move_speed)
+            self.boost = False
+            self.last_boost_time = pg.time.get_ticks() / 1000  # Reset boost timer
+
+        if not self.boost and rigid_body.is_grounded:
+            self.boost = True
         
         sprite_renderer = self.parent.get_component(SpriteRenderer)
         if sprite_renderer:
@@ -45,7 +55,7 @@ class MainScene(Scene):
     def start(self) -> None:
         player = GameObject("Player")
         player.add_component(Transform(x=0, y=20, scale=5))
-        player.add_component(SpriteRenderer("assets/player.png", pivot=(0.5, 1)))
+        player.add_component(SpriteRenderer("assets/img/player.png", pivot=(0.5, 1)))
         player.add_component(BoxCollider(width=30, height=40, offset=(-15, -40)))
         player.add_component(RigidBody(drag=0.07, gravity=15))
         player.add_component(PlayerController())
@@ -63,7 +73,7 @@ class MainScene(Scene):
 
         platform3 = GameObject("Platform3")
         platform3.add_component(Transform(x=-300, y=-150, scale=5))
-        platform3.add_component(BoxCollider(width=200, height=1))
+        platform3.add_component(BoxCollider(width=200, height=20))
         self.add(platform3)
 
         ui = GameObject("UI")

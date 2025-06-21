@@ -8,6 +8,22 @@ from .component import Component
 from .transform import Transform
 
 
+pivot_mapping = {
+    "top-left": (0, 0),
+    "top": (0.5, 0),
+    "top-right": (1, 0),
+    "left": (0, 0.5),
+    "center": (0.5, 0.5),
+    "right": (1, 0.5),
+    "bottom": (0.5, 1),
+    "bottom-left": (0, 1),
+    "bottom-right": (1, 1),
+    "mid-bottom": (0.5, 1),
+    "mid-top": (0.5, 0),
+    "mid-left": (0, 0.5),
+    "mid-right": (1, 0.5),
+}
+
 class SpriteRenderer(Component):
     image: pg.Surface | None
     color: pg.Color
@@ -22,7 +38,7 @@ class SpriteRenderer(Component):
         path: str, 
         color: pg.Color = pg.Color(255, 255, 255), 
         flip_x: bool = False, flip_y: bool = False,
-        pivot: Vector2 | tuple[float, float] = (0.5, 0.5)
+        pivot: Vector2 | tuple[float, float] | str = (0.5, 0.5)
     ) -> None:
         super().__init__()
 
@@ -36,7 +52,22 @@ class SpriteRenderer(Component):
         self.color = color
         self.flip_x = flip_x
         self.flip_y = flip_y
-        self.pivot = Vector2(pivot)
+
+        if isinstance(pivot, str):
+            if pivot not in pivot_mapping:
+                raise ValueError(f"Invalid pivot string: {pivot}. Must be one of {list(pivot_mapping.keys())}.")
+            self.pivot = Vector2(pivot_mapping[pivot])
+        elif isinstance(pivot, tuple):
+            if len(pivot) != 2:
+                raise ValueError("Pivot tuple must be of length 2.")
+            self.pivot = Vector2(pivot)
+        elif isinstance(pivot, Vector2):
+            self.pivot = pivot
+        else:
+            raise TypeError("Pivot must be a Vector2, tuple of two floats, or a valid pivot string.")
+
+        if not (0 <= self.pivot.x <= 1 and 0 <= self.pivot.y <= 1):
+            raise ValueError("Pivot coordinates must be between 0 and 1, inclusive.")
 
     def start(self) -> None:
         """Load the image from the specified path."""

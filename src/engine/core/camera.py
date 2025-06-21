@@ -6,6 +6,7 @@ from .components.transform import Transform
 
 
 class Camera:
+    position: Vector2
     viewport: pg.Rect
     target: GameObject | None
     offset: Vector2
@@ -13,6 +14,7 @@ class Camera:
     smooth_speed: float
 
     def __init__(self, x: float = 0, y: float = 0, width: int = 800, height: int = 600) -> None:
+        self.position = Vector2(x, y)
         self.viewport = pg.Rect(x, y, width, height)
         self.target = None
         self.offset = Vector2(0, 0)
@@ -44,17 +46,17 @@ class Camera:
 
         if self.smooth:
             # Smooth follow with interpolation
-            direction = target_transform.position - self.viewport.topleft + self.offset
-            self.viewport.topleft += direction * (self.smooth_speed * dt)
+            direction = target_transform.position - self.position + self.offset
+            self.position += direction * (self.smooth_speed * dt)
         else:
             # Direct follow
-            self.viewport.topleft = Vector2(target_transform.position) + self.offset
+            self.position = Vector2(target_transform.position) + self.offset
 
     def world_to_screen(self, world_pos: Vector2) -> Vector2:
         """Convert world coordinates to screen coordinates"""
         
         # Calculate relative position to camera
-        rel_pos = Vector2(world_pos) - self.viewport.topleft
+        rel_pos = Vector2(world_pos) - self.position
         
         # Apply zoom
         # rel_pos *= self.zoom
@@ -71,4 +73,4 @@ class Camera:
         # rel_pos /= self.zoom
         
         # Offset by camera position
-        return rel_pos + self.viewport.topleft
+        return rel_pos + self.position

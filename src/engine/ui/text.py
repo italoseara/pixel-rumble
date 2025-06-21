@@ -12,7 +12,7 @@ class Text(UIComponent):
         x: int = 0, y: int = 0, 
         *,
         color: pg.Color = pg.Color(255, 255, 255), 
-        font_size: int = 24, 
+        font_size: int = 24,
         font_name: str | None = None
     ) -> None:
         super().__init__(x, y, 0, 0)

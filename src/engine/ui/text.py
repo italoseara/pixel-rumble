@@ -15,6 +15,17 @@ class Text(UIComponent):
         font_size: int = 24,
         font_name: str | None = None
     ) -> None:
+        """Initialize a Text UI component.
+
+        Args:
+            text (str, optional): The text to display. Defaults to an empty string.
+            x (int, optional): The x position of the text. Defaults to 0.
+            y (int, optional): The y position of the text. Defaults to 0.
+            color (pg.Color, optional): The color of the text. Defaults to white.
+            font_size (int, optional): The size of the font. Defaults to 24.
+            font_name (str | None, optional): The name of the font file. Defaults to None, which uses the default font.
+        """
+        
         super().__init__(x, y, 0, 0)
         self._text = text
         self.color = color

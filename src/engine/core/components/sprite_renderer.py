@@ -41,6 +41,28 @@ class SpriteRenderer(Component):
         animation_duration: float | None = None,
         loop: bool = True
     ) -> None:
+        """Initialize the SpriteRenderer component.
+
+        Args:
+            path (str): Path to the image file or sprite sheet.
+            color (pg.Color, optional): Color filter for the image. Defaults to pg.Color(255, 255, 255).
+            flip_x (bool, optional): Flip the image in the X axi. Defaults to False.
+            flip_y (bool, optional): Flip the image in the Y axis. Defaults to False.
+            pivot (Vector2 | tuple[float, float] | str, optional): The pivot point of the image. Defaults to (0.5, 0.5).
+            sprite_size (tuple[int, int], optional): The size of the sprite image. Defaults to None.
+            sprite_index (tuple[int, int], optional): The index of the sprite in the spritesheet. Defaults to None.
+            animation_frames (list[tuple[int, int]], optional): A list of indexes for each frame of the animation. Defaults to None.
+            animation_duration (float, optional): The total duration of the animation in seconds. Defaults to None.
+            loop (bool, optional): Whether the animation should loop. Defaults to True.
+
+        Raises:
+            ValueError: If the image path is empty or invalid.
+            FileNotFoundError: If the image file does not exist at the specified path.
+            TypeError: If the pivot is not a Vector2, tuple, or valid string.
+            RuntimeError: If the SpriteRenderer requires a Transform component on the owner.
+            ValueError: If the pivot string is invalid.
+        """
+        
         super().__init__()
 
         # Validate and set image path
@@ -89,11 +111,14 @@ class SpriteRenderer(Component):
 
     @property
     def offset(self) -> Vector2:
+        """Calculate the offset based on the pivot point."""
+        
         return Vector2(self.width * -(self.pivot.x - 0.5), 
                        self.height * -(self.pivot.y - 0.5))
 
     def _validate_pivot(self, pivot) -> Vector2:
         """Validate and assign the pivot value."""
+        
         if isinstance(pivot, str):
             if pivot not in PIVOT_POINTS:
                 raise ValueError(f"Invalid pivot string: {pivot}. Must be one of {list(PIVOT_POINTS.keys())}.")
@@ -130,8 +155,12 @@ class SpriteRenderer(Component):
             self.image.fill(self.color, special_flags=pg.BLEND_RGBA_MULT)
 
     def start(self) -> None:
-        """Load the image from the specified path. If using a sprite sheet,
-        extract the correct sprite or animation frame."""
+        """Initialize the SpriteRenderer component.
+
+        Raises:
+            RuntimeError: If the SpriteRenderer requires a Transform component on the owner.
+            RuntimeError: If the image cannot be loaded from the specified path.
+        """
 
         transform = self.parent.get_component(Transform)
         if transform is None:
@@ -163,8 +192,14 @@ class SpriteRenderer(Component):
             self.image = self._extract_sprite(index_x, index_y)
 
     def _get_transformed_image(self, image: pg.Surface, transform: Transform) -> tuple[pg.Surface, pg.Rect, Vector2]:
-        """Apply flipping, scaling, and rotation to the image and
-        return the transformed image, rect, and offset."""
+        """Get the transformed image and its position based on the transform.
+
+        Args:
+            image (pg.Surface): The image to transform.
+            transform (Transform): The Transform component of the parent GameObject.
+        Returns:
+            tuple[pg.Surface, pg.Rect, Vector2]: The transformed image, its position, and the rectangle for blitting.
+        """
 
         # Apply flipping if necessary
         image = pg.transform.flip(image, self.flip_x, self.flip_y)
@@ -186,8 +221,11 @@ class SpriteRenderer(Component):
         return rotated_image, position
 
     def draw(self, surface: pg.Surface) -> None:
-        """Draw the sprite on the given surface, applying flipping,
-        scaling, rotation, and pivot alignment."""
+        """Draw the sprite on the given surface.
+
+        Args:
+            surface (pg.Surface): The surface to draw the sprite on.
+        """
 
         if self.image is None:
             raise RuntimeError("SpriteRenderer image not loaded.")

@@ -14,6 +14,15 @@ class Camera:
     smooth_speed: float
 
     def __init__(self, x: float = 0, y: float = 0, width: int = 800, height: int = 600) -> None:
+        """Initialize the Camera with a position and viewport size.
+
+        Args:
+            x (float, optional): The initial X position of the camera. Defaults to 0
+            y (float, optional): The initial Y position of the camera. Defaults to 0
+            width (int, optional): The width of the camera viewport. Defaults to 800.
+            height (int, optional): The height of the camera viewport. Defaults to 600.
+        """
+        
         self.position = Vector2(x, y)
         self.viewport = pg.Rect(x, y, width, height)
         self.target = None
@@ -22,10 +31,14 @@ class Camera:
         self.smooth_speed = 10
 
     def set_target(self, target: GameObject, smooth: bool = False, smooth_speed: float = 10, offset: Vector2 = (0, 0)) -> None:
-        """Set the target GameObject for the camera to follow."""
-        
-        if not isinstance(target, GameObject):
-            raise TypeError("Target must be a GameObject instance")
+        """Set the target GameObject for the camera to follow.
+
+        Args:
+            target (GameObject): The GameObject to follow.
+            smooth (bool, optional): Whether to smoothly follow the target. Defaults to False.
+            smooth_speed (float, optional): The speed of the smooth follow. Defaults to 10.
+            offset (Vector2 | tuple[float, float], optional): The offset from the target's position. Defaults to (0, 0).
+        """
         
         self.target = target
         self.offset = Vector2(offset)
@@ -33,7 +46,11 @@ class Camera:
         self.smooth_speed = smooth_speed
 
     def update(self, dt: float) -> None:
-        """Update the camera position based on the target's position or smooth follow."""
+        """Update the camera position based on the target's position or smooth follow.
+
+        Args:
+            dt (float): The delta time since the last update.
+        """
 
         self.viewport.size = pg.display.get_surface().get_size()
 
@@ -53,7 +70,13 @@ class Camera:
             self.position = Vector2(target_transform.position) + self.offset
 
     def world_to_screen(self, world_pos: Vector2) -> Vector2:
-        """Convert world coordinates to screen coordinates"""
+        """Convert world coordinates to screen coordinates.
+
+        Args:
+            world_pos (Vector2): The world position to convert.
+        Returns:
+            Vector2: The screen position corresponding to the world position.
+        """
         
         # Calculate relative position to camera
         rel_pos = Vector2(world_pos) - self.position
@@ -65,7 +88,14 @@ class Camera:
         return rel_pos + Vector2(self.viewport.width / 2, self.viewport.height / 2)
 
     def screen_to_world(self, screen_pos: Vector2) -> Vector2:
-        """Convert screen coordinates to world coordinates"""
+        """Convert screen coordinates to world coordinates.
+
+        Args:
+            screen_pos (Vector2): The screen position to convert.
+        Returns:
+            Vector2: The world position corresponding to the screen position.
+        """
+        
         # Reverse of world_to_screen
         rel_pos = Vector2(screen_pos) - Vector2(self.viewport.width / 2, self.viewport.height / 2)
         

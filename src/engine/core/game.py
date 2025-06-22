@@ -18,7 +18,26 @@ class Game:
     _running: bool
     _instance: Game = None
 
-    def __init__(self, title: str, width: int = 800, height: int = 600, fps: int = 60, icon: str = None) -> None:
+    def __init__(
+        self,
+        title: str,
+        width: int = 800,
+        height: int = 600,
+        fps: int = 60,
+        icon: str = None
+    ) -> None:
+        """Initialize the Game instance.
+
+        Args:
+            title (str): The title of the game window.
+            width (int, optional): The width of the game window. Defaults to 800.
+            height (int, optional): The height of the game window. Defaults to 600.
+            fps (int, optional): The frames per second for the game loop. Defaults to 60.
+            icon (str, optional): Path to the icon image file. Defaults to None.
+        Raises:
+            RuntimeError: If an instance of Game already exists.
+        """
+        
         if Game._instance is not None:
             raise RuntimeError("Game instance already exists.")
         Game._instance = self
@@ -54,7 +73,11 @@ class Game:
         return self._scenes[-1]
 
     def push_scene(self, scene: "Scene") -> None:
-        """Pause current and push a new one on top."""
+        """Pause current and push a new one on top.
+
+        Args:
+            scene (Scene): The scene to push onto the stack.
+        """
         
         if self.current_scene:
             self.current_scene.pause()
@@ -75,7 +98,11 @@ class Game:
             self.current_scene.resume()
 
     def replace_scene(self, scene: "Scene") -> None:
-        """Remove current scene, then push the new one."""
+        """Remove current scene, then push the new one.
+
+        Args:
+            scene (Scene): The scene to replace the current one with.
+        """
         
         self.pop_scene()
         self.push_scene(scene)

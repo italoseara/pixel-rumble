@@ -22,6 +22,15 @@ class GameObject:
     _all: dict[str, GameObject] = {}
 
     def __init__(self, name: str, parent: GameObject | None = None) -> None:
+        """Initialize a GameObject with a name and an optional parent.
+
+        Args:
+            name (str): The name of the GameObject.
+            parent (GameObject | None): The parent GameObject, if any. Defaults to None
+        Raises:
+            ValueError: If the name is empty or already exists.
+        """
+        
         if not name:
             raise ValueError("GameObject name cannot be empty")
         if name in GameObject._all:
@@ -39,12 +48,27 @@ class GameObject:
 
     @classmethod
     def find(cls, name: str) -> GameObject | None:
-        """Finds a GameObject by name."""
+        """Finds a GameObject by name.
+
+        Args:
+            name (str): The name of the GameObject to find.
+        Returns:
+            GameObject | None: The GameObject if found, otherwise None.
+        """
         
         return cls._all.get(name, None)
 
     def add_component(self, component: T) -> T:
-        """Adds a component to the GameObject."""
+        """Adds a component to the GameObject.
+
+        Args:
+            component (Component): The component to add.
+        Returns:
+            T: The added component.
+        Raises:
+            TypeError: If the component is not an instance of Component.
+            ValueError: If a component of the same type already exists in the GameObject.
+        """
         
         if not isinstance(component, Component):
             raise TypeError(f"Expected a Component, got {type(component).__name__}")
@@ -59,18 +83,34 @@ class GameObject:
         return component
 
     def get_component(self, ctype: Type[T]) -> T | None:
-        """Returns the first component of the specified type."""
+        """Returns the first component of the specified type.
+
+        Args:
+            ctype (Type[Component]): The type of the component to retrieve.
+        Returns:
+            T | None: The component if found, otherwise None.
+        """
         
         return self._components.get(ctype, None)
 
     def remove_component(self, ctype: Type[Component]) -> bool:
-        """Removes the first component of the specified type."""
+        """Removes the first component of the specified type.
+
+        Args:
+            ctype (Type[Component]): The type of the component to remove.
+        Returns:
+            bool: True if the component was removed, False if it was not found.
+        """
         
         comp = self._component_map.pop(ctype, None)
         return comp is not None
 
     def update(self, dt: float) -> None:
-        """Forward the update call to each component."""
+        """Forward the update call to each component.
+
+        Args:
+            dt (float): The time since the last update in seconds.
+        """
         
         if not self.active:
             return
@@ -79,7 +119,11 @@ class GameObject:
             comp.update(dt)
 
     def draw(self, surface: pg.Surface) -> None:
-        """Forward the draw call to each component."""
+        """Forward the draw call to each component.
+
+        Args:
+            surface (pg.Surface): The surface to draw on.
+        """
         
         if not self.visible or not self.active:
             return
@@ -88,7 +132,11 @@ class GameObject:
             comp.draw(surface)
 
     def handle_event(self, event: pg.event.Event) -> None:
-        """Forward the event to each component."""
+        """Forward the event to each component.
+
+        Args:
+            event (pg.event.Event): The event to handle.
+        """
         
         if not self.active:
             return
@@ -113,6 +161,14 @@ class GameObject:
             del GameObject._all[self.name]
 
     def has_component(self, ctype: Type[Component]) -> bool:
+        """Check if the GameObject has a component of the specified type.
+
+        Args:
+            ctype (Type[Component]): The type of the component to check.
+        Returns:
+            bool: True if the component exists, False otherwise.
+        """
+        
         return ctype in self._component_map
 
     def __repr__(self) -> str:

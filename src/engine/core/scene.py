@@ -14,6 +14,8 @@ class Scene:
     _game_objects: list[GameObject]
     
     def __init__(self) -> None:
+        """Initialize the Scene."""
+        
         self.camera = Camera()
         self.transparent = False
         self.background_color = pg.Color(0, 0, 0, 0)
@@ -22,7 +24,13 @@ class Scene:
         self._game_objects = []
 
     def add(self, game_object: GameObject) -> None:
-        """Add a GameObject to the scene."""
+        """Add a GameObject to the scene.
+
+        Args:
+            game_object (GameObject): The GameObject to add to the scene.
+        Raises:
+            TypeError: If the provided game_object is not an instance of GameObject.
+        """
         
         if not isinstance(game_object, GameObject):
             raise TypeError("Expected a GameObject instance")
@@ -47,13 +55,21 @@ class Scene:
         pass
 
     def _handle_event(self, event: pg.event.Event) -> None:
-        """Forward the event to all game objects."""
+        """Forward the event to all game objects.
+
+        Args:
+            event (pg.event.Event): The event to handle.
+        """
 
         for game_object in self._game_objects:
             game_object.handle_event(event)
 
     def _update(self, dt: float) -> None:
-        """Forward the update call to all game objects."""
+        """Forward the update call to all game objects.
+
+        Args:
+            dt (float): The time since the last update in seconds.
+        """
         
         for game_object in self._game_objects:
             game_object.update(dt)
@@ -62,7 +78,11 @@ class Scene:
             
 
     def _draw(self, surface: pg.Surface) -> None:
-        """Forward the draw call to all game objects."""
+        """Forward the draw call to all game objects.
+
+        Args:
+            surface (pg.Surface): The surface to draw on.
+        """
 
         surface.fill(self.background_color)
 

@@ -17,6 +17,20 @@ class Transform(Component):
         *, 
         x: float = 0.0, y: float = 0.0
     ) -> None:
+        """Initialize the Transform component.
+
+        Args:
+            position (Vector2 | tuple[float, float], optional): The position of the transform. Defaults to (0, 0).
+            rotation (float, optional): The rotation of the transform in degrees. Defaults to 0.0.
+            scale (Vector2 | float, optional): The scale of the transform. Defaults to 1.
+            x (float, optional): The position in the X axis. Defaults to 0.0.
+            y (float, optional): The position in the Y axis. Defaults to 0.0.
+
+        Note:
+            - If `position` is provided, it will override `x` and `y`.
+            - If `scale` is provided as a single float, it will be applied equally to both axes.
+        """
+        
         super().__init__()
 
         self.position = Vector2(position) or Vector2(x, y)

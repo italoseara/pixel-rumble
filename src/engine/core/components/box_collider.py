@@ -20,6 +20,17 @@ class BoxCollider(Component):
         height: float = None, 
         offset: Vector2 | tuple[float, float] = None
     ) -> None:
+        """Initialize the BoxCollider component.
+
+        Args:
+            width (float, optional): The width of the collider. Defaults to None.
+            height (float, optional): The height of the collider. Defaults to None.
+            offset (Vector2 | tuple[float, float], optional): The offset from the GameObject's position. Defaults to None.
+        Note:
+            - If neither width nor height is provided, the collider will attempt to get dimensions from a SpriteRenderer component.
+            - If offset is provided as a tuple, it will be converted to a Vector2.
+        """
+        
         super().__init__()
 
         self.width = width
@@ -27,7 +38,12 @@ class BoxCollider(Component):
         self.offset = offset
 
     def start(self) -> None:
-        """Initialize the BoxCollider."""
+        """Initialize the BoxCollider.
+
+        Raises:
+            RuntimeError: If the parent GameObject does not have a Transform component.
+            ValueError: If neither width and height are provided nor a SpriteRenderer component is available.
+        """
         
         # Ensure the parent has a Transform component
         self._transform = self.parent.get_component(Transform)
@@ -59,12 +75,13 @@ class BoxCollider(Component):
 
 
     def draw(self, surface) -> None:
+        """Draw the collider's rectangle on the surface for debugging purposes."""
+        
         if DEBUG_MODE:
             color = (255, 0, 0) if self.is_colliding() else (0, 255, 0)
 
             rect = self.get_screen_rect()
             pg.draw.rect(surface, color, rect, 1)
-            
 
     def get_rect(self) -> pg.Rect:
         """Get the collider's rectangle in world space."""

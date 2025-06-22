@@ -27,6 +27,14 @@ class RigidBody(Component):
         drag: float = 0.05, 
         gravity: float = 10.0,
     ) -> None:
+        """Initialize the RigidBody component.
+
+        Args:
+            mass (float, optional): The mass of the object. Defaults to 1.
+            drag (float, optional): The drag force to be applied in the X axis. Defaults to 0.05.
+            gravity (float, optional): The gravity scale to be applied in the Y axis. Defaults to 10.0.
+        """
+        
         super().__init__()
         
         self.mass = mass
@@ -43,6 +51,13 @@ class RigidBody(Component):
         self.is_grounded = False
 
     def start(self) -> None:
+        """Initialize the RigidBody component.
+
+        Raises:
+            RuntimeError: If the parent GameObject does not have a Transform or BoxCollider component.
+            NotImplementedError: If the parent GameObject has a parent, as RigidBody can only be added to root GameObjects.
+        """
+        
         if self.parent.parent:
             raise NotImplementedError("RigidBody cannot be added to a GameObject with a parent. It must be a root GameObject.")
         
@@ -56,6 +71,12 @@ class RigidBody(Component):
             raise RuntimeError("RigidBody requires a BoxCollider component on the owner.")
 
     def update(self, dt: float) -> None:
+        """Update the RigidBody component.
+
+        Args:
+            dt (float): The delta time since the last update.
+        """
+        
         # Apply gravity and drag
         self.acceleration += Vector2(0, 100) * self.gravity
         self.velocity.x *= (1 - self.drag)
@@ -98,6 +119,12 @@ class RigidBody(Component):
                 self.velocity.y = 0
 
     def draw(self, surface) -> None:
+        """Draw the RigidBody component for debugging purposes.
+
+        Args:
+            surface (pg.Surface): The surface to draw on.
+        """
+        
         if DEBUG_MODE:
             # Draw velocity vector
             start_pos = self._transform.screen_position
@@ -118,10 +145,22 @@ class RigidBody(Component):
             surface.blit(text, text_rect)
             
     def add_force(self, force: Vector2) -> None:
+        """Accelerates the RigidBody by adding a force.
+
+        Args:
+            force (Vector2): The force to be added.
+        """
+        
         force = Vector2(force)
         self.acceleration += force / self.mass
 
     def add_impulse(self, impulse: Vector2) -> None:
+        """Add an instantaneous impulse to the RigidBody.
+
+        Args:
+            impulse (Vector2): The impulse to be added.
+        """
+        
         impulse = Vector2(impulse)
         self.velocity += impulse / self.mass
 

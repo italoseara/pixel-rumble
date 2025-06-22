@@ -12,6 +12,11 @@ class Canvas(Component):
     _components: list[UIComponent]
 
     def __init__(self) -> None:
+        """Initialize the Canvas component.
+
+        The Canvas is a container for UI components and handles their updates, events, and drawing.
+        """
+        
         super().__init__()
         self._components = []
 

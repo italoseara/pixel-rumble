@@ -73,16 +73,13 @@ class Transform(Component):
             font = pg.font.Font(None, 16)
 
             pos_text = font.render(f"pos: (x: {self.x:.1f}, y: {self.y:.1f})", True, (0, 255, 0))
-            pos_text_rect = pos_text.get_rect(topleft=self.screen_position)
-            surface.blit(pos_text, pos_text_rect)
-
+            surface.blit(pos_text, self.screen_position)
+            
             scale_text = font.render(f"scale: (x: {self.scale.x:.1f}, y: {self.scale.y:.1f})", True, (0, 255, 0))
-            scale_text_rect = scale_text.get_rect(topleft=self.screen_position + Vector2(0, 10))
-            surface.blit(scale_text, scale_text_rect)
+            surface.blit(scale_text, self.screen_position + Vector2(0, 10))
 
             rot_text = font.render(f"rot: {self.rotation:.1f}°", True, (0, 255, 0))
-            rot_text_rect = rot_text.get_rect(topleft=self.screen_position + Vector2(0, 20))
-            surface.blit(rot_text, rot_text_rect)
+            surface.blit(rot_text, self.screen_position + Vector2(0, 20))
 
     def __repr__(self) -> str:
         return f"<{super().__repr__()} position={self.world_position}, rotation={self.rotation}, scale={self.scale}>"

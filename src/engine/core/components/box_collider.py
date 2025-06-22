@@ -6,6 +6,7 @@ from pygame.math import Vector2
 from ..constants import DEBUG_MODE
 from .component import Component
 from .transform import Transform
+from .sprite_renderer import SpriteRenderer
 
 
 class BoxCollider(Component):
@@ -13,12 +14,17 @@ class BoxCollider(Component):
     height: float
     offset: Vector2
     
-    def __init__(self, width: float, height: float, offset: Vector2 | tuple[float, float] = (0, 0)) -> None:
+    def __init__(
+        self, 
+        width: float = None, 
+        height: float = None, 
+        offset: Vector2 | tuple[float, float] = None
+    ) -> None:
         super().__init__()
-        
+
         self.width = width
         self.height = height
-        self.offset = Vector2(offset)
+        self.offset = offset
 
     def start(self) -> None:
         """Initialize the BoxCollider."""
@@ -28,11 +34,34 @@ class BoxCollider(Component):
         if not self._transform:
             raise RuntimeError("BoxCollider requires a Transform component on the owner.")
 
+        if self.width is None or self.height is None:
+            # Get the width and height from the SpriteRenderer if available
+            sprite_renderer = self.parent.get_component(SpriteRenderer)
+            if not sprite_renderer:
+                raise ValueError("BoxCollider requires width and height or a SpriteRenderer component.")
+
+            if self.width is None:
+                self.width = sprite_renderer.width
+
+            if self.height is None:
+                self.height = sprite_renderer.height
+            
+            if self.offset is None:
+                self.offset = -Vector2(
+                    sprite_renderer.pivot.x * self.width,
+                    sprite_renderer.pivot.y * self.height
+                )
+
+        if self.offset is None:
+            self.offset = Vector2(0, 0)
+        else:
+            self.offset = Vector2(self.offset)
+
+
     def draw(self, surface) -> None:
         if DEBUG_MODE:
             color = (255, 0, 0) if self.is_colliding() else (0, 255, 0)
 
-            pos = self._transform.screen_position + self.offset
             rect = self.get_screen_rect()
             pg.draw.rect(surface, color, rect, 1)
             

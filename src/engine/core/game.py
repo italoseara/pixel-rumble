@@ -32,7 +32,7 @@ class Game:
         pg.display.set_caption(title)
         if icon:
             pg.display.set_icon(pg.image.load(icon))
-        self.screen = pg.display.set_mode((self.width, self.height))
+        self.screen = pg.display.set_mode((self.width, self.height), pg.RESIZABLE)
         self.clock = pg.time.Clock()
 
         self._scenes = []

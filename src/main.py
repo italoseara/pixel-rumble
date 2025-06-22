@@ -55,8 +55,8 @@ class MainScene(Scene):
     def start(self) -> None:
         player = GameObject("Player")
         player.add_component(Transform(x=0, y=20, scale=5))
-        player.add_component(SpriteRenderer("assets/img/player.png", pivot="mid-bottom"))
-        player.add_component(BoxCollider(width=30, height=40, offset=(-15, -40)))
+        player.add_component(SpriteRenderer("assets/img/player.png", pivot="midbottom"))
+        player.add_component(BoxCollider(width=30))
         player.add_component(RigidBody(drag=0.07, gravity=15))
         player.add_component(PlayerController())
         self.add(player)
@@ -76,6 +76,18 @@ class MainScene(Scene):
         platform3.add_component(BoxCollider(width=200, height=20))
         self.add(platform3)
 
+        button = GameObject("Button")
+        button.add_component(Transform(x=200, y=-100, scale=2))
+        button.add_component(SpriteRenderer(
+            "assets/img/keyboard/W.png",
+            pivot="midbottom",
+            sprite_size=(17, 16),
+            animation_frames=[(0, 0), (1, 0)],
+            animation_duration=1,
+            loop=True,
+        ))
+        self.add(button)
+
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
         canvas.add(Text("Press A/D to move, Space/W to jump", x=10, y=10))
@@ -86,7 +98,7 @@ class MainScene(Scene):
 
 
 def main() -> None:
-    game = Game(title="Pixel Rumble", width=800, height=600, fps=60)
+    game = Game(title="Pixel Rumble", icon="assets/img/logo.png")
     game.push_scene(MainScene())
     game.run()
 

@@ -112,9 +112,10 @@ class RigidBody(Component):
 
             # Draw grounded state
             font = pg.font.Font(None, 16)
-            grounded_text = font.render(f"Grounded: {self.is_grounded}", True, (0, 255, 0))
-            text_rect = grounded_text.get_rect(bottomleft=self._collider.get_screen_rect().topleft)
-            surface.blit(grounded_text, text_rect)
+            text = font.render(f"Grounded: {self.is_grounded}", True, (0, 255, 0))
+            screen_pos = self._collider.get_screen_rect().topleft
+            text_rect = text.get_rect(bottomleft=screen_pos)
+            surface.blit(text, text_rect)
             
     def add_force(self, force: Vector2) -> None:
         force = Vector2(force)

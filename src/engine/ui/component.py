@@ -31,6 +31,9 @@ class UIComponent(Component):
     def on_mouse_click(self, mouse_pos: Vector2) -> None:
         pass
 
+    def on_mouse_release(self, mouse_pos: Vector2) -> None:
+        pass
+
     def handle_key_event(self, event: pg.event.Event) -> None:
         pass
 

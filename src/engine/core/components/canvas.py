@@ -37,6 +37,11 @@ class Canvas(Component):
             for component in reversed(self._components):  # Process from top to bottom
                 if component.active and component.is_mouse_over(mouse_pos):
                     component.on_mouse_click(mouse_pos)
+        elif event.type == pg.MOUSEBUTTONUP:
+            mouse_pos = Vector2(pg.mouse.get_pos())
+            for component in reversed(self._components):
+                if component.active:
+                    component.on_mouse_release(mouse_pos)
 
         for component in self._components:
             if component.active:

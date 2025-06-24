@@ -13,7 +13,6 @@ class Text(UIComponent):
         *,
         color: pg.Color = pg.Color(255, 255, 255), 
         font_size: int = 24,
-        font_name: str | None = None
     ) -> None:
         """Initialize a Text UI component.
 
@@ -23,13 +22,12 @@ class Text(UIComponent):
             y (int, optional): The y position of the text. Defaults to 0.
             color (pg.Color, optional): The color of the text. Defaults to white.
             font_size (int, optional): The size of the font. Defaults to 24.
-            font_name (str | None, optional): The name of the font file. Defaults to None, which uses the default font.
         """
         
         super().__init__(x, y, 0, 0)
         self._text = text
         self.color = color
-        self.font = pg.font.Font(font_name, font_size)
+        self.font = pg.font.Font(None, font_size)
         self._update_size()
 
     @property

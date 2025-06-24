@@ -15,3 +15,5 @@ PIVOT_POINTS = {
     "midleft": (0, 0.5),
     "midright": (1, 0.5),
 }
+
+DEFAULT_FONT = "assets/font/Pixellari.ttf"

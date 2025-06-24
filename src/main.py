@@ -2,7 +2,7 @@ import pygame as pg
 from pygame.math import Vector2
 
 from engine import *
-from engine.ui import Text
+from engine.ui import Text, Button
 
 
 class PlayerController(Component):
@@ -55,7 +55,12 @@ class MainScene(Scene):
     def start(self) -> None:
         player = GameObject("Player")
         player.add_component(Transform(x=0, y=20, scale=5))
-        player.add_component(SpriteRenderer("assets/img/player.png", pivot="midbottom"))
+        player.add_component(SpriteRenderer(
+            "assets/img/players.png", 
+            pivot="midbottom",
+            sprite_size=(8, 8),
+            sprite_index=(2, 1),
+        ))
         player.add_component(BoxCollider(width=30))
         player.add_component(RigidBody(drag=0.07, gravity=15))
         player.add_component(PlayerController())
@@ -86,11 +91,14 @@ class MainScene(Scene):
             animation_duration=1,
             loop=True,
         ))
+        button.add_component(BoxCollider())
         self.add(button)
 
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
         canvas.add(Text("Press A/D to move, Space/W to jump", x=10, y=10))
+        canvas.add(Button("Click Me", x=10, y=50, size="lg", 
+                          on_click=lambda: print("Button clicked!")))
         self.add(ui)
 
         self.camera.set_target(player, smooth=True, smooth_speed=10, offset=(0, -100))

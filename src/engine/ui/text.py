@@ -1,5 +1,8 @@
 import pygame as pg
+
 from .component import UIComponent
+from ..core.constants import DEFAULT_FONT
+
 
 class Text(UIComponent):
     _text: str
@@ -12,7 +15,7 @@ class Text(UIComponent):
         x: int = 0, y: int = 0, 
         *,
         color: pg.Color = pg.Color(255, 255, 255), 
-        font_size: int = 24,
+        font_size: int = 48,
     ) -> None:
         """Initialize a Text UI component.
 
@@ -27,7 +30,7 @@ class Text(UIComponent):
         super().__init__(x, y, 0, 0)
         self._text = text
         self.color = color
-        self.font = pg.font.Font(None, font_size)
+        self.font = pg.font.Font(DEFAULT_FONT, font_size)
         self._update_size()
 
     @property
@@ -40,12 +43,12 @@ class Text(UIComponent):
         self._update_size()
         
     def _update_size(self) -> None:
-        text_surface = self.font.render(self._text, True, self.color)
+        text_surface = self.font.render(self._text, False, self.color)
         self.width, self.height = text_surface.get_size()
         
     def draw(self, surface: pg.Surface) -> None:
         if not self.active:
             return
 
-        text_surface = self.font.render(self._text, True, self.color)
+        text_surface = self.font.render(self._text, False, self.color)
         surface.blit(text_surface, self.position)

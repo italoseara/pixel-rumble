@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pygame as pg
+from typing import override
 from pygame.math import Vector2
 
 from ..constants import DEBUG_MODE
@@ -37,6 +38,7 @@ class BoxCollider(Component):
         self.height = height
         self.offset = offset
 
+    @override
     def start(self) -> None:
         """Initialize the BoxCollider.
 
@@ -74,6 +76,7 @@ class BoxCollider(Component):
             self.offset = Vector2(self.offset)
 
 
+    @override
     def draw(self, surface) -> None:
         """Draw the collider's rectangle on the surface for debugging purposes."""
         

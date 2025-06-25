@@ -1,6 +1,6 @@
 import pygame as pg
 from pygame.math import Vector2
-from typing import TypeVar
+from typing import TypeVar, override
 
 from .component import Component
 from ...ui.component import UIComponent
@@ -26,11 +26,13 @@ class Canvas(Component):
         component.start()
         return component
 
+    @override
     def update(self, dt: float) -> None:
         for component in self._components:
             if component.active:
                 component.update(dt)
 
+    @override
     def handle_event(self, event: pg.event.Event) -> None:
         if event.type == pg.MOUSEBUTTONDOWN:
             mouse_pos = Vector2(pg.mouse.get_pos())
@@ -47,6 +49,7 @@ class Canvas(Component):
             if component.active:
                 component.handle_key_event(event)
 
+    @override
     def draw(self, surface: pg.Surface) -> None:
         for component in self._components:
             component.draw(surface)

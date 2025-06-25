@@ -110,7 +110,7 @@ class MainScene(Scene):
 
 
 def main() -> None:
-    game = Game(title="Pixel Rumble", icon="assets/img/logo.png")
+    game = Game(title="Pixel Rumble - Demo", icon="assets/img/logo.png")
     game.push_scene(MainScene())
     game.run()
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import pygame as pg
+from typing import override
 from pygame.math import Vector2
 
 from .component import Component
@@ -154,6 +155,7 @@ class SpriteRenderer(Component):
             self.image = self.sprite_sheet.copy()
             self.image.fill(self.color, special_flags=pg.BLEND_RGBA_MULT)
 
+    @override
     def start(self) -> None:
         """Initialize the SpriteRenderer component.
 
@@ -173,6 +175,7 @@ class SpriteRenderer(Component):
         except pg.error as e:
             raise RuntimeError(f"Failed to load image at {self._path}: {e}")
 
+    @override
     def update(self, dt: float) -> None:
         """Update the animation frame based on delta time (dt in seconds)."""
 
@@ -220,6 +223,7 @@ class SpriteRenderer(Component):
 
         return rotated_image, position
 
+    @override
     def draw(self, surface: pg.Surface) -> None:
         """Draw the sprite on the given surface.
 

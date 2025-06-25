@@ -1,5 +1,6 @@
 import pygame as pg
 from pygame.math import Vector2
+from typing import override
 
 from .component import Component
 from ..constants import DEBUG_MODE
@@ -77,6 +78,7 @@ class Transform(Component):
         """Set the y position."""
         self.position.y = value
 
+    @override
     def draw(self, surface) -> None:
         """Draw the transform's position as a debug point."""
         

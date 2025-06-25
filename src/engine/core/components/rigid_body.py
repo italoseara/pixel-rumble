@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pygame as pg
+from typing import override
 from pygame.math import Vector2
 
 from .component import Component
@@ -50,6 +51,7 @@ class RigidBody(Component):
 
         self.is_grounded = False
 
+    @override
     def start(self) -> None:
         """Initialize the RigidBody component.
 
@@ -70,6 +72,7 @@ class RigidBody(Component):
         if not self._collider:
             raise RuntimeError("RigidBody requires a BoxCollider component on the owner.")
 
+    @override
     def update(self, dt: float) -> None:
         """Update the RigidBody component.
 
@@ -118,6 +121,7 @@ class RigidBody(Component):
                     self._transform.y = collider.get_rect().bottom - self._collider.offset.y
                 self.velocity.y = 0
 
+    @override
     def draw(self, surface) -> None:
         """Draw the RigidBody component for debugging purposes.
 

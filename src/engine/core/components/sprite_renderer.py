@@ -7,7 +7,8 @@ from pygame.math import Vector2
 
 from .component import Component
 from .transform import Transform
-from ..constants import PIVOT_POINTS, DEBUG_MODE
+from ...constants import PIVOT_POINTS, DEBUG_MODE
+from ...spritesheet import SpriteSheet
 
 
 class SpriteRenderer(Component):
@@ -17,11 +18,11 @@ class SpriteRenderer(Component):
     flip_y: bool
     pivot: Vector2
 
-    sprite_sheet: pg.Surface | None
+    sprite_sheet: SpriteSheet | None
     sprite_size: tuple[int, int] | None
-    sprite_index: tuple[int, int] | None
+    sprite_index: tuple[int | str, int | str] | None
 
-    animation_frames: list[tuple[int, int]] | None
+    animation_frames: list[tuple[int | str, int | str]] | None
     animation_duration: float | None
     loop: bool
 
@@ -37,8 +38,8 @@ class SpriteRenderer(Component):
         flip_y: bool = False,
         pivot: Vector2 | tuple[float, float] | str = (0.5, 0.5),
         sprite_size: tuple[int, int] | None = None,
-        sprite_index: tuple[int, int] | None = None,
-        animation_frames: list[tuple[int, int]] | None = None,
+        sprite_index: tuple[int | str, int | str] | None = None,
+        animation_frames: list[tuple[int | str, int | str]] | None = None,
         animation_duration: float | None = None,
         loop: bool = True
     ) -> None:
@@ -133,14 +134,11 @@ class SpriteRenderer(Component):
         else:
             raise TypeError("Pivot must be a Vector2, tuple of two floats, or a valid pivot string.")
 
-    def _extract_sprite(self, index_x: int, index_y: int) -> pg.Surface:
-        """Extract a sprite from the sprite sheet at the given indices."""
-
-        sprite_w, sprite_h = self.sprite_size
-        rect = pg.Rect(index_x * sprite_w, index_y * sprite_h, sprite_w, sprite_h)
-        sprite = self.sprite_sheet.subsurface(rect).copy()
-        sprite.fill(self.color, special_flags=pg.BLEND_RGBA_MULT)
-        return sprite
+    def _extract_sprite(self, index_x: int | str, index_y: int | str) -> pg.Surface:
+        """Extract a sprite using SpriteSheet.get_sprite."""
+        if not self.sprite_sheet or not self.sprite_size:
+            raise RuntimeError("SpriteSheet or sprite_size not set.")
+        return self.sprite_sheet.get_sprite((index_x, index_y))
 
     def _set_initial_image(self) -> None:
         """Set the initial image based on sprite/animation settings."""
@@ -151,8 +149,8 @@ class SpriteRenderer(Component):
         elif self.sprite_size and self.sprite_index:
             index_x, index_y = self.sprite_index
             self.image = self._extract_sprite(index_x, index_y)
-        else:
-            self.image = self.sprite_sheet.copy()
+        elif self.sprite_sheet:
+            self.image = self.sprite_sheet._spritesheet.copy()
             self.image.fill(self.color, special_flags=pg.BLEND_RGBA_MULT)
 
     @override
@@ -170,7 +168,14 @@ class SpriteRenderer(Component):
 
         try:
             print(f"Loading image from {self._path}")
-            self.sprite_sheet = pg.image.load(self._path).convert_alpha()
+            if self.sprite_size:
+                self.sprite_sheet = SpriteSheet(self._path, self.sprite_size)
+            else:
+                # fallback: treat as a single image
+                self.sprite_sheet = None
+                self.image = pg.image.load(self._path).convert_alpha()
+                self.image.fill(self.color, special_flags=pg.BLEND_RGBA_MULT)
+                return
             self._set_initial_image()
         except pg.error as e:
             raise RuntimeError(f"Failed to load image at {self._path}: {e}")

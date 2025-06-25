@@ -7,7 +7,7 @@ from pygame.math import Vector2
 from .component import Component
 from .transform import Transform
 from .box_collider import BoxCollider
-from ..constants import DEBUG_MODE
+from ...constants import DEBUG_MODE
 
 
 class RigidBody(Component):

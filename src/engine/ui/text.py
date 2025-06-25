@@ -2,7 +2,7 @@ import pygame as pg
 from typing import override
 
 from .component import UIComponent
-from ..core.constants import DEFAULT_FONT
+from ..constants import DEFAULT_FONT
 
 
 class Text(UIComponent):

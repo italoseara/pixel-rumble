@@ -2,7 +2,7 @@ import pygame as pg
 from pygame.math import Vector2
 from typing import TYPE_CHECKING
 
-from ..core.constants import DEBUG_MODE
+from ..constants import DEBUG_MODE
 from ..core.components.component import Component
 if TYPE_CHECKING:
     from ..core.components.canvas import Canvas

@@ -3,7 +3,7 @@ from pygame.math import Vector2
 from typing import override
 
 from .component import Component
-from ..constants import DEBUG_MODE
+from ...constants import DEBUG_MODE
 
 
 class Transform(Component):

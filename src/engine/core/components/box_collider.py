@@ -4,7 +4,7 @@ import pygame as pg
 from typing import override
 from pygame.math import Vector2
 
-from ..constants import DEBUG_MODE
+from ...constants import DEBUG_MODE
 from .component import Component
 from .transform import Transform
 from .sprite_renderer import SpriteRenderer

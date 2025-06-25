@@ -3,8 +3,8 @@ from pygame.math import Vector2
 from typing import Literal, Callable, override
 
 from .component import UIComponent
-from ..core.constants import DEFAULT_FONT
-
+from ..constants import DEFAULT_FONT
+from ..spritesheet import SpriteSheet
 
 class Button(UIComponent):
     text: pg.Surface
@@ -43,31 +43,15 @@ class Button(UIComponent):
 
         self._is_clicked = False
 
-        self._load_sprites(size)
+        spritesheet = SpriteSheet("assets/img/ui/buttons.png", (16, 16), scale=3)
+        columns = { "sm": 5, "md": "3:4", "lg": "0:2" }
 
-    def _load_sprites(self, size: Literal["sm", "md", "lg"], scale: int = 3) -> None:
-        """Load the spritesheet and the sprite variantes based on the size.
-
-        Args:
-            size (Literal["sm", "md", "lg"]): The size of the button
-            scale (int, optional): The scale factor for the button. Defaults to 3.
-        """
-
-        # Load the spritesheet
-        self._spritesheet = pg.image.load(f"assets/img/ui/button-{size}.png").convert_alpha()
-        w, h = self._spritesheet.get_size()
-        
-        self._spritesheet = pg.transform.scale(self._spritesheet, (w * scale, h * scale))
-
-        # Set the width and height of the button based on the spritesheet size
-        self.width = self._spritesheet.get_width()
-        self.height = self._spritesheet.get_height() // 2
-
-        # Load the two sprite variants, the one on the top is the default one, the one on the bottom is the clicked one
         self._sprites = {
-            "default": self._spritesheet.subsurface((0, 0, self.width, self.height)),
-            "clicked": self._spritesheet.subsurface((0, self.height, self.width, self.height))
+            "default": spritesheet.get_sprite((columns[size], 0)),
+            "clicked": spritesheet.get_sprite((columns[size], 1))
         }
+
+        self.width, self.height = self._sprites["default"].get_size()
 
     @override
     def on_mouse_click(self, mouse_pos: Vector2) -> None:

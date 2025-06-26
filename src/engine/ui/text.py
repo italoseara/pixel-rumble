@@ -1,4 +1,5 @@
 import pygame as pg
+from pygame.math import Vector2
 from typing import override
 
 from .component import UIComponent
@@ -15,7 +16,8 @@ class Text(UIComponent):
     def __init__(
         self, 
         text: str = "", 
-        x: int = 0, y: int = 0, 
+        x: int = 0, y: int = 0,
+        pivot: Vector2 | tuple[float, float] | str = (0.0, 0.0),
         *,
         color: pg.Color = pg.Color(255, 255, 255),
         shadow: bool = True,
@@ -34,7 +36,11 @@ class Text(UIComponent):
             font_size (int, optional): The size of the font. Defaults to 24.
         """
         
-        super().__init__(x, y, 0, 0)
+        super().__init__(
+            x=x, y=y, pivot=pivot,
+            width=0, height=0  # Width and height will be set based on the text size
+        )
+        
         self._text = text
         self.color = color
         self.shadow = shadow
@@ -62,7 +68,9 @@ class Text(UIComponent):
 
         if self.shadow:
             shadow = self._font.render(self._text, False, self.shadow_color)
-            surface.blit(shadow, (self.position[0], self.position[1] + 3))
+            surface.blit(shadow, (self.position.x, self.position.y + 3))
 
         text = self._font.render(self._text, False, self.color)
         surface.blit(text, self.position)
+
+        super().draw(surface)

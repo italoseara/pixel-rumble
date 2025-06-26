@@ -3,13 +3,14 @@ from pygame.math import Vector2
 from typing import Literal, Callable, override
 
 from .component import UIComponent
-from ..constants import DEFAULT_FONT
 from ..spritesheet import SpriteSheet
+from ..constants import DEFAULT_FONT, PIVOT_POINTS
 
 class Button(UIComponent):
     text: pg.Surface
     disabled: bool
     on_click: Callable | None
+    pivot: Vector2
 
     _spritesheet: pg.Surface
     _sprites: dict[str, pg.Surface]
@@ -18,23 +19,28 @@ class Button(UIComponent):
     def __init__(
         self,
         text: str = "Button",
-        x: int = 0, y: int = 0,
+        x: int | str = 0, y: int | str = 0,
         size: Literal["sm", "md", "lg"] = "md",
         disabled: bool = False,
-        on_click: Callable | None = None
+        on_click: Callable | None = None,
+        pivot: Vector2 | tuple[float, float] | str = (0.5, 0.5)
     ) -> None:
         """Initialize a Button UI component.
 
         Args:
             text (str, optional): The text to display on the button. Defaults to "Button
-            x (int, optional): The x position of the button. Defaults to 0.
-            y (int, optional): The y position of the button. Defaults to 0.
+            x (int | str, optional): The x position of the button. Can be a percentage of the screen width. Defaults to 0.
+            y (int | str, optional): The y position of the button. Can be a percentage of the screen height. Defaults to 0.
             size (Literal["sm", "md", "lg"], optional): The size of the button. Defaults to "md".
             disabled (bool, optional): Whether the button is disabled. Defaults to False.
             on_click (Callable | None, optional): The function to call when the button is clicked. Defaults to None.
+            pivot (Vector2 | tuple[float, float] | str, optional): The pivot point of the button. Defaults to (0.5, 0.5).
         """
-        
-        super().__init__(x, y, 0, 0)
+
+        super().__init__(
+            x=x, y=y, pivot=pivot,
+            width=0, height=0  # Width and height will be set based on the sprite size
+        )
 
         self._font = pg.font.Font(DEFAULT_FONT, 48)
         self.text = text
@@ -91,3 +97,5 @@ class Button(UIComponent):
         # Render the text
         text = self._font.render(self.text, False, (255, 255, 255))
         surface.blit(text, text.get_rect(center=(center_x, center_y)))
+
+        super().draw(surface)

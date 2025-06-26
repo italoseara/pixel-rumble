@@ -97,7 +97,13 @@ class MainScene(Scene):
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
         canvas.add(Text("Press A/D to move, Space/W to jump", x=10, y=10))
-        canvas.add(Button("Click Me", x=10, y=50, size="lg", on_click=lambda: print("Button clicked!")))
+        canvas.add(Button(
+            "Click Me",
+            x="50%", y="-10%",
+            pivot="center",
+            size="lg",
+            on_click=lambda: print("Button clicked!"))
+        )
         self.add(ui)
 
         self.camera.set_target(player, smooth=True, smooth_speed=10, offset=(0, -100))

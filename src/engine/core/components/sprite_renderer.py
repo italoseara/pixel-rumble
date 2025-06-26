@@ -12,7 +12,6 @@ from ...spritesheet import SpriteSheet
 
 
 class SpriteRenderer(Component):
-    image: pg.Surface | None
     color: pg.Color
     flip_x: bool
     flip_y: bool
@@ -75,7 +74,6 @@ class SpriteRenderer(Component):
         self._path = path
 
         # Sprite and animation state
-        self.image = None
         self.sprite_sheet = None
         self.sprite_size = sprite_size
         self.sprite_index = sprite_index
@@ -95,20 +93,22 @@ class SpriteRenderer(Component):
 
     @property
     def width(self) -> int:
-        """Get the width of the sprite."""
+        """Get the width of the current sprite."""
 
-        if self.image:
+        sprite = self._get_current_sprite()
+        if sprite:
             transform = self.parent.get_component(Transform)
-            return int(self.image.get_width() * transform.scale.x)
+            return int(sprite.get_width() * transform.scale.x)
         return 0
 
     @property
     def height(self) -> int:
-        """Get the height of the sprite."""
-        
-        if self.image:
+        """Get the height of the current sprite."""
+
+        sprite = self._get_current_sprite()
+        if sprite:
             transform = self.parent.get_component(Transform)
-            return int(self.image.get_height() * transform.scale.y)
+            return int(sprite.get_height() * transform.scale.y)
         return 0
 
     @property
@@ -117,6 +117,23 @@ class SpriteRenderer(Component):
         
         return Vector2(self.width * -(self.pivot.x - 0.5), 
                        self.height * -(self.pivot.y - 0.5))
+
+    def _get_current_sprite(self) -> pg.Surface | None:
+        if not self.sprite_sheet:
+            return None
+
+        if self.animation_frames and self.sprite_size:
+            index_x, index_y = self.animation_frames[self._current_frame]
+            return self._extract_sprite(index_x, index_y)
+        elif self.sprite_index and self.sprite_size:
+            index_x, index_y = self.sprite_index
+            return self._extract_sprite(index_x, index_y)
+        elif self.sprite_size:
+            # fallback: first sprite
+            return self._extract_sprite(0, 0)
+        else:
+            # fallback: full image
+            return self.sprite_sheet._spritesheet.copy()
 
     def _validate_pivot(self, pivot) -> Vector2:
         """Validate and assign the pivot value."""
@@ -136,22 +153,11 @@ class SpriteRenderer(Component):
 
     def _extract_sprite(self, index_x: int | str, index_y: int | str) -> pg.Surface:
         """Extract a sprite using SpriteSheet.get_sprite."""
+        
         if not self.sprite_sheet or not self.sprite_size:
             raise RuntimeError("SpriteSheet or sprite_size not set.")
+
         return self.sprite_sheet.get_sprite((index_x, index_y))
-
-    def _set_initial_image(self) -> None:
-        """Set the initial image based on sprite/animation settings."""
-
-        if self.sprite_size and self.animation_frames:
-            index_x, index_y = self.animation_frames[0]
-            self.image = self._extract_sprite(index_x, index_y)
-        elif self.sprite_size and self.sprite_index:
-            index_x, index_y = self.sprite_index
-            self.image = self._extract_sprite(index_x, index_y)
-        elif self.sprite_sheet:
-            self.image = self.sprite_sheet._spritesheet.copy()
-            self.image.fill(self.color, special_flags=pg.BLEND_RGBA_MULT)
 
     @override
     def start(self) -> None:
@@ -167,16 +173,11 @@ class SpriteRenderer(Component):
             raise RuntimeError("SpriteRenderer requires a Transform component on the owner.")
 
         try:
-            print(f"Loading image from {self._path}")
             if self.sprite_size:
                 self.sprite_sheet = SpriteSheet(self._path, self.sprite_size)
             else:
-                # fallback: treat as a single image
-                self.sprite_sheet = None
-                self.image = pg.image.load(self._path).convert_alpha()
-                self.image.fill(self.color, special_flags=pg.BLEND_RGBA_MULT)
-                return
-            self._set_initial_image()
+                print(f"Loading image from {self._path}")
+                self.sprite_sheet = SpriteSheet(self._path)
         except pg.error as e:
             raise RuntimeError(f"Failed to load image at {self._path}: {e}")
 
@@ -195,9 +196,6 @@ class SpriteRenderer(Component):
                         self._current_frame = 0
                     else:
                         self._current_frame = len(self.animation_frames) - 1
-            # Update the image to the current frame
-            index_x, index_y = self.animation_frames[self._current_frame]
-            self.image = self._extract_sprite(index_x, index_y)
 
     def _get_transformed_image(self, image: pg.Surface, transform: Transform) -> tuple[pg.Surface, pg.Rect, Vector2]:
         """Get the transformed image and its position based on the transform.
@@ -236,24 +234,35 @@ class SpriteRenderer(Component):
             surface (pg.Surface): The surface to draw the sprite on.
         """
 
-        if self.image is None:
-            raise RuntimeError("SpriteRenderer image not loaded.")
-
+        sprite = self._get_current_sprite()
+        if sprite is None:
+            raise RuntimeError("SpriteRenderer sprite not loaded.")
+        
         transform = self.parent.get_component(Transform)
-        rotated_image, pos = self._get_transformed_image(self.image, transform)
-        surface.blit(rotated_image, pos)
-
+        
+        image = pg.transform.flip(sprite, self.flip_x, self.flip_y)
+        image = pg.transform.scale(image, (self.width, self.height))
+        
+        rotated_image = pg.transform.rotate(image, -transform.rotation)
+        rotated_offset = self.offset.rotate(transform.rotation)
+        
+        width, height = rotated_image.get_size()
+        center = Vector2(width / 2, height / 2)
+        position = transform.screen_position + rotated_offset - center
+        
+        surface.blit(rotated_image, position)
+        
         if DEBUG_MODE:
             debug_pos = transform.screen_position + Vector2(0, 30)
-
             font = pg.font.Font(None, 16)
+            
             path_text = font.render(f"path: {self._path}", True, (0, 255, 0))
             flip_text = font.render(f"flip X: {self.flip_x}, flip Y: {self.flip_y}", True, (0, 255, 0))
             animation_text = font.render(
                 f"frame: {self._current_frame + 1}/{len(self.animation_frames) if self.animation_frames else 1}",
                 True, (0, 255, 0)
             )
-
+            
             surface.blit(path_text, debug_pos)
             surface.blit(flip_text, debug_pos + Vector2(0, 10))
             surface.blit(animation_text, debug_pos + Vector2(0, 20))

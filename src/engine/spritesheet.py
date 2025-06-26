@@ -9,7 +9,13 @@ class SpriteSheet:
     spacing: tuple[int, int]
     scale: int
     
-    def __init__(self, filename: str, size: tuple[int, int], spacing: tuple[int, int] = (0, 0), scale: int = 1) -> None:
+    def __init__(
+        self, 
+        filename: str, 
+        size: tuple[int, int] | None = None, 
+        spacing: tuple[int, int] = (0, 0), 
+        scale: int = 1
+    ) -> None:
         """Initialize a SpriteSheet.
 
         Args:
@@ -19,8 +25,10 @@ class SpriteSheet:
             scale (int, optional): The scale factor for the sprites. Defaults to 1.
         """
 
+        print("Loading spritesheet:", filename)
+
         self._spritesheet = pg.image.load(filename).convert_alpha()
-        self.size = size
+        self.size = size if size else (self._spritesheet.get_width(), self._spritesheet.get_height())
         self.spacing = spacing
         self.scale = scale
 

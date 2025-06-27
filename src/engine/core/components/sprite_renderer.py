@@ -36,7 +36,7 @@ class SpriteRenderer(Component):
         flip_x: bool = False,
         flip_y: bool = False,
         pivot: Vector2 | tuple[float, float] | str = (0.5, 0.5),
-        sprite_size: tuple[int, int] | None = None,
+        grid_size: tuple[int, int] | None = None,
         sprite_index: tuple[int | str, int | str] | None = None,
         animation_frames: list[tuple[int | str, int | str]] | None = None,
         animation_duration: float | None = None,
@@ -75,7 +75,7 @@ class SpriteRenderer(Component):
 
         # Sprite and animation state
         self.sprite_sheet = None
-        self.sprite_size = sprite_size
+        self.sprite_size = grid_size
         self.sprite_index = sprite_index
         self.animation_frames = animation_frames
         self.animation_duration = animation_duration

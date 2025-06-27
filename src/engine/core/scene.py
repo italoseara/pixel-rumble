@@ -18,7 +18,7 @@ class Scene:
         
         self.camera = Camera()
         self.transparent = False
-        self.background_color = pg.Color(0, 0, 0, 0)
+        self.background_color = None
 
         self._game = None
         self._game_objects = []
@@ -84,7 +84,14 @@ class Scene:
             surface (pg.Surface): The surface to draw on.
         """
 
-        surface.fill(self.background_color)
+        if self.background_color is not None:
+            if self.background_color.a < 255 and self.transparent:
+                s = pg.Surface(surface.get_size(), pg.SRCALPHA)
+                s.fill(self.background_color)
+                surface.blit(s, (0, 0))
+            else:
+                surface.fill(self.background_color)
+                
 
         for game_object in self._game_objects:
             game_object.draw(surface)

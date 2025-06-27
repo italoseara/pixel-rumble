@@ -1,5 +1,6 @@
 import pygame as pg
 from pygame.math import Vector2
+from typing import override
 
 from engine import *
 from engine.ui import Text, Button
@@ -14,10 +15,8 @@ class PlayerController(Component):
         self.move_speed = move_speed  # Adjust move speed as needed
         self.boost = True
         self.last_boost_time = 0
-    
-    def start(self) -> None:
-        self.flip_x = False
-    
+
+    @override
     def update(self, dt: float) -> None:
         keys = pg.key.get_pressed()
         transform = self.parent.get_component(Transform)
@@ -52,14 +51,15 @@ class PlayerController(Component):
 
 
 class MainScene(Scene):
+    @override
     def start(self) -> None:
         player = GameObject("Player")
         player.add_component(Transform(x=0, y=20, scale=5))
         player.add_component(SpriteRenderer(
             "assets/img/players.png", 
             pivot="midbottom",
-            sprite_size=(8, 8),
-            sprite_index=(2, 1),
+            grid_size=(8, 8),
+            sprite_index=(0, 0)
         ))
         player.add_component(BoxCollider(width=30))
         player.add_component(RigidBody(drag=0.07, gravity=15))
@@ -86,7 +86,7 @@ class MainScene(Scene):
         button.add_component(SpriteRenderer(
             "assets/img/keyboard/W.png",
             pivot="midbottom",
-            sprite_size=(17, 16),
+            grid_size=(17, 16),
             animation_frames=[(0, 0), (1, 0)],
             animation_duration=1,
             loop=True,
@@ -102,17 +102,25 @@ class MainScene(Scene):
             x="50%", y="-10%",
             pivot="center",
             size="lg",
-            on_click=lambda: print("Button clicked!"))
-        )
+            on_click=lambda: print("Button clicked!")
+        ))
         self.add(ui)
 
         self.camera.set_target(player, smooth=True, smooth_speed=10, offset=(0, -100))
         self.background_color = pg.Color(60, 60, 60)  # Sky blue background
 
 
+class Scene2(Scene):
+    @override
+    def start(self) -> None:
+        self.transparent = True
+        self.background_color = pg.Color(0, 0, 0, 50)
+
+
 def main() -> None:
     game = Game(title="Pixel Rumble - Demo", icon="assets/img/logo.png")
     game.push_scene(MainScene())
+    # game.push_scene(Scene2())
     game.run()
 
 

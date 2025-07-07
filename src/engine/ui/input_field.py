@@ -115,10 +115,6 @@ class InputField(UIComponent):
             # verify if the input is an integer
             return bool(re.match(r"^-?\d+$", key))
 
-
-
-
-
     @override
     def handle_key_event(self, event: pg.event.Event) -> None:
         """Handle key events for the input field.

@@ -109,8 +109,8 @@ class InputField(UIComponent):
         """
 
         if self.allowed_type == "str":
-            # verify if the input is a word or a digit
-            return bool(re.match(r"^[a-zA-Z0-9_]+$", key))
+            # verify if the input is a word, digit or a special character
+            return bool(re.match(r"^[\w\s!@#$%^&*()_+={}\[\]:;\"'<>?,./\\-]*$", key))
         elif self.allowed_type == "int":
             # verify if the input is an integer
             return bool(re.match(r"^-?\d+$", key))

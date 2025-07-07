@@ -6,6 +6,8 @@ from .component import UIComponent
 from ..spritesheet import SpriteSheet
 from ..constants import DEFAULT_FONT, PIVOT_POINTS
 
+import re as re
+
 class InputField(UIComponent):
     text: str
     placeholder: str
@@ -13,7 +15,7 @@ class InputField(UIComponent):
     on_submit: Callable | None
     pivot: Vector2
     max_char: int
-    allowed_type: tuple[type, ...]
+    allowed_type: str
 
     _spritesheet: SpriteSheet
     _sprites: dict[str, pg.Surface]
@@ -25,7 +27,7 @@ class InputField(UIComponent):
         x: int | str = 0, y: int | str = 0,
         size: Literal["df"] = "df",
         max_char: int = 20,
-        allowed_type: [ str, float, int ] = str,
+        allowed_type: str = "str",
         on_submit: Callable | None = None,
         pivot: Vector2 | tuple[float, float] | str = (0.5, 0.5)
     ) -> None:
@@ -96,6 +98,27 @@ class InputField(UIComponent):
         else:
             self._is_focused = False
 
+    def verify_input_type(self, key : pg.event) -> bool:
+        """Verify if the input is of the allowed type.
+
+        Args:
+            input (int | str | float): The input to verify.
+
+        Returns:
+            bool: True if the input is of the allowed type, False otherwise.
+        """
+
+        if self.allowed_type == "str":
+            # verify if the input is a word or a digit
+            return bool(re.match(r"^[a-zA-Z0-9_]+$", key))
+        elif self.allowed_type == "int":
+            # verify if the input is an integer
+            return bool(re.match(r"^-?\d+$", key))
+
+
+
+
+
     @override
     def handle_key_event(self, event: pg.event.Event) -> None:
         """Handle key events for the input field.
@@ -120,21 +143,8 @@ class InputField(UIComponent):
                 self._is_focused = False
             elif event.unicode and len(self.text) < self.max_char:  # Limit input length to 20 characters
                 # Add the character to the text if it's not empty
-                self.text += event.unicode
-
-    def verify_input_type(self, input : int | str | float) -> bool:
-        """Verify if the input is of the allowed type.
-
-        Args:
-            input (int | str | float): The input to verify.
-
-        Returns:
-            bool: True if the input is of the allowed type, False otherwise.
-        """
-        if isinstance(input, self.allowed_type):
-            return True
-        return False
-
+                if self.verify_input_type(event.unicode):
+                    self.text += event.unicode
 
     @override
     def draw(self, surface: pg.Surface) -> None:

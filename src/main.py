@@ -109,7 +109,7 @@ class MainScene(Scene):
             x="50%", y="20%",
             size="df",
             max_char = 30,
-            allowed_type=int,
+            allowed_type= "str",
             on_submit=lambda text: print(f"Submitted: {text}")
         ))
         self.add(ui)

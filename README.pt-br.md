@@ -11,10 +11,10 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
 
 1. [Formato do Pacote](#formato-do-pacote)
 2. [Status](#status)
-   1. [Cliente](#cliente)
-      1. [Ping](#ping)
-   2. [Servidor](#servidor)
-      1. [Pong](#pong)
+   - [Cliente](#cliente)
+      - [Ping](#ping)
+   - [Servidor](#servidor)
+      - [Pong](#pong)
 
 ## Formato do Pacote
 

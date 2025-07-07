@@ -11,10 +11,10 @@ The game uses a custom protocol for network communication, which is defined in t
 
 1. [Packet Format](#packet-format)
 2. [Status](#status)
-   1. [Client](#client)
-      1. [Ping](#ping)
-   2. [Server](#server)
-      1. [Pong](#pong)
+   - [Client](#client)
+     - [Ping](#ping)
+   - [Server](#server)
+     - [Pong](#pong)
 
 ## Packet Format
 

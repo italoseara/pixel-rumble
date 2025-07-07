@@ -104,11 +104,7 @@ class MainScene(Scene):
             size="lg",
             on_click=lambda: print("Button clicked!")
         ))
-        self.add(ui)
-
-        self.camera.set_target(player, smooth=True, smooth_speed=10, offset=(0, -100))
-        self.background_color = pg.Color(60, 60, 60)  # Sky blue background
-
+        
         canvas.add(InputField(
             x="50%", y="20%",
             size="df",
@@ -116,6 +112,11 @@ class MainScene(Scene):
             allowed_type=int,
             on_submit=lambda text: print(f"Submitted: {text}")
         ))
+        self.add(ui)
+
+        self.camera.set_target(player, smooth=True, smooth_speed=10, offset=(0, -100))
+        self.background_color = pg.Color(60, 60, 60)  # Sky blue background
+
 
 
 class Scene2(Scene):

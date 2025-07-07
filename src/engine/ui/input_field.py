@@ -159,7 +159,7 @@ class InputField(UIComponent):
                 rendered = self._font.render(text, True, color)
                 if rendered.get_width() <= max_width:
                     break
-                # remove from the star or the end based on focus
+                # remove from the start or the end based on focus
                 text = text[1:] if self._is_focused else text[:-1]
             text_surface = self._font.render(text, True, color)
 

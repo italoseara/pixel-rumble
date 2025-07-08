@@ -42,6 +42,15 @@ class Scene:
         """Called once when the scene is pushed."""
         pass
 
+    def draw(self, surface: pg.Surface) -> None:
+        """Draw the scene on the given surface.
+
+        Args:
+            surface (pg.Surface): The surface to draw on.
+        """
+        
+        pass
+
     def pause(self) -> None:
         """Called when another scene is pushed over this one."""
         pass
@@ -95,3 +104,5 @@ class Scene:
 
         for game_object in self._game_objects:
             game_object.draw(surface)
+
+        self.draw(surface)

@@ -157,7 +157,7 @@ class InputField(UIComponent):
         text_surface = self._font.render(display_text, True, color)
 
         # width limit for the text
-        max_width = self.width - 8  # optinal margin
+        max_width = self.width - 8  # optional margin
 
         if text_surface.get_width() > max_width:
             # ajust the text to fit within the max width

@@ -1,3 +1,4 @@
+import re
 import pygame as pg
 from pygame.math import Vector2
 from typing import Literal, Callable, override
@@ -6,8 +7,6 @@ from .component import UIComponent
 from ..spritesheet import SpriteSheet
 from ..constants import DEFAULT_FONT, PIVOT_POINTS
 
-import re as re
-
 class InputField(UIComponent):
     text: str
     placeholder: str
@@ -15,7 +14,7 @@ class InputField(UIComponent):
     on_submit: Callable | None
     pivot: Vector2
     max_char: int
-    allowed_type: str
+    allowed_type: Literal["str", "int"]
 
     _spritesheet: SpriteSheet
     _sprites: dict[str, pg.Surface]
@@ -27,7 +26,7 @@ class InputField(UIComponent):
         x: int | str = 0, y: int | str = 0,
         size: Literal["df"] = "df",
         max_char: int = 20,
-        allowed_type: str = "str",
+        allowed_type: Literal["str", "int"] = "str",
         on_submit: Callable | None = None,
         pivot: Vector2 | tuple[float, float] | str = (0.5, 0.5)
     ) -> None:
@@ -38,7 +37,8 @@ class InputField(UIComponent):
             x (int | str, optional): The x position of the input field. Can be a percentage of the screen width. Defaults to 0.
             y (int | str, optional): The y position of the input field. Can be a percentage of the screen height. Defaults to 0.
             size (Literal["sm", "md", "lg"], optional): The size of the input field. Defaults to "md".
-            disabled (bool, optional): Whether the input field is disabled. Defaults to False.
+            max_char (int, optional): The max amount of characters you can type. Defaults to 20.
+            allowed_type (Literal["str", "int"], optional): The allowed type of the text input. Defaults to "str".
             on_submit (Callable | None, optional): The function to call when the input is submitted. Defaults to None.
             pivot (Vector2 | tuple[float, float] | str, optional): The pivot point of the input field. Defaults to (0.5, 0.5).
         """
@@ -114,6 +114,7 @@ class InputField(UIComponent):
         elif self.allowed_type == "int":
             # verify if the input is an integer
             return bool(re.match(r"^-?\d+$", key))
+        return False
 
     @override
     def handle_key_event(self, event: pg.event.Event) -> None:

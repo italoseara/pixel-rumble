@@ -1,4 +1,4 @@
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 PIVOT_POINTS = {
     "topleft": (0, 0),
@@ -16,4 +16,4 @@ PIVOT_POINTS = {
     "midright": (1, 0.5),
 }
 
-DEFAULT_FONT = "assets/font/MinimalPixelFont.ttf"
+DEFAULT_FONT = "assets/font/edit-undo.brk.ttf"

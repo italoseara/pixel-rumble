@@ -94,7 +94,7 @@ class Button(UIComponent):
         center_y = self.position.y + self.height // 2 - 5 + (3 if self._is_clicked else 0)
         
         shadow = self._font.render(self.text, False, (38, 43, 68))
-        surface.blit(shadow, shadow.get_rect(center=(center_x, center_y + 3)))
+        surface.blit(shadow, shadow.get_rect(center=(center_x, center_y + 5)))
 
         # Render the text
         color = self.hover_color if self.is_mouse_over(pg.mouse.get_pos()) else self.color

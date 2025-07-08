@@ -14,6 +14,14 @@ class MainMenu(Scene):
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
         canvas.add(Image(
+            "assets/img/texture.png",
+            x=0, y=0,
+            width="100%", height="100%",
+            pivot="topleft",
+            opacity=0.25
+        ))
+        
+        canvas.add(Image(
             "assets/img/logo.png", 
             x="0%", y="25%", 
             pivot="midleft",
@@ -25,23 +33,28 @@ class MainMenu(Scene):
             x="5%", y="65%",
             font_size=60,
             pivot="midleft",
-            on_click=lambda: print("Play button clicked!"),
+            on_click=lambda: print("Join button clicked!"),
         ))
-
         canvas.add(Button(
             "HOST",
             x="5%", y="75%",
             font_size=60,
             pivot="midleft",
-            on_click=lambda: print("Play button clicked!"),
+            on_click=lambda: print("Host button clicked!"),
         ))
-
         canvas.add(Button(
             "CREDITS",
             x="5%", y="85%",
             font_size=60,
             pivot="midleft",
-            on_click=lambda: print("Play button clicked!"),
+            on_click=lambda: print("Credits button clicked!"),
+        ))
+
+        canvas.add(Image(
+            "assets/img/background.png",
+            x=0, y=0,
+            width="100%", height="100%",
+            pivot="topleft",
         ))
         
         canvas.add(Image(

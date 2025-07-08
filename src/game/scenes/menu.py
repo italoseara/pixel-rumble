@@ -2,7 +2,7 @@ import pygame as pg
 from typing import override
 
 from engine import Scene, GameObject, Canvas
-from engine.ui import Image
+from engine.ui import Image, Button
 
 
 class MainMenu(Scene):
@@ -15,10 +15,35 @@ class MainMenu(Scene):
         canvas = ui.add_component(Canvas())
         canvas.add(Image(
             "assets/img/logo.png", 
-            x="50%", y="25%", 
+            x="0%", y="25%", 
+            pivot="midleft",
             width=350, height=350, 
-            pivot="center"
         ))
+
+        canvas.add(Button(
+            "JOIN",
+            x="5%", y="65%",
+            font_size=60,
+            pivot="midleft",
+            on_click=lambda: print("Play button clicked!"),
+        ))
+
+        canvas.add(Button(
+            "HOST",
+            x="5%", y="75%",
+            font_size=60,
+            pivot="midleft",
+            on_click=lambda: print("Play button clicked!"),
+        ))
+
+        canvas.add(Button(
+            "CREDITS",
+            x="5%", y="85%",
+            font_size=60,
+            pivot="midleft",
+            on_click=lambda: print("Play button clicked!"),
+        ))
+        
         canvas.add(Image(
             "assets/img/vignette.png",
             x=0, y=0,

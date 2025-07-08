@@ -19,7 +19,7 @@ class Image(UIComponent):
         y: int | str = 0,
         width: int | str | None = None,
         height: int | str | None = None,
-        pivot: Vector2 | tuple[float, float] | str = (0, 0),
+        pivot: Vector2 | tuple[float, float] | str = (0.5, 0.5),
         opacity: float = 1.0
     ) -> None:
         """Initialize an Image UI component.

@@ -16,4 +16,4 @@ PIVOT_POINTS = {
     "midright": (1, 0.5),
 }
 
-DEFAULT_FONT = "assets/font/MinimalPixelFont.ttf"
+DEFAULT_FONT = "assets/font/edit-undo.brk.ttf"

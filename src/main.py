@@ -3,7 +3,7 @@ from pygame.math import Vector2
 from typing import override
 
 from engine import *
-from engine.ui import Text, Button
+from engine.ui import Text, Button, InputField
 
 
 class PlayerController(Component):
@@ -104,10 +104,19 @@ class MainScene(Scene):
             size="lg",
             on_click=lambda: print("Button clicked!")
         ))
+        
+        canvas.add(InputField(
+            x="50%", y="20%",
+            size="df",
+            max_char = 30,
+            allowed_type= "str",
+            on_submit=lambda text: print(f"Submitted: {text}")
+        ))
         self.add(ui)
 
         self.camera.set_target(player, smooth=True, smooth_speed=10, offset=(0, -100))
         self.background_color = pg.Color(60, 60, 60)  # Sky blue background
+
 
 
 class Scene2(Scene):
@@ -115,7 +124,6 @@ class Scene2(Scene):
     def start(self) -> None:
         self.transparent = True
         self.background_color = pg.Color(0, 0, 0, 50)
-
 
 def main() -> None:
     game = Game(title="Pixel Rumble - Demo", icon="assets/img/logo.png")

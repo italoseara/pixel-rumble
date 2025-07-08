@@ -11,7 +11,7 @@ class Scene:
     background_color: pg.Color
 
     _game: Game
-    _game_objects: list[GameObject]
+    _game_objects: dict[str, GameObject]
     
     def __init__(self) -> None:
         """Initialize the Scene."""
@@ -21,7 +21,19 @@ class Scene:
         self.background_color = None
 
         self._game = None
-        self._game_objects = []
+        self._game_objects = {}
+
+    def find(self, name: str) -> GameObject | None:
+        """Find a GameObject by name in the scene.
+
+        Args:
+            name (str): The name of the GameObject to find.
+        
+        Returns:
+            GameObject | None: The found GameObject or None if not found.
+        """
+        
+        return self._game_objects.get(name, None)
 
     def add(self, game_object: GameObject) -> None:
         """Add a GameObject to the scene.
@@ -35,18 +47,21 @@ class Scene:
         if not isinstance(game_object, GameObject):
             raise TypeError("Expected a GameObject instance")
 
-        self._game_objects.append(game_object)
+        if game_object.name in self._game_objects:
+            raise ValueError(f"GameObject with name '{game_object.name}' already exists in the scene")
+
+        self._game_objects[game_object.name] = game_object
         game_object._scene = self
 
     def start(self) -> None:
         """Called once when the scene is pushed."""
         pass
 
-    def draw(self, surface: pg.Surface) -> None:
-        """Draw the scene on the given surface.
+    def handle_event(self, event: pg.event.Event) -> None:
+        """Handle an event by forwarding it to all game objects.
 
         Args:
-            surface (pg.Surface): The surface to draw on.
+            event (pg.event.Event): The event to handle.
         """
         
         pass
@@ -70,8 +85,10 @@ class Scene:
             event (pg.event.Event): The event to handle.
         """
 
-        for game_object in self._game_objects:
+        for game_object in self._game_objects.values():
             game_object.handle_event(event)
+
+        self.handle_event(event)
 
     def _update(self, dt: float) -> None:
         """Forward the update call to all game objects.
@@ -80,7 +97,7 @@ class Scene:
             dt (float): The time since the last update in seconds.
         """
         
-        for game_object in self._game_objects:
+        for game_object in self._game_objects.values():
             game_object.update(dt)
 
         self.camera.update(dt)
@@ -102,7 +119,5 @@ class Scene:
                 surface.fill(self.background_color)
                 
 
-        for game_object in self._game_objects:
+        for game_object in self._game_objects.values():
             game_object.draw(surface)
-
-        self.draw(surface)

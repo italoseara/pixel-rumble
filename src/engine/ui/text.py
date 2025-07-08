@@ -21,7 +21,7 @@ class Text(UIComponent):
         *,
         color: pg.Color = pg.Color(255, 255, 255),
         shadow: bool = True,
-        shadow_color: pg.Color = pg.Color(0, 0, 0),
+        shadow_color: pg.Color = pg.Color(38, 43, 68),
         font_size: int = 48,
     ) -> None:
         """Initialize a Text UI component.
@@ -68,7 +68,7 @@ class Text(UIComponent):
 
         if self.shadow:
             shadow = self._font.render(self._text, False, self.shadow_color)
-            surface.blit(shadow, (self.position.x, self.position.y + 3))
+            surface.blit(shadow, (self.position.x + 5, self.position.y + 5))
 
         text = self._font.render(self._text, False, self.color)
         surface.blit(text, self.position)

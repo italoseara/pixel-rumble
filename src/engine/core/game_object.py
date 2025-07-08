@@ -19,8 +19,6 @@ class GameObject:
     _scene: "Scene" | None
     _components: dict[Type[Component], Component]
 
-    _all: dict[str, GameObject] = {}
-
     def __init__(self, name: str, parent: GameObject | None = None) -> None:
         """Initialize a GameObject with a name and an optional parent.
 
@@ -33,8 +31,6 @@ class GameObject:
         
         if not name:
             raise ValueError("GameObject name cannot be empty")
-        if name in GameObject._all:
-            raise ValueError(f"GameObject with name {name} already exists")
         
         self.name = name
         self.active = True
@@ -43,20 +39,6 @@ class GameObject:
 
         self._scene = None
         self._components = {}
-
-        GameObject._all[name] = self
-
-    @classmethod
-    def find(cls, name: str) -> GameObject | None:
-        """Finds a GameObject by name.
-
-        Args:
-            name (str): The name of the GameObject to find.
-        Returns:
-            GameObject | None: The GameObject if found, otherwise None.
-        """
-        
-        return cls._all.get(name, None)
 
     def add_component(self, component: T) -> T:
         """Adds a component to the GameObject.
@@ -156,9 +138,6 @@ class GameObject:
         self.name = ""
         self.active = False
         self.visible = False
-
-        if self.name in GameObject._all:
-            del GameObject._all[self.name]
 
     def has_component(self, ctype: Type[Component]) -> bool:
         """Check if the GameObject has a component of the specified type.

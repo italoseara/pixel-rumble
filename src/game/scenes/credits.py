@@ -71,15 +71,11 @@ class CreditsMenu(Scene):
 
         
         canvas.add(Button(
-            "VOLTAR",
+            text="VOLTAR",
             x="5%", y="88%",
-            font_size=60,
+            font_size=50,
             pivot="midleft",
-            on_click=self.voltar_menu
+            on_click=lambda: self._game.pop_scene()
         ))
 
         self.add(ui)
-
-    def voltar_menu(self):
-        from game.scenes.menu import MainMenu
-        self._game.push_scene(MainMenu())

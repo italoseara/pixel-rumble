@@ -16,3 +16,6 @@ class PacketStatusInPing(Packet):
         """Create a ping packet from bytes."""
 
         return cls()
+
+    def __repr__(self) -> str:
+        return f"<PacketStatusInPing>"

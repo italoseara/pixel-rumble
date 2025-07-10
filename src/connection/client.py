@@ -1,52 +1,146 @@
-import socket
 import time
+import socket
+import threading
 
-from packets import PacketStatusInPing, PacketStatusOutPong, Packet
+from packets import *
 
-DISCOVERY_PORT = 3567
-BROADCAST_ADDR = '<broadcast>'
-TIMEOUT        = 2.0 # seconds
 
-def find_game_servers():
-    # Create UDP socket for broadcast
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    s.settimeout(TIMEOUT)
+class Client:
+    """A UDP client that connects to a server and sends/receives packets."""
 
-    packet = PacketStatusInPing()
-    s.sendto(packet.to_bytes(), (BROADCAST_ADDR, DISCOVERY_PORT))
-    print("Broadcasted Ping, waiting for replies...")
+    name: str
+    address: tuple[str, int]
+    buffer_size: int
 
-    servers = set()
-    start = time.time()
-    while True:
-        try:
-            data, addr = s.recvfrom(1024)
+    sock: socket.socket
+
+    running: bool
+
+    def __init__(self, name: str, server_ip: str, server_port: int, buffer_size: int = 1024) -> None:
+        """Initializes the client with the specified IP address and port.
+
+        Args:
+            name (str): The name of the client.
+            server_ip (str): The IP address of the server to connect to.
+            server_port (int): The port number of the server to connect to.
+            buffer_size (int): The size of the buffer for receiving data.
+        """
+
+        self.name = name
+        self.address = (server_ip, server_port)
+        self.buffer_size = buffer_size
+
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.running = False
+
+    def start(self) -> None:
+        """Starts the client and begins listening for incoming packets."""
+
+        if self.running:
+            return
+        
+        self.sock.connect(self.address)
+        self.running = True
+
+        threading.Thread(target=self._listen_for_packets, daemon=True).start()
+        print(f"[Client] Client started and connected to {self.address}.")
+
+        self.join()
+
+    def stop(self) -> None:
+        """Stops the client and closes the socket."""
+        if not self.running:
+            return
+
+        self.running = False
+        self.sock.close()
+        print("[Client] Client stopped.")
+
+    def join(self) -> None:
+        """Sends a join request to the server with the client's name."""
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before joining.")
+
+        join_packet = PacketPlayInJoin(name=self.name)
+        self.send(join_packet)
+
+    def disconnect(self) -> None:
+        """Sends a disconnect request to the server."""
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before disconnecting.")
+
+        # disconnect_packet = PacketPlayInDisconnect(name=self.name)
+        # self.send(disconnect_packet)
+
+        # self.stop()
+        raise NotImplementedError("Disconnect functionality is not implemented yet.")
+
+    def on_packet_received(self, packet: Packet) -> None:
+        """Handles a received packet from the server.
+
+        Args:
+            packet (Packet): The received packet.
+        """
+
+        print(f"[Client] Received packet: {packet}")
+
+        match packet:
+            case welcome if isinstance(welcome, PacketPlayOutWelcome):
+                if welcome.is_welcome:
+                    print(f"[Client] Connection successful: {welcome.message}")
+                else:
+                    print(f"[Client] Connection failed: {welcome.message}")
+                    self.stop()
+            case _:
+                print(f"[Client] Unhandled packet type: {type(packet).__name__}")
+
+    def send(self, packet: Packet) -> None:
+        """Sends a packet to the server.
+
+        Args:
+            packet (Packet): The packet to send.
+        """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before sending packets.")
+
+        data = packet.to_bytes()
+        self.sock.sendto(data, self.address)
+        print(f"[Client] Sent packet: {packet}")
+
+    def _listen_for_packets(self) -> None:
+        """Listens for incoming packets from the server and handles them."""
+        
+        while self.running:
             try:
+                data, _ = self.sock.recvfrom(self.buffer_size)
+
                 packet = Packet.from_bytes(data)
-                if not isinstance(packet, PacketStatusOutPong):
-                    raise ValueError("Received packet is not a Pong packet")
-                
-                servers.add(f"{packet.ip}:{packet.port}")
-                print(f"Received response from {addr[0]}:{addr[1]}: {packet.ip}:{packet.port}")
-            except ValueError as e:
-                print(f"Received invalid packet from {addr[0]}:{addr[1]}: {e}")
-                continue
-        except socket.timeout:
-            break
+                self.on_packet_received(packet)
+            except socket.error as e:
+                if not self.running:
+                    break
 
-        if time.time() - start > TIMEOUT:
-            break
+                if e.errno == 111:
+                    print("[Client] Connection refused by the server. Stopping client.")
+                    self.stop()
+                else:
+                    print(f"[Client] Error receiving packet: {e}")
 
-    return sorted(servers)
+    def __repr__(self) -> str:
+        return f"<Client name={self.name} address={self.address}>"
 
-if __name__ == '__main__':
-    available = find_game_servers()
-    if not available:
-        print("No game servers found.")
-    else:
-        print("Found servers:")
-        for s in available:
-            ip, port = s.split(':')
-            print(f" - {ip} on TCP port {port}")
-            # now you can do: tcp_sock.connect((ip, int(port)))
+
+if __name__ == "__main__":
+    client = Client(name="Player1", server_ip="localhost", server_port=3567)
+
+    try:
+        client.start()
+        while client.running:
+            pass  # Keep the client running
+    except KeyboardInterrupt:
+        pass
+    finally:
+        client.stop()

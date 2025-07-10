@@ -1,7 +1,7 @@
 import socket
 import threading
 
-from packets import Packet, PacketStatusInPing, PacketStatusOutPong
+from packets import *
 
 
 class Server:
@@ -77,11 +77,32 @@ class Server:
         print(f"[Server] Received packet from {addr[0]}:{addr[1]}: {packet}")
 
         match packet:
+            case join if isinstance(join, PacketPlayInJoin):
+                # TODO: Interact with the game itself
+
+                if addr not in self.clients:
+                    self.clients.add(addr)
+                    print(f"[Server] Client {addr[0]}:{addr[1]} joined with name: {join.name}")
+
+                    welcome_packet = PacketPlayOutWelcome(is_welcome=True, message="Welcome to the server!")
+                    self.send(welcome_packet, addr)
+                else:
+                    print(f"[Server] Client {addr[0]}:{addr[1]} already connected.")
+
+                    welcome_packet = PacketPlayOutWelcome(is_welcome=False, message="You are already connected.")
+                    self.send(welcome_packet, addr)
+                return
+
+        if addr not in self.clients:
+            print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring packet.")
+            return
+
+        match packet:
             case ping if isinstance(ping, PacketStatusInPing):
                 response_packet = PacketStatusOutPong(ip=self.ip, port=self.port)
                 self.send(response_packet, addr)
             case _:
-                print(f"[Server] Unhandled packet type: {packet.__class__.__name__}")
+                print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 
     def send(self, packet: Packet, addr: tuple[str, int]) -> None:
         """Sends a packet to the specified client address.
@@ -118,13 +139,9 @@ class Server:
         while self.running:
             try:
                 data, addr = self.sock.recvfrom(self.buffer_size)
-                if addr not in self.clients:
-                    self.clients.add(addr)
-                    print(f"[Server] New client connected: {addr[0]}:{addr[1]}")
 
                 packet = Packet.from_bytes(data)
                 self.on_packet_received(packet, addr)
-
             except Exception as e:
                 print(f"[Server] Error while listening for requests: {e}")
 
@@ -139,7 +156,7 @@ if __name__ == "__main__":
 
     try:
         server.start()
-        while True:
+        while server.running:
             pass  # Keep the server running
     except KeyboardInterrupt:
         pass

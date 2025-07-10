@@ -11,8 +11,6 @@ class PacketStatusOutPong(Packet):
     port: int
 
     def __init__(self, ip: str, port: int) -> None:
-        """Initialize a pong packet with the server's IP and port."""
-
         self.ip = ip
         self.port = port
 
@@ -34,3 +32,6 @@ class PacketStatusOutPong(Packet):
             raise ValueError("Invalid port number in PacketStatusOutPong data")
 
         return cls(ip, port)
+
+    def __repr__(self) -> str:
+        return f"<PacketStatusOutPong ip={self.ip} port={self.port}>"

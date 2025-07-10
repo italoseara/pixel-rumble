@@ -50,4 +50,4 @@ class Packet(metaclass=PacketMeta):
         """Return a string representation of the packet."""
 
         data = "0x" + self.data.hex() if self.data else "None"
-        return f"<{self.__class__.__name__} id=0x{self.id:x} data={data}>"
+        return f"<{type(self).__name__} id=0x{self.id:x} data={data}>"

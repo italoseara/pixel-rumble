@@ -45,3 +45,9 @@ class Packet(metaclass=PacketMeta):
             raise ValueError(f"Unknown packet type: 0x{id_:x}")
 
         return packet_class.from_bytes(data[1:])
+
+    def __repr__(self) -> str:
+        """Return a string representation of the packet."""
+
+        data = "0x" + self.data.hex() if self.data else "None"
+        return f"<{self.__class__.__name__} id=0x{self.id:x} data={data}>"

@@ -35,7 +35,7 @@ The status is used to check if there is a game server running on this address. T
 
 | Packet ID | State    | Bound To | Field Name  | Field Type | Description |
 | --------- | -------- | -------- | ----------- | ---------- | ----------- |
-| `0x00`    | `Status` | `Client` | _No fields_ |            |             |
+| `0x00`    | `Status` | `Server` | _No fields_ |            |             |
 
 ### Server
 

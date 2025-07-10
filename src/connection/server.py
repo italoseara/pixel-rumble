@@ -1,94 +1,147 @@
 import socket
 import threading
 
-from packets import PacketStatusInPing, PacketStatusOutPong, Packet
+from packets import Packet, PacketStatusInPing, PacketStatusOutPong
 
-DISCOVERY_PORT = 3567
-PACKET_SIZE    = 1024
 
-class DiscoveryServer:
-    """A UDP server that allows clients to discover the game server via broadcast."""
-    
-    def __init__(self, port: int) -> None:
-        """Initializes the DiscoveryServer.
+class Server:
+    """A UDP server that listens for incoming connections and handles client requests."""
+
+    _ip: str
+    port: int
+    buffer_size: int
+
+    sock: socket.socket
+
+    clients: set[tuple[str, int]]
+    running: bool
+
+    def __init__(self, port: int, buffer_size: int = 1024) -> None:
+        """Initializes the server with the specified host and port.
 
         Args:
-            port (int): The port on which the original game server is running.
+            host (str): The host address to bind the server to.
+            port (int): The port number to bind the server to.
+            buffer_size (int): The size of the buffer for receiving data.
         """
-        
+
+        self._ip = None
         self.port = port
+        self.buffer_size = buffer_size
+        
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        
+        self.clients = set()
         self.running = False
-        self.server_socket = None
+
+    @property
+    def ip(self) -> str:
+        if self._ip is None:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(('8.8.8.8', 1))
+            self._ip = s.getsockname()[0]
+            s.close()
+
+        return self._ip
 
     def start(self) -> None:
+        """Starts the server and begins listening for incoming connections."""
+        
         if self.running:
             return
 
+        self.sock.bind(('', self.port))
         self.running = True
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow reuse of the address
         
-        self.server_socket.bind(('', DISCOVERY_PORT))
         threading.Thread(target=self._listen_for_requests, daemon=True).start()
-        self.log(f"UDP server started on port {DISCOVERY_PORT}.")
+        print(f"[Server] Server started on port {self.port}.")
 
     def stop(self) -> None:
+        """Stops the server and closes the socket."""
+        
         if not self.running:
             return
 
         self.running = False
-        if self.server_socket:
-            self.server_socket.close()
-        self.server_socket = None
+        self.sock.close()
+        print("[Server] Server stopped.")
 
-        self.log("UDP server stopped.")
+    def on_packet_received(self, packet: Packet, addr: tuple[str, int]) -> None:
+        """Handles a received packet from a client.
 
-    def log(self, message: str) -> None:
-        """Logs a message to the console."""
+        Args:
+            packet (Packet): The received packet.
+            addr (tuple[str, int]): The address of the client that sent the packet.
+        """
 
-        print(f"[Discovery] {message}")
+        print(f"[Server] Received packet from {addr[0]}:{addr[1]}: {packet}")
 
-    def send_packet(self, packet: Packet, address: tuple[str, int]) -> None:
-        """Sends a packet to the specified address.
+        match packet:
+            case ping if isinstance(ping, PacketStatusInPing):
+                response_packet = PacketStatusOutPong(ip=self.ip, port=self.port)
+                self.send(response_packet, addr)
+            case _:
+                print(f"[Server] Unhandled packet type: {packet.__class__.__name__}")
+
+    def send(self, packet: Packet, addr: tuple[str, int]) -> None:
+        """Sends a packet to the specified client address.
 
         Args:
             packet (Packet): The packet to send.
-            address (tuple[str, int]): The address to send the packet to (IP, port).
+            client_address (tuple[str, int]): The address of the client to send the packet to.
         """
         
         if not self.running:
             raise RuntimeError("Server is not running.")
-        
-        self.server_socket.sendto(packet.to_bytes(), address)
-        self.log(f"Sent packet to {address[0]}:{address[1]}")
+        if addr not in self.clients:
+            raise ValueError(f"Client {addr[0]}:{addr[1]} is not connected.")
+
+        data = packet.to_bytes()
+        self.sock.sendto(data, addr)
+        print(f"[Server] Sent packet to {addr[0]}:{addr[1]}: {packet}")
+
+    def broadcast(self, packet: Packet) -> None:
+        """Broadcasts a packet to all connected clients."""
+
+        if not self.running:
+            raise RuntimeError("Server is not running.")
+
+        print(f"[Server] Broadcasting packet: {packet}")
+
+        data = packet.to_bytes()
+        for client in self.clients:
+            self.sock.sendto(data, client)
 
     def _listen_for_requests(self) -> None:
+        """Listens for incoming requests from clients."""
+
         while self.running:
             try:
-                data, addr = self.server_socket.recvfrom(PACKET_SIZE)
-                packet = Packet.from_bytes(data)
+                data, addr = self.sock.recvfrom(self.buffer_size)
+                if addr not in self.clients:
+                    self.clients.add(addr)
+                    print(f"[Server] New client connected: {addr[0]}:{addr[1]}")
 
-                if isinstance(packet, PacketStatusInPing):
-                    self.log(f"Received ping from {addr[0]}:{addr[1]}")
-                    response_packet = PacketStatusOutPong(ip=addr[0], port=self.port)
-                    self.send_packet(response_packet, addr)
-                else:
-                    self.log(f"Received unknown packet type from {addr[0]}:{addr[1]}")
+                packet = Packet.from_bytes(data)
+                self.on_packet_received(packet, addr)
+
             except Exception as e:
-                self.log(f"Error processing packet: {e}")
-                if not self.running:  # Ignore exceptions on shutdown
-                    break
+                print(f"[Server] Error while listening for requests: {e}")
+
+    def __repr__(self) -> str:
+        """Return a string representation of the server."""
+
+        return f"<Server address={self.address} running={self.running} clients={len(self.clients)}>"
 
 
 if __name__ == "__main__":
-    # Replace with the actual game server port
-    discovery_server = DiscoveryServer(port=5555)
-    
+    server = Server(port=3567)
+
     try:
-        discovery_server.start()
+        server.start()
         while True:
             pass  # Keep the server running
     except KeyboardInterrupt:
         pass
     finally:
-        discovery_server.stop()
+        server.stop()

@@ -1,9 +1,9 @@
 import socket
 import time
 
-from server import DISCOVERY_PORT
 from packets import PacketStatusInPing, PacketStatusOutPong, Packet
 
+DISCOVERY_PORT = 3567
 BROADCAST_ADDR = '<broadcast>'
 TIMEOUT        = 2.0 # seconds
 

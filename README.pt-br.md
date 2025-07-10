@@ -12,9 +12,9 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
 1. [Formato do Pacote](#formato-do-pacote)
 2. [Status](#status)
    - [Cliente](#cliente)
-      - [Ping](#ping)
+     - [Ping](#ping)
    - [Servidor](#servidor)
-      - [Pong](#pong)
+     - [Pong](#pong)
 
 ## Formato do Pacote
 
@@ -33,9 +33,9 @@ O status é usado para verificar se há um servidor de jogo rodando neste endere
 
 #### Ping
 
-| ID do Pacote | Estado   | Destino   | Nome do Campo | Tipo do Campo | Descrição |
-| ------------ | -------- | --------- | ------------- | ------------- | --------- |
-| `0x00`       | `Status` | `Cliente` | _Sem campos_  |               |           |
+| ID do Pacote | Estado   | Destino    | Nome do Campo | Tipo do Campo | Descrição |
+| ------------ | -------- | ---------- | ------------- | ------------- | --------- |
+| `0x00`       | `Status` | `Servidor` | _Sem campos_  |               |           |
 
 ### Servidor
 

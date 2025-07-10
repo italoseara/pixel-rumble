@@ -52,17 +52,17 @@ class CreditsMenu(Scene):
             pivot="midtop"
         ))
         
-        canvas.add(Text("DESENVOLVIMENTO", x="50%", y="29%", font_size=35, color=pg.Color("white"), pivot="midtop"))
-        canvas.add(Text("Italo Seara, Lucas Luige, Mateus Soares", x="50%", y="35%", font_size=25, color=pg.Color("white"), pivot="midtop"))
+        canvas.add(Text("DESENVOLVIMENTO", x="50%", y="29%", font_size=35, pivot="midtop"))
+        canvas.add(Text("Italo Seara, Lucas Luige, Mateus Soares", x="50%", y="35%", font_size=25, pivot="midtop"))
 
-        canvas.add(Text("ARTE", x="50%", y="46%", font_size=35, color=pg.Color("white"), pivot="midtop"))
-        canvas.add(Text("Italo Seara, Lucas Luige, Mateus Soares", x="50%", y="52%", font_size=25, color=pg.Color("white"), pivot="midtop"))
+        canvas.add(Text("ARTE", x="50%", y="46%", font_size=35, pivot="midtop"))
+        canvas.add(Text("Italo Seara, Lucas Luige, Mateus Soares", x="50%", y="52%", font_size=25, pivot="midtop"))
 
-        canvas.add(Text("DESIGN", x="50%", y="63%", font_size=35, color=pg.Color("white"), pivot="midtop"))
-        canvas.add(Text("Italo Seara, Lucas Luige, Mateus Soares", x="50%", y="69%", font_size=25, color=pg.Color("white"), pivot="midtop"))
+        canvas.add(Text("DESIGN", x="50%", y="63%", font_size=35, pivot="midtop"))
+        canvas.add(Text("Italo Seara, Lucas Luige, Mateus Soares", x="50%", y="69%", font_size=25, pivot="midtop"))
 
-        canvas.add(Text("PROFESSOR", x="50%", y="80%", font_size=35, color=pg.Color("white"), pivot="midtop"))
-        canvas.add(Text("Jorge Lima", x="50%", y="86%", font_size=25, color=pg.Color("white"), pivot="midtop"))
+        canvas.add(Text("PROFESSOR", x="50%", y="80%", font_size=35, pivot="midtop"))
+        canvas.add(Text("Jorge Lima", x="50%", y="86%", font_size=25, pivot="midtop"))
         
         canvas.add(Button(
             text="< VOLTAR",

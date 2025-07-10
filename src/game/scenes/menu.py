@@ -2,7 +2,7 @@ import pygame as pg
 from typing import override
 
 from .host import HostMenu
-from game.scenes.credits import CreditsMenu
+from .credits import CreditsMenu
 
 
 from engine import Scene, GameObject, Canvas

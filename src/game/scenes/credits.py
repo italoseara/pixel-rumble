@@ -73,3 +73,8 @@ class CreditsMenu(Scene):
         ))
 
         self.add(ui)
+
+    @override
+    def handle_event(self, event: pg.event.Event) -> None:
+        if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+            Game.instance().pop_scene()

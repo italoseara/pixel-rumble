@@ -47,11 +47,5 @@ class HostMenu(Scene):
 
     @override
     def handle_event(self, event: pg.event.Event) -> None:
-        """Handle an event by forwarding it to all game objects.
-
-        Args:
-            event (pg.event.Event): The event to handle.
-        """
-
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()

@@ -1,25 +1,17 @@
 import pygame as pg
 from typing import override
 
-from engine import Scene, GameObject, Canvas
+from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Text, Button, InputField
 
 class HostMenu(Scene):
     @override
     def start(self) -> None:
         self.transparent = True
-        self.background_color = pg.Color(0, 0, 0, 80)
+        self.background_color = pg.Color(0, 0, 0, 128)
 
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
-
-        canvas.add(Button(
-            "X",
-            x="-2%", y="2%",
-            pivot="topright",
-            font_size=32,
-            on_click=lambda: self._game.pop_scene(),
-        ))
 
         canvas.add(Text(
             "DIGITE A PORTA",
@@ -38,9 +30,17 @@ class HostMenu(Scene):
 
         canvas.add(Button(
             "CRIAR PARTIDA",
-            x="50%", y="62%",
+            x="50%", y="65%",
             pivot="center",
             on_click=lambda: print(input_field.text)
+        ))
+
+        canvas.add(Button(
+            text="< VOLTAR",
+            x="5%", y="-10%",
+            pivot="midleft",
+            font_size=42,
+            on_click=lambda: Game.instance().pop_scene()
         ))
 
         self.add(ui)
@@ -54,4 +54,4 @@ class HostMenu(Scene):
         """
 
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
-            self._game.pop_scene()
+            Game.instance().pop_scene()

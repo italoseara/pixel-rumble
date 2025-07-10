@@ -2,7 +2,9 @@ import pygame as pg
 from pygame.math import Vector2
 from typing import TYPE_CHECKING
 
+from ..core.game import Game
 from ..constants import DEBUG_MODE, PIVOT_POINTS
+
 if TYPE_CHECKING:
     from ..core.components.canvas import Canvas
 
@@ -100,9 +102,13 @@ class UIComponent:
     def is_mouse_over(self, mouse_pos: Vector2) -> bool:
         """Check if the mouse position is within the component's bounds."""
 
-        this_scene = self.parent.parent._scene if self.parent else None
-        current_scene = this_scene._game.current_scene if self.parent else None
-        if current_scene and this_scene and current_scene != this_scene:
+        if self.parent is None:
+            return False
+
+        scene = self.parent.parent._scene
+        current_scene = Game.instance().current_scene
+        
+        if current_scene != scene:
             return False
 
         return self.rect.collidepoint(mouse_pos)

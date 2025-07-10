@@ -1,5 +1,7 @@
 import pygame as pg
 from pygame.math import Vector2
+from typing import Literal
+
 from .component import UIComponent
 
 class Image(UIComponent):
@@ -50,7 +52,7 @@ class Image(UIComponent):
         super().__init__(x=x, y=y, width=calc_width, height=calc_height, pivot=pivot)
         self._update_scaled_image()
 
-    def _calculate_dimension(self, value, default, axis):
+    def _calculate_dimension(self, value: int | str, default: int, axis: Literal['x', 'y']) -> int:
         if isinstance(value, str) and value.endswith('%'):
             percent = float(value[:-1]) / 100
             if axis == 'x':
@@ -62,7 +64,7 @@ class Image(UIComponent):
         else:
             return int(value)
 
-    def _update_scaled_image(self):
+    def _update_scaled_image(self) -> None:
         width = self.width
         height = self.height
         img_width, img_height = self._original_image.get_size()

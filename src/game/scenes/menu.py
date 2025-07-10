@@ -5,7 +5,7 @@ from .host import HostMenu
 from .credits import CreditsMenu
 
 
-from engine import Scene, GameObject, Canvas
+from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Image, Button
 
 
@@ -43,14 +43,14 @@ class MainMenu(Scene):
             x="5%", y="75%",
             font_size=60,
             pivot="midleft",
-            on_click=lambda: self._game.push_scene(HostMenu())
+            on_click=lambda: Game.instance().push_scene(HostMenu())
         ))
         canvas.add(Button(
             "CRÉDITOS",
             x="5%", y="85%",
             font_size=60,
             pivot="midleft",
-            on_click=lambda: self._game.push_scene(CreditsMenu()),
+            on_click=lambda: Game.instance().push_scene(CreditsMenu()),
         ))
 
         canvas.add(Image(

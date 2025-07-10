@@ -22,7 +22,7 @@ class HostMenu(Scene):
         ))
 
         canvas.add(Text(
-            "ENTER PORT",
+            "DIGITE A PORTA",
             x="50%", y="40%",
             pivot="center",
         ))
@@ -37,7 +37,7 @@ class HostMenu(Scene):
         ))
 
         canvas.add(Button(
-            "HOST GAME",
+            "CRIAR PARTIDA",
             x="50%", y="62%",
             pivot="center",
             on_click=lambda: print(input_field.text)

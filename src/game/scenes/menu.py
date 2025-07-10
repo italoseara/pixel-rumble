@@ -2,6 +2,8 @@ import pygame as pg
 from typing import override
 
 from .host import HostMenu
+from .credits import CreditsMenu
+
 
 from engine import Scene, GameObject, Canvas
 from engine.ui import Image, Button
@@ -30,25 +32,25 @@ class MainMenu(Scene):
         ))
 
         canvas.add(Button(
-            "JOIN",
+            "ENTRAR",
             x="5%", y="65%",
             font_size=60,
             pivot="midleft",
             on_click=lambda: print("Join button clicked!"),
         ))
         canvas.add(Button(
-            "HOST",
+            "CRIAR SALA",
             x="5%", y="75%",
             font_size=60,
             pivot="midleft",
             on_click=lambda: self._game.push_scene(HostMenu())
         ))
         canvas.add(Button(
-            "CREDITS",
+            "CRÉDITOS",
             x="5%", y="85%",
             font_size=60,
             pivot="midleft",
-            on_click=lambda: print("Credits button clicked!"),
+            on_click=lambda: self._game.push_scene(CreditsMenu()),
         ))
 
         canvas.add(Image(

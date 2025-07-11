@@ -62,8 +62,7 @@ class Client:
         if not self.running:
             raise RuntimeError("Client is not running. Start the client before joining.")
 
-        join_packet = PacketPlayInJoin(name=self.name)
-        self.send(join_packet)
+        self.send(PacketPlayInJoin(name=self.name))
 
     def disconnect(self) -> None:
         """Sends a disconnect request to the server."""
@@ -71,11 +70,8 @@ class Client:
         if not self.running:
             raise RuntimeError("Client is not running. Start the client before disconnecting.")
 
-        # disconnect_packet = PacketPlayInDisconnect(name=self.name)
-        # self.send(disconnect_packet)
-
-        # self.stop()
-        raise NotImplementedError("Disconnect functionality is not implemented yet.")
+        self.send(PacketPlayInDisconnect())
+        self.stop()
 
     def on_packet_received(self, packet: Packet) -> None:
         """Handles a received packet from the server.

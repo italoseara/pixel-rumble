@@ -76,10 +76,9 @@ class Server:
 
         print(f"[Server] Received packet from {addr[0]}:{addr[1]}: {packet}")
 
+        # TODO: Interact with the game itself
         match packet:
             case join if isinstance(join, PacketPlayInJoin):
-                # TODO: Interact with the game itself
-
                 if addr not in self.clients:
                     self.clients.add(addr)
                     print(f"[Server] Client {addr[0]}:{addr[1]} joined with name: {join.name}")
@@ -91,6 +90,13 @@ class Server:
 
                     welcome_packet = PacketPlayOutWelcome(is_welcome=False, message="You are already connected.")
                     self.send(welcome_packet, addr)
+                return
+            case disconnect if isinstance(disconnect, PacketPlayInDisconnect):
+                if addr in self.clients:
+                    self.clients.remove(addr)
+                    print(f"[Server] Client {addr[0]}:{addr[1]} disconnected.")
+                else:
+                    print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring disconnect request.")
                 return
 
         if addr not in self.clients:

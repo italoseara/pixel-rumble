@@ -147,6 +147,11 @@ class InputField(UIComponent):
         if not self.active:
             return
 
+        # Draw a dark transparent background
+        bg_surface = pg.Surface((self.rect.width, self.rect.height), pg.SRCALPHA)
+        bg_surface.fill((0, 0, 0, 40)) 
+        surface.blit(bg_surface, (self.rect.x, self.rect.y))
+
         # Draw a border around the input field with 5px thickness
         border_color = (255, 255, 255) if self._is_focused else (100, 100, 100)
         pg.draw.rect(surface, border_color, self.rect, 5)

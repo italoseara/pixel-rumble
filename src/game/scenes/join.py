@@ -1,6 +1,6 @@
 import pygame as pg
 from pygame.math import Vector2
-from typing import override
+from typing import override, Callable
 
 from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Button, InputField, Image, UIComponent
@@ -18,8 +18,8 @@ class ServerListItem(UIComponent):
 
     def __init__(
         self,
-        name: str,
-        ip: str, port: int,
+        name: str = None,
+        ip: str = None, port: int = None,
         x: int | str = 0, y: int | str = 0,
         width: int = 650, height: int = 80,
         pivot: Vector2 | tuple[float, float] | str = (0.0, 0.0)
@@ -34,7 +34,7 @@ class ServerListItem(UIComponent):
         self._is_selected = False
         self._font = pg.font.Font(DEFAULT_FONT, 32)
         self._icon = pg.image.load("assets/img/icons/sword.png").convert_alpha()
-        
+
         self.name = name
         self.ip = ip
         self.port = port
@@ -67,6 +67,25 @@ class ServerListItem(UIComponent):
         if DEBUG_MODE:
             color = (0, 255, 0) if self._is_selected else (255, 0, 0)
             pg.draw.rect(surface, color, self.rect, 1)
+
+        # Here you can handle the selection logic, e.g., joining the server
+    @override
+    def on_mouse_click(self, mouse_pos: Vector2) -> None:
+        """Handle mouse click events on the server list item."""
+        if self.is_mouse_over(mouse_pos):
+            # Deselect other items in the list
+            parent_canvas = self.parent
+            if parent_canvas:
+                self.deselect_other_items(parent_canvas.get(ServerListItem))
+
+            self._is_selected = True if False else True  # Toggle selection state
+
+    def deselect_other_items(self, items: list['ServerListItem']) -> None:
+        for item in items:
+            if item is not self and item._is_selected:
+                item._is_selected = False
+
+        # Here you can add logic to join the server or perform other actions
 
 
 class JoinMenu(Scene):
@@ -126,13 +145,21 @@ class JoinMenu(Scene):
             on_click=lambda: print("Joining game...")
         ))
 
-        # server list
-        canvas.add(ServerListItem(
-            name="Servidor 1",
-            ip="127.0.0.1",
-            port=8080,
-            x="50%", y="30%",
-            pivot="center"
-        ))
+        server_list = [
+            "Server 1:172.0.0.1:8080",
+            "Server 2:192.0.0.1:8080",
+            "Server 3:172.1.1.1:8080",
+            "Server 4:123.0.0.1:8080"
+        ]
+
+        for idx, item in enumerate(server_list[:3]):
+            y = 200 + idx * 90  # 200 é o valor inicial, 90 é o espaçamento
+            name, ip, port = item.split(":")
+            canvas.add(ServerListItem(
+                name=name, ip=ip, port=int(port),
+                x="50%", y=y,
+                width=650, height=80,
+                pivot="center"
+            ))
 
         self.add(ui)

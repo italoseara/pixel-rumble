@@ -53,3 +53,7 @@ class Canvas(Component):
     def draw(self, surface: pg.Surface) -> None:
         for component in self._components:
             component.draw(surface)
+
+    def get(self, component_type: type[T]) -> list[T]:
+        """Return a list of components of the specified type."""
+        return [comp for comp in self._components if isinstance(comp, component_type)]

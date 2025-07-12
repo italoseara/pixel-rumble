@@ -8,35 +8,53 @@ class HostMenu(Scene):
     @override
     def start(self) -> None:
         self.transparent = True
-        self.background_color = pg.Color(0, 0, 0, 128)
+        self.background_color = pg.Color(0, 0, 0, 160)
 
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
 
         canvas.add(Text(
-            "DIGITE A PORTA",
-            x="50%", y="40%",
+            "CRIAR SALA",
+            x="50%", y="20%",
             pivot="center",
+            font_size=70,
         ))
 
-        input_field = canvas.add(InputField(
-            placeholder="25565",
+        canvas.add(InputField(
+            placeholder="SEU NOME",
+            x="50%", y="40%",
+            width=350, height=48,
+            pivot="center",
+            max_char=15,
+        ))
+
+        canvas.add(InputField(
+            placeholder="NOME DA SALA",
             x="50%", y="50%",
-            width=250, height=48,
+            width=350, height=48,
+            pivot="center",
+            max_char=9,
+        ))
+
+        canvas.add(InputField(
+            placeholder="PORTA",
+            x="50%", y="60%",
+            width=350, height=48,
             pivot="center",
             max_char=5,
             allowed_type=int,
         ))
 
         canvas.add(Button(
-            "CRIAR PARTIDA",
-            x="50%", y="65%",
-            pivot="center",
-            on_click=lambda: print(input_field.text)
+            "ENTRAR >",
+            x="96%", y="90%",
+            pivot="midright",
+            font_size=42,
+            on_click=lambda: print("Entrar na sala")
         ))
 
         canvas.add(Button(
-            text="< VOLTAR",
+            "< VOLTAR",
             x="5%", y="-10%",
             pivot="midleft",
             font_size=42,

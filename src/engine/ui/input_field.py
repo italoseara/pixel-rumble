@@ -1,7 +1,7 @@
 import re
 import pygame as pg
 from pygame.math import Vector2
-from typing import Literal, Callable, override
+from typing import Callable, override, Any
 
 from .component import UIComponent
 from ..constants import DEFAULT_FONT
@@ -56,8 +56,11 @@ class InputField(UIComponent):
 
     @property
     def text(self) -> str:
-        """Get the current text in the input field."""
         return self._text
+
+    @property
+    def value(self) -> Any:
+        return self.allowed_type(self._text) if self._text else self.allowed_type()
 
     @override
     def on_mouse_click(self, mouse_pos: Vector2) -> None:

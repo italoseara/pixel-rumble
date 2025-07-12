@@ -4,7 +4,7 @@ from typing import override
 import time as tm
 
 from engine import Scene, GameObject, Canvas, Game
-from engine.ui import Button, InputField, Image, UIComponent
+from engine.ui import Button, Text, Image, UIComponent
 from engine.constants import DEFAULT_FONT, DEBUG_MODE
 from game.scenes.direct_connection import DirectConnection
 
@@ -143,12 +143,11 @@ class JoinMenu(Scene):
             opacity=0.4
         ))
 
-        canvas.add(InputField(
-            placeholder="nickname",
-            x="50%", y="15%",
-            width=250, height=48,
+        canvas.add(Text(
+            "SELECIONAR SALA",
+            x="50%", y="20%",
             pivot="center",
-            max_char=15,
+            font_size=70,
         ))
 
         canvas.add(Button(
@@ -175,7 +174,7 @@ class JoinMenu(Scene):
         ]
 
         for idx, item in enumerate(server_list[:3]):
-            y = 200 + idx * 90  # 200 é o valor inicial, 90 é o espaçamento
+            y = 230 + idx * 90  # 230 é o valor inicial, 90 é o espaçamento
             name, ip, port = item.split(":")
             canvas.add(ServerListItem(
                 name=name, ip=ip, port=int(port),

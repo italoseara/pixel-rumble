@@ -11,47 +11,23 @@ from engine.constants import DEFAULT_FONT, DEBUG_MODE
 class DirectConnection(Scene):
     @override
     def start(self) -> None:
-        self.transparent = False
-        self.background_color = pg.Color(54, 78, 109, 255)
+        self.transparent = True
+        self.background_color = pg.Color(0, 0, 0, 160)
 
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
 
-        canvas.add(Image(
-            "assets/img/background/texture.png",
-            x=0, y=0,
-            width="100%", height="100%",
-            pivot="topleft",
-            opacity=0.25
-        ))
-
-        canvas.add(Image(
-            "assets/img/background/creditos.png",
-            x=0, y=0,
-            width="100%", height="100%",
-            pivot="topleft",
-            opacity=1.0
-        ))
-
-        canvas.add(Image(
-            "assets/img/background/vignette.png",
-            x=0, y=0,
-            width="100%", height="100%",
-            pivot="topleft",
-            opacity=0.4
-        ))
-
         canvas.add(Text(
             "CONEXÃO DIRETA",
-            x="50%", y="30%",
+            x="50%", y="20%",
             pivot="center",
-            font_size=48,
+            font_size=70,
         ))
 
         canvas.add(InputField(
-            placeholder="nickname",
+            placeholder="SEU NOME",
             x="50%", y="40%",
-            width=250, height=48,
+            width=350, height=48,
             pivot="center",
             max_char=15,
         ))
@@ -59,7 +35,7 @@ class DirectConnection(Scene):
         canvas.add(InputField(
             placeholder="IP",
             x="50%", y="50%",
-            width=250, height=48,
+            width=350, height=48,
             pivot="center",
             max_char=9,
         ))
@@ -67,7 +43,7 @@ class DirectConnection(Scene):
         canvas.add(InputField(
             placeholder="PORTA",
             x="50%", y="60%",
-            width=250, height=48,
+            width=350, height=48,
             pivot="center",
             max_char=5,
             allowed_type=int,
@@ -75,15 +51,15 @@ class DirectConnection(Scene):
 
         canvas.add(Button(
             "ENTRAR >",
-            x="50%", y="90%",
-            pivot="center",
+            x="96%", y="90%",
+            pivot="midright",
             font_size=42,
             on_click=lambda: print("Entrar na sala")
         ))
 
         canvas.add(Button(
             "< VOLTAR",
-            x="5%", y="10%",
+            x="5%", y="-10%",
             pivot="midleft",
             font_size=42,
             on_click=lambda: Game.instance().pop_scene()

@@ -2,9 +2,10 @@ import pygame as pg
 from typing import override
 
 from engine import Scene, GameObject, Canvas, Game
-from engine.ui import Text, Button, InputField
+from engine.ui import Button, InputField, Text
 
-class HostMenu(Scene):
+
+class DirectConnectionMenu(Scene):
     @override
     def start(self) -> None:
         self.transparent = True
@@ -14,7 +15,7 @@ class HostMenu(Scene):
         canvas = ui.add_component(Canvas())
 
         canvas.add(Text(
-            "CRIAR SALA",
+            "CONEXÃO DIRETA",
             x="50%", y="20%",
             pivot="center",
             font_size=70,
@@ -29,7 +30,7 @@ class HostMenu(Scene):
         ))
 
         canvas.add(InputField(
-            placeholder="NOME DA SALA",
+            placeholder="IP",
             x="50%", y="50%",
             width=350, height=48,
             pivot="center",
@@ -65,5 +66,11 @@ class HostMenu(Scene):
 
     @override
     def handle_event(self, event: pg.event.Event) -> None:
+        """Handle an event by forwarding it to all game objects.
+
+        Args:
+            event (pg.event.Event): The event to handle.
+        """
+
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()

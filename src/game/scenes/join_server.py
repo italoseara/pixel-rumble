@@ -2,9 +2,16 @@ import pygame as pg
 from typing import override
 
 from engine import Scene, GameObject, Canvas, Game
-from engine.ui import Text, Button, InputField
+from engine.ui import Button, InputField, Text
 
-class HostMenu(Scene):
+
+class JoinServerMenu(Scene):
+    def __init__(self, ip: str = None, port: int = None) -> None:
+        super().__init__()
+
+        self.ip = ip
+        self.port = port
+    
     @override
     def start(self) -> None:
         self.transparent = True
@@ -14,7 +21,7 @@ class HostMenu(Scene):
         canvas = ui.add_component(Canvas())
 
         canvas.add(Text(
-            "CRIAR SALA",
+            "ENTRAR NA SALA",
             x="50%", y="20%",
             pivot="center",
             font_size=70,
@@ -22,27 +29,10 @@ class HostMenu(Scene):
 
         canvas.add(InputField(
             placeholder="SEU NOME",
-            x="50%", y="40%",
-            width=350, height=48,
-            pivot="center",
-            max_char=15,
-        ))
-
-        canvas.add(InputField(
-            placeholder="NOME DA SALA",
             x="50%", y="50%",
             width=350, height=48,
             pivot="center",
-            max_char=9,
-        ))
-
-        canvas.add(InputField(
-            placeholder="PORTA",
-            x="50%", y="60%",
-            width=350, height=48,
-            pivot="center",
-            max_char=5,
-            allowed_type=int,
+            max_char=15,
         ))
 
         canvas.add(Button(
@@ -65,5 +55,11 @@ class HostMenu(Scene):
 
     @override
     def handle_event(self, event: pg.event.Event) -> None:
+        """Handle an event by forwarding it to all game objects.
+
+        Args:
+            event (pg.event.Event): The event to handle.
+        """
+
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()

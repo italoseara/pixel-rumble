@@ -3,7 +3,7 @@ from typing import override
 
 from .host import HostMenu
 from .credits import CreditsMenu
-
+from .join import JoinMenu
 
 from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Image, Button
@@ -36,7 +36,7 @@ class MainMenu(Scene):
             x="5%", y="65%",
             font_size=60,
             pivot="midleft",
-            on_click=lambda: print("Join button clicked!"),
+            on_click=lambda: Game.instance().push_scene(JoinMenu())
         ))
         canvas.add(Button(
             "CRIAR SALA",

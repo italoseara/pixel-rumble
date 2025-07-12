@@ -1,7 +1,7 @@
 import re
 import pygame as pg
 from pygame.math import Vector2
-from typing import Literal, Callable, override
+from typing import Callable, override, Any
 
 from .component import UIComponent
 from ..constants import DEFAULT_FONT
@@ -56,8 +56,11 @@ class InputField(UIComponent):
 
     @property
     def text(self) -> str:
-        """Get the current text in the input field."""
         return self._text
+
+    @property
+    def value(self) -> Any:
+        return self.allowed_type(self._text) if self._text else self.allowed_type()
 
     @override
     def on_mouse_click(self, mouse_pos: Vector2) -> None:
@@ -147,8 +150,13 @@ class InputField(UIComponent):
         if not self.active:
             return
 
+        # Draw a dark transparent background
+        bg_surface = pg.Surface((self.rect.width, self.rect.height), pg.SRCALPHA)
+        bg_surface.fill((0, 0, 0, 40)) 
+        surface.blit(bg_surface, (self.rect.x, self.rect.y))
+
         # Draw a border around the input field with 5px thickness
-        border_color = (255, 255, 255) if self._is_focused else (100, 100, 100)
+        border_color = (255, 255, 255) if self._is_focused else (150, 150, 150)
         pg.draw.rect(surface, border_color, self.rect, 5)
 
         # Show the determined text or placeholder

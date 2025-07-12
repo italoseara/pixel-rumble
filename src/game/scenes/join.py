@@ -85,7 +85,7 @@ class ServerListItem(UIComponent):
             if parent_canvas:
                 self.deselect_other_items(parent_canvas.get(ServerListItem))
 
-            self._is_selected = True if False else True  # Toggle selection state
+            self._is_selected = not self._is_selected  # Toggle selection state
 
             if self.is_double_click(mouse_pos):
                 Game.instance().push_scene(JoinServerMenu(ip=self.ip, port=self.port))

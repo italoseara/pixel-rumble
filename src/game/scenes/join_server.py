@@ -5,7 +5,13 @@ from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Button, InputField, Text
 
 
-class DirectConnectionMenu(Scene):
+class JoinServerMenu(Scene):
+    def __init__(self, ip: str = None, port: int = None) -> None:
+        super().__init__()
+
+        self.ip = ip
+        self.port = port
+    
     @override
     def start(self) -> None:
         self.transparent = True
@@ -15,7 +21,7 @@ class DirectConnectionMenu(Scene):
         canvas = ui.add_component(Canvas())
 
         canvas.add(Text(
-            "CONEXÃO DIRETA",
+            "ENTRAR NA SALA",
             x="50%", y="20%",
             pivot="center",
             font_size=70,
@@ -23,27 +29,10 @@ class DirectConnectionMenu(Scene):
 
         canvas.add(InputField(
             placeholder="SEU NOME",
-            x="50%", y="40%",
-            width=350, height=48,
-            pivot="center",
-            max_char=15,
-        ))
-
-        canvas.add(InputField(
-            placeholder="IP",
             x="50%", y="50%",
             width=350, height=48,
             pivot="center",
-            max_char=9,
-        ))
-
-        canvas.add(InputField(
-            placeholder="PORTA",
-            x="50%", y="60%",
-            width=350, height=48,
-            pivot="center",
-            max_char=5,
-            allowed_type=int,
+            max_char=15,
         ))
 
         canvas.add(Button(

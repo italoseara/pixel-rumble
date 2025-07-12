@@ -1,12 +1,14 @@
+import time
 import pygame as pg
 from pygame.math import Vector2
 from typing import override
-import time as tm
 
 from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Button, Text, Image, UIComponent
 from engine.constants import DEFAULT_FONT, DEBUG_MODE
-from game.scenes.direct_connection import DirectConnection
+
+from .direct_connection import DirectConnectionMenu
+from .join_server import JoinServerMenu
 
 
 class ServerListItem(UIComponent):
@@ -89,7 +91,7 @@ class ServerListItem(UIComponent):
             self._is_selected = True if False else True  # Toggle selection state
 
             if self.is_double_click(mouse_pos):
-                print(f"Double clicked on server: {self.name} at {self.ip}:{self.port}")
+                Game.instance().push_scene(JoinServerMenu(ip=self.ip, port=self.port))
 
     def deselect_other_items(self, items: list['ServerListItem']) -> None:
         for item in items:
@@ -100,7 +102,7 @@ class ServerListItem(UIComponent):
         """Check if the click is a double click."""
 
         if self.is_mouse_over(mouse_pos):
-            current_time = tm.time()
+            current_time = time.time()
             if hasattr(self, '_last_click_time'):
                 if current_time - self._last_click_time < 0.5:
                     self._last_click_time = current_time
@@ -163,7 +165,7 @@ class JoinMenu(Scene):
             x="75%", y="90%",
             pivot="center",
             font_size=42,
-            on_click=lambda: Game.instance().push_scene(DirectConnection())
+            on_click=lambda: Game.instance().push_scene(DirectConnectionMenu())
         ))
 
         server_list = [

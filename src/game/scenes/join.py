@@ -31,11 +31,6 @@ class ServerListItem(UIComponent):
     ) -> None:
         super().__init__(x, y, width, height, pivot)
 
-        super().__init__(
-            x=x, y=y, pivot=pivot,
-            width=width, height=height,
-        )
-
         self._last_click_time = 0
         self._is_selected = False
         self._font = pg.font.Font(DEFAULT_FONT, 32)

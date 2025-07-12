@@ -153,7 +153,7 @@ class InputField(UIComponent):
         surface.blit(bg_surface, (self.rect.x, self.rect.y))
 
         # Draw a border around the input field with 5px thickness
-        border_color = (255, 255, 255) if self._is_focused else (100, 100, 100)
+        border_color = (255, 255, 255) if self._is_focused else (150, 150, 150)
         pg.draw.rect(surface, border_color, self.rect, 5)
 
         # Show the determined text or placeholder

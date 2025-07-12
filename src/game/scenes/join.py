@@ -50,13 +50,14 @@ class ServerListItem(UIComponent):
         surface.blit(bg_surface, (self.rect.x, self.rect.y))
 
         # Draw a border around the input field with 5px thickness
-        color = pg.Color(200, 200, 200) if not self._is_selected else pg.Color(255, 255, 255)
+        color = pg.Color(150, 150, 150) if not self._is_selected else pg.Color(255, 255, 255)
         pg.draw.rect(surface, color, self.rect, 5)
 
         # Draw the icon with a 5x scale
-        self._icon = pg.transform.scale(self._icon, (60, 60))
-        icon_rect = self._icon.get_rect(center=(self.rect.x + 50, self.rect.y + self.rect.height // 2))
-        surface.blit(self._icon, icon_rect)
+        icon = pg.transform.scale(self._icon, (60, 60))
+        icon.fill(color, special_flags=pg.BLEND_MULT)
+        icon_rect = icon.get_rect(center=(self.rect.x + 50, self.rect.y + self.rect.height // 2))
+        surface.blit(icon, icon_rect)
 
         # Draw the server name and IP address
         name_text_surface = self._font.render(self.name, True, color)
@@ -79,9 +80,8 @@ class ServerListItem(UIComponent):
     @override
     def on_mouse_click(self, mouse_pos: Vector2) -> None:
         """Handle mouse click events on the server list item."""
+        
         if self.is_mouse_over(mouse_pos):
-            click_time = tm.time()
-            # Deselect other items in the list
             parent_canvas = self.parent
             if parent_canvas:
                 self.deselect_other_items(parent_canvas.get(ServerListItem))
@@ -90,7 +90,6 @@ class ServerListItem(UIComponent):
 
             if self.is_double_click(mouse_pos):
                 print(f"Double clicked on server: {self.name} at {self.ip}:{self.port}")
-                # Here you can add logic to join the server or perform other actions
 
     def deselect_other_items(self, items: list['ServerListItem']) -> None:
         for item in items:
@@ -109,7 +108,6 @@ class ServerListItem(UIComponent):
 
             self._last_click_time = current_time
             return False
-        # Here you can add logic to join the server or perform other actions
 
 
 class JoinMenu(Scene):

@@ -1,6 +1,7 @@
 import pygame as pg
 from pygame.math import Vector2
 from typing import override, Callable
+import time as tm
 
 from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Button, InputField, Image, UIComponent
@@ -49,7 +50,7 @@ class ServerListItem(UIComponent):
         surface.blit(bg_surface, (self.rect.x, self.rect.y))
 
         # Draw a border around the input field with 5px thickness
-        color = pg.Color(255, 255, 255) if not self._is_selected else pg.Color(0, 200, 0)
+        color = pg.Color(200, 200, 200) if not self._is_selected else pg.Color(255, 255, 255)
         pg.draw.rect(surface, color, self.rect, 5)
 
         # Draw the icon with a 5x scale
@@ -60,6 +61,12 @@ class ServerListItem(UIComponent):
         # Draw the server name and IP address
         name_text_surface = self._font.render(self.name, True, color)
         ip_text_surface = self._font.render(f"{self.ip}:{self.port}", True, color)
+
+        # if it's selected, draw a '>' on the right side
+        if self._is_selected:
+            arrow_surface = self._font.render(">", True, color)
+            arrow_rect = arrow_surface.get_rect(center=(self.rect.x + self.rect.width - 30, self.rect.y + self.rect.height // 2))
+            surface.blit(arrow_surface, arrow_rect)
 
         surface.blit(name_text_surface, (self.rect.x + 90, self.rect.y + (self.rect.height - name_text_surface.get_height()) // 2 - 15))
         surface.blit(ip_text_surface, (self.rect.x + 90, self.rect.y + (self.rect.height - ip_text_surface.get_height()) // 2 + 15))
@@ -73,6 +80,7 @@ class ServerListItem(UIComponent):
     def on_mouse_click(self, mouse_pos: Vector2) -> None:
         """Handle mouse click events on the server list item."""
         if self.is_mouse_over(mouse_pos):
+            click_time = tm.time()
             # Deselect other items in the list
             parent_canvas = self.parent
             if parent_canvas:
@@ -80,11 +88,27 @@ class ServerListItem(UIComponent):
 
             self._is_selected = True if False else True  # Toggle selection state
 
+            if self.is_double_click(mouse_pos):
+                print(f"Double clicked on server: {self.name} at {self.ip}:{self.port}")
+                # Here you can add logic to join the server or perform other actions
+
     def deselect_other_items(self, items: list['ServerListItem']) -> None:
         for item in items:
             if item is not self and item._is_selected:
                 item._is_selected = False
 
+    def is_double_click(self, mouse_pos : Vector2) -> bool:
+        """Check if the click is a double click."""
+
+        if self.is_mouse_over(mouse_pos):
+            current_time = tm.time()
+            if hasattr(self, '_last_click_time'):
+                if current_time - self._last_click_time < 0.5:
+                    self._last_click_time = current_time
+                    return True
+
+            self._last_click_time = current_time
+            return False
         # Here you can add logic to join the server or perform other actions
 
 
@@ -138,11 +162,11 @@ class JoinMenu(Scene):
         ))
 
         canvas.add(Button(
-            "ENTRAR >",
-            x="-15%", y="-10%",
+            "CONEXÃO DIRETA >",
+            x="75%", y="90%",
             pivot="center",
             font_size=42,
-            on_click=lambda: print("Joining game...")
+            on_click=lambda: print("Entrar no servidor")
         ))
 
         server_list = [

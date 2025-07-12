@@ -1,11 +1,12 @@
 import pygame as pg
 from pygame.math import Vector2
-from typing import override, Callable
+from typing import override
 import time as tm
 
 from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Button, InputField, Image, UIComponent
 from engine.constants import DEFAULT_FONT, DEBUG_MODE
+from game.scenes.direct_connection import DirectConnection
 
 
 class ServerListItem(UIComponent):
@@ -163,7 +164,7 @@ class JoinMenu(Scene):
             x="75%", y="90%",
             pivot="center",
             font_size=42,
-            on_click=lambda: print("Entrar no servidor")
+            on_click=lambda: Game.instance().push_scene(DirectConnection())
         ))
 
         server_list = [
@@ -184,3 +185,14 @@ class JoinMenu(Scene):
             ))
 
         self.add(ui)
+
+    @override
+    def handle_event(self, event: pg.event.Event) -> None:
+        """Handle an event by forwarding it to all game objects.
+
+        Args:
+            event (pg.event.Event): The event to handle.
+        """
+
+        if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+            Game.instance().pop_scene()

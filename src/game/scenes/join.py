@@ -19,6 +19,7 @@ class ServerListItem(UIComponent):
     _icon: pg.Surface
     _font: pg.font.Font
     _is_selected: bool
+    _last_click_time: float
 
     def __init__(
         self,
@@ -35,6 +36,7 @@ class ServerListItem(UIComponent):
             width=width, height=height,
         )
 
+        self._last_click_time = 0
         self._is_selected = False
         self._font = pg.font.Font(DEFAULT_FONT, 32)
         self._icon = pg.image.load("assets/img/icons/sword.png").convert_alpha()
@@ -103,10 +105,9 @@ class ServerListItem(UIComponent):
 
         if self.is_mouse_over(mouse_pos):
             current_time = time.time()
-            if hasattr(self, '_last_click_time'):
-                if current_time - self._last_click_time < 0.5:
-                    self._last_click_time = current_time
-                    return True
+            if current_time - self._last_click_time < 0.5:
+                self._last_click_time = current_time
+                return True
 
             self._last_click_time = current_time
             return False

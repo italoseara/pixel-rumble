@@ -64,7 +64,7 @@ class ServerListItem(UIComponent):
         ip_text_surface = self._font.render(f"{self.ip}:{self.port}", True, color)
 
         # if it's selected, draw a '>' on the right side
-        if self._is_selected:
+        if self._is_selected or self.is_mouse_over(pg.mouse.get_pos()):
             arrow_surface = self._font.render(">", True, color)
             arrow_rect = arrow_surface.get_rect(center=(self.rect.x + self.rect.width - 30, self.rect.y + self.rect.height // 2))
             surface.blit(arrow_surface, arrow_rect)
@@ -76,7 +76,6 @@ class ServerListItem(UIComponent):
             color = (0, 255, 0) if self._is_selected else (255, 0, 0)
             pg.draw.rect(surface, color, self.rect, 1)
 
-        # Here you can handle the selection logic, e.g., joining the server
     @override
     def on_mouse_click(self, mouse_pos: Vector2) -> None:
         """Handle mouse click events on the server list item."""

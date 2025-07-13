@@ -2,7 +2,7 @@ import errno
 import socket
 import threading
 
-from packets import *
+from packets import Packet, PacketPlayInJoin, PacketPlayOutWelcome, PacketPlayInDisconnect
 
 
 class Client:

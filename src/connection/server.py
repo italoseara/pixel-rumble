@@ -154,7 +154,7 @@ class Server:
     def __repr__(self) -> str:
         """Return a string representation of the server."""
 
-        return f"<Server address={self.address} running={self.running} clients={len(self.clients)}>"
+        return f"<Server ip={self.ip} port={self.port} running={self.running} clients={len(self.clients)}>"
 
 
 if __name__ == "__main__":

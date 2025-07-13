@@ -15,6 +15,11 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Ping](#ping)
    - [Server](#server)
      - [Pong](#pong)
+3. [Play](#play)
+   - [Client](#client-1)
+     - [Join](#join)
+   - [Server](#server-1)
+     - [Welcome](#welcome)
 
 ## Packet Format
 
@@ -27,7 +32,7 @@ The packet format is a binary structure that includes a header and a payload. Th
 
 ## Status
 
-The status is used to check if there is a game server running on this address. The client can send a [ping](#ping) packet to the port `3567` to check if the server is available. The server will respond with a [pong](#pong) packet if it is running.
+The status is used to check if there is a game server running on this address. The client can send a [ping](#ping) packet to the port `1337` to check if the server is available. The server will respond with a [pong](#pong) packet if it is running.
 
 ### Client
 
@@ -35,7 +40,7 @@ The status is used to check if there is a game server running on this address. T
 
 | Packet ID | State    | Bound To | Field Name  | Field Type | Description |
 | --------- | -------- | -------- | ----------- | ---------- | ----------- |
-| `0x00`    | `Status` | `Client` | _No fields_ |            |             |
+| `0x00`    | `Status` | `Server` | _No fields_ |            |             |
 
 ### Server
 
@@ -44,3 +49,47 @@ The status is used to check if there is a game server running on this address. T
 | Packet ID | State    | Bound To | Field Name | Field Type | Description                                                    |
 | --------- | -------- | -------- | ---------- | ---------- | -------------------------------------------------------------- |
 | `0x01`    | `Status` | `Client` | IP Adress  | `string`   | The IP address and port of the server in the format `ip:port`. |
+
+## Play
+
+The play state is used during the game. It includes packets for player actions, game state updates, and other gameplay-related events.
+
+### Client
+
+#### Join
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                              |
+| --------- | ------ | -------- | ---------- | ---------- | ---------------------------------------- |
+| `0x02`    | `Play` | `Server` | Name       | `string`   | The name of the player joining the game. |
+
+### Server
+
+#### Welcome
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x03</code></td>
+      <td rowspan="2"><code>Play</code></td>
+      <td rowspan="2"><code>Client</code></td>
+      <td>Is Welcome</td>
+      <td><code>boolean</code></td>
+      <td>Indicates if the player is welcome to join the game.</td>
+    </tr>
+    <tr>
+      <td>Message</td>
+      <td><code>string</code></td>
+      <td>An error message if the player is not welcome.</td>
+    </tr>
+  </tbody>
+</table>

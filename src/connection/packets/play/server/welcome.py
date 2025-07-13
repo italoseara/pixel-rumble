@@ -3,7 +3,7 @@ from packets import Packet
 
 
 class PacketPlayOutWelcome(Packet):
-    """Join packet for the play state."""
+    """Welcome packet for the play state."""
 
     id = 0x03
 

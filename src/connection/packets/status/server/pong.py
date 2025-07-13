@@ -7,31 +7,36 @@ class PacketStatusOutPong(Packet):
 
     id = 0x01
 
+    name: str
     ip: str
     port: int
 
-    def __init__(self, ip: str, port: int) -> None:
+    def __init__(self, name: str, ip: str, port: int) -> None:
+        self.name = name
         self.ip = ip
         self.port = port
 
-        super().__init__(data=f"{ip}:{port}".encode())
+        super().__init__(data=f"{name}:{ip}:{port}".encode())
 
     @classmethod
     def from_bytes(cls, data: bytes) -> PacketStatusOutPong:
         """Create a pong packet from bytes."""
 
-        ip_port = data.decode()
-        if ':' not in ip_port:
-            raise ValueError("Invalid IP:Port format in PacketStatusOutPong data")
+        decoded = data.decode()
+        parts = decoded.split(":")
+        if len(parts) != 3:
+            raise ValueError("Invalid data format for PacketStatusOutPong")
 
-        ip, port_str = ip_port.split(':')
+        name, ip, port_str = parts
+        if not name or not ip:
+            raise ValueError("Name and IP cannot be empty in PacketStatusOutPong")
 
         try:
             port = int(port_str)
         except ValueError:
             raise ValueError("Invalid port number in PacketStatusOutPong data")
 
-        return cls(ip, port)
+        return cls(name, ip, port)
 
     def __repr__(self) -> str:
-        return f"<PacketStatusOutPong ip={self.ip} port={self.port}>"
+        return f"<PacketStatusOutPong name={self.name} ip={self.ip} port={self.port}>"

@@ -1,8 +1,36 @@
+import time
 import errno
 import socket
 import threading
 
-from packets import Packet, PacketPlayInJoin, PacketPlayOutWelcome, PacketPlayInDisconnect
+from server import DISCOVERY_PORT
+from packets import (
+    Packet, 
+    PacketPlayInJoin, 
+    PacketPlayOutWelcome, 
+    PacketPlayInDisconnect,
+    PacketStatusInPing,
+    PacketStatusOutPong
+)
+
+
+TIMEOUT = 2  # seconds
+
+
+class ServerData:
+    """A class to hold server data for the client."""
+
+    name: str
+    ip: str
+    port: int
+
+    def __init__(self, name: str, ip: str, port: int) -> None:
+        self.name = name
+        self.ip = ip
+        self.port = port
+
+    def __repr__(self) -> str:
+        return f"<ServerData name={self.name} ip={self.ip} port={self.port}>"
 
 
 class Client:
@@ -63,6 +91,47 @@ class Client:
             raise RuntimeError("Client is not running. Start the client before joining.")
 
         self.send(PacketPlayInJoin(name=self.name))
+
+    def search(self) -> set[ServerData]:
+        """Searches for available servers and returns a set of ServerData objects."""
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before searching for servers.")
+
+        print("[Client] Searching for available servers...")
+
+        # Send a ping request using broadcast
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.settimeout(TIMEOUT)  # Set a timeout for receiving responses
+
+        ping_packet = PacketStatusInPing()
+        sock.sendto(ping_packet.to_bytes(), ('<broadcast>', DISCOVERY_PORT))
+
+        servers = set()
+        start = time.time()
+        while True:
+            try:
+                data, addr = sock.recvfrom(1024)
+                try:
+                    packet = Packet.from_bytes(data)
+                    if not isinstance(packet, PacketStatusOutPong):
+                        raise ValueError("Received packet is not a Pong packet")
+                    
+                    servers.add(ServerData(name=packet.name, ip=packet.ip, port=packet.port))
+                    print(f"[Client] Received response from {addr[0]}:{addr[1]}: {packet}")
+                except ValueError as e:
+                    print(f"[Client] Received invalid packet from {addr[0]}:{addr[1]}: {e}")
+                    continue
+            except socket.timeout:
+                break
+
+            if time.time() - start > TIMEOUT:
+                break
+
+        sock.close()
+        print(f"[Client] Search completed. Found {len(servers)} servers.")
+        return servers
 
     def disconnect(self) -> None:
         """Sends a disconnect request to the server."""
@@ -134,6 +203,11 @@ if __name__ == "__main__":
 
     try:
         client.start()
+
+        time.sleep(2)  # Allow some time for the client to start
+        servers = client.search()
+        print(f"Found servers: {servers}")
+        
         while client.running:
             pass  # Keep the client running
     except KeyboardInterrupt:

@@ -1,4 +1,4 @@
-import time
+import errno
 import socket
 import threading
 
@@ -119,7 +119,7 @@ class Client:
                 if not self.running:
                     break
 
-                if e.errno == 111:
+                if e.errno == errno.ECONNREFUSED:
                     print("[Client] Connection refused by the server. Stopping client.")
                     self.stop()
                 else:

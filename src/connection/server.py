@@ -1,7 +1,7 @@
 import socket
 import threading
 
-from packets import *
+from packets import Packet, PacketStatusInPing, PacketStatusOutPong, PacketPlayInJoin, PacketPlayOutWelcome, PacketPlayInDisconnect
 
 
 class Server:

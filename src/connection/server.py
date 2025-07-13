@@ -94,16 +94,18 @@ class DiscoveryServer(BaseUDPServer):
 
 
 class Server(BaseUDPServer):
+    name: str
     ip: str
     clients: set[tuple[str, int]]
     discovery_server: DiscoveryServer
 
-    def __init__(self, port: int, buffer_size: int = BUFFER_SIZE) -> None:
+    def __init__(self, name: str, port: int, buffer_size: int = BUFFER_SIZE) -> None:
         super().__init__(port, buffer_size)
 
+        self.name = name
         self.ip = self._get_ip()
         self.clients: set[tuple[str, int]] = set()
-        self.discovery_server = DiscoveryServer(name="PixelRumbleServer", ip=self.ip, port=self.port)
+        self.discovery_server = DiscoveryServer(name=self.name, ip=self.ip, port=self.port)
 
     def _get_ip(self) -> str:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -151,9 +153,6 @@ class Server(BaseUDPServer):
             return
 
         match packet:
-            case ping if isinstance(ping, PacketStatusInPing):
-                pong = PacketStatusOutPong(self.ip, self.port)
-                self.send(pong, addr)
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 
@@ -180,7 +179,7 @@ class Server(BaseUDPServer):
 
 
 if __name__ == "__main__":
-    server = Server(port=3567)
+    server = Server(name="TestServer", port=25565)
     try:
         server.start()
         while server.running:

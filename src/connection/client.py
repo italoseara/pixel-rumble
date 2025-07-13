@@ -199,7 +199,7 @@ class Client:
 
 
 if __name__ == "__main__":
-    client = Client(name="Player1", server_ip="localhost", server_port=3567)
+    client = Client(name="Player1", server_ip="localhost", server_port=25565)
 
     try:
         client.start()

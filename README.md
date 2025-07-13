@@ -32,7 +32,7 @@ The packet format is a binary structure that includes a header and a payload. Th
 
 ## Status
 
-The status is used to check if there is a game server running on this address. The client can send a [ping](#ping) packet to the port `3567` to check if the server is available. The server will respond with a [pong](#pong) packet if it is running.
+The status is used to check if there is a game server running on this address. The client can send a [ping](#ping) packet to the port `1337` to check if the server is available. The server will respond with a [pong](#pong) packet if it is running.
 
 ### Client
 
@@ -79,9 +79,9 @@ The play state is used during the game. It includes packets for player actions, 
   </thead>
   <tbody>
     <tr>
-      <td rowspan="2">0x03</td>
-      <td rowspan="2">Play</td>
-      <td rowspan="2">Client</td>
+      <td rowspan="2"><code>0x03</code></td>
+      <td rowspan="2"><code>Play</code></td>
+      <td rowspan="2"><code>Client</code></td>
       <td>Is Welcome</td>
       <td><code>boolean</code></td>
       <td>Indicates if the player is welcome to join the game.</td>

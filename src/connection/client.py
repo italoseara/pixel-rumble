@@ -95,9 +95,6 @@ class Client:
     def search(self) -> set[ServerData]:
         """Searches for available servers and returns a set of ServerData objects."""
 
-        if not self.running:
-            raise RuntimeError("Client is not running. Start the client before searching for servers.")
-
         print("[Client] Searching for available servers...")
 
         # Send a ping request using broadcast

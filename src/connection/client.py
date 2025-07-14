@@ -61,6 +61,46 @@ class Client:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.running = False
 
+    @staticmethod
+    def search() -> set[ServerData]:
+        """Searches for available servers and returns a set of ServerData objects."""
+
+        print("[Client] Searching for available servers...")
+
+        # Send a ping request using broadcast
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.settimeout(TIMEOUT)  # Set a timeout for receiving responses
+
+        ping_packet = PacketStatusInPing()
+        sock.sendto(ping_packet.to_bytes(), ('<broadcast>', DISCOVERY_PORT))
+
+        servers = set()
+        start = time.time()
+        while True:
+            try:
+                data, addr = sock.recvfrom(1024)
+                try:
+                    packet = Packet.from_bytes(data)
+                    if not isinstance(packet, PacketStatusOutPong):
+                        print("[Client] Received packet is not a Pong packet")
+                        continue
+                    
+                    servers.add(ServerData(name=packet.name, ip=packet.ip, port=packet.port))
+                    print(f"[Client] Received response from {addr[0]}:{addr[1]}: {packet}")
+                except ValueError as e:
+                    print(f"[Client] Received invalid packet from {addr[0]}:{addr[1]}: {e}")
+                    continue
+            except socket.timeout:
+                break
+
+            if time.time() - start > TIMEOUT:
+                break
+
+        sock.close()
+        print(f"[Client] Search completed. Found {len(servers)} servers.")
+        return servers
+
     def start(self) -> None:
         """Starts the client and begins listening for incoming packets."""
 
@@ -91,44 +131,6 @@ class Client:
             raise RuntimeError("Client is not running. Start the client before joining.")
 
         self.send(PacketPlayInJoin(name=self.name))
-
-    def search(self) -> set[ServerData]:
-        """Searches for available servers and returns a set of ServerData objects."""
-
-        print("[Client] Searching for available servers...")
-
-        # Send a ping request using broadcast
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sock.settimeout(TIMEOUT)  # Set a timeout for receiving responses
-
-        ping_packet = PacketStatusInPing()
-        sock.sendto(ping_packet.to_bytes(), ('<broadcast>', DISCOVERY_PORT))
-
-        servers = set()
-        start = time.time()
-        while True:
-            try:
-                data, addr = sock.recvfrom(1024)
-                try:
-                    packet = Packet.from_bytes(data)
-                    if not isinstance(packet, PacketStatusOutPong):
-                        raise ValueError("Received packet is not a Pong packet")
-                    
-                    servers.add(ServerData(name=packet.name, ip=packet.ip, port=packet.port))
-                    print(f"[Client] Received response from {addr[0]}:{addr[1]}: {packet}")
-                except ValueError as e:
-                    print(f"[Client] Received invalid packet from {addr[0]}:{addr[1]}: {e}")
-                    continue
-            except socket.timeout:
-                break
-
-            if time.time() - start > TIMEOUT:
-                break
-
-        sock.close()
-        print(f"[Client] Search completed. Found {len(servers)} servers.")
-        return servers
 
     def disconnect(self) -> None:
         """Sends a disconnect request to the server."""

@@ -93,10 +93,10 @@ class RigidBody(Component):
         self.is_grounded = False
 
         # Gather other colliders
-        scene = getattr(self.parent, '_scene', None)
+        scene = self.parent.scene
         colliders = [
             obj.get_component(BoxCollider)
-            for obj in getattr(scene, '_game_objects', [])
+            for obj in scene._game_objects.values()
             if obj is not self.parent and obj.get_component(BoxCollider)
         ] if scene else []
 

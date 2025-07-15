@@ -127,7 +127,7 @@ class BoxCollider(Component):
     def is_colliding(self) -> bool:
         """Check if this collider is colliding with any other BoxCollider in the scene."""
 
-        for game_object in self.parent._scene._game_objects:
+        for game_object in self.parent.scene._game_objects.values():
             if game_object is self.parent:
                 continue
             

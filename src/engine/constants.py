@@ -1,4 +1,4 @@
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 PIVOT_POINTS = {
     "topleft": (0, 0),

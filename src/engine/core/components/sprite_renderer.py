@@ -7,7 +7,8 @@ from pygame.math import Vector2
 
 from .component import Component
 from .transform import Transform
-from ...constants import PIVOT_POINTS, DEBUG_MODE
+from ...util import validate_pivot
+from ...constants import DEBUG_MODE
 from ...spritesheet import SpriteSheet
 
 
@@ -89,7 +90,7 @@ class SpriteRenderer(Component):
         self.flip_y = flip_y
 
         # Pivot validation and assignment
-        self.pivot = self._validate_pivot(pivot)
+        self.pivot = validate_pivot(pivot)
 
     @property
     def width(self) -> int:
@@ -114,7 +115,7 @@ class SpriteRenderer(Component):
     @property
     def offset(self) -> Vector2:
         """Calculate the offset based on the pivot point."""
-        
+
         return Vector2(self.width * -(self.pivot.x - 0.5), 
                        self.height * -(self.pivot.y - 0.5))
 
@@ -134,22 +135,6 @@ class SpriteRenderer(Component):
         else:
             # fallback: full image
             return self.sprite_sheet._spritesheet.copy()
-
-    def _validate_pivot(self, pivot) -> Vector2:
-        """Validate and assign the pivot value."""
-        
-        if isinstance(pivot, str):
-            if pivot not in PIVOT_POINTS:
-                raise ValueError(f"Invalid pivot string: {pivot}. Must be one of {list(PIVOT_POINTS.keys())}.")
-            return Vector2(PIVOT_POINTS[pivot])
-        elif isinstance(pivot, tuple):
-            if len(pivot) != 2:
-                raise ValueError("Pivot tuple must be of length 2.")
-            return Vector2(pivot)
-        elif isinstance(pivot, Vector2):
-            return pivot
-        else:
-            raise TypeError("Pivot must be a Vector2, tuple of two floats, or a valid pivot string.")
 
     def _extract_sprite(self, index_x: int | str, index_y: int | str) -> pg.Surface:
         """Extract a sprite using SpriteSheet.get_sprite."""

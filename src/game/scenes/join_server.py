@@ -40,7 +40,7 @@ class JoinServerMenu(Scene):
             x="96%", y="90%",
             pivot="midright",
             font_size=42,
-            on_click=lambda: print("Entrar na sala")
+            on_click=lambda: print(canvas.get(InputField)[0].text)
         ))
 
         canvas.add(Button(

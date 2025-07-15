@@ -4,7 +4,7 @@ from pygame.math import Vector2
 from typing import override
 
 from engine import Scene, GameObject, Canvas, Game
-from engine.ui import Button, Text, Image, UIComponent
+from engine.ui import Button, Text, Image, LoadAnimation, UIComponent
 from engine.constants import DEFAULT_FONT, DEBUG_MODE
 
 from .direct_connection import DirectConnectionMenu
@@ -164,22 +164,29 @@ class JoinMenu(Scene):
             on_click=lambda: Game.instance().push_scene(DirectConnectionMenu())
         ))
 
-        server_list = [
-            "Server 1:172.0.0.1:8080",
-            "Server 2:192.0.0.1:8080",
-            "Server 3:172.1.1.1:8080",
-            "Server 4:123.0.0.1:8080"
-        ]
+        canvas.add(LoadAnimation(
+            x="50%", y="50%",
+            width=100, height=100,
+            pivot="center",
+            color=(255, 255, 255)
+        ))
 
-        for idx, item in enumerate(server_list[:3]):
-            y = 230 + idx * 90  # 230 é o valor inicial, 90 é o espaçamento
-            name, ip, port = item.split(":")
-            canvas.add(ServerListItem(
-                name=name, ip=ip, port=int(port),
-                x="50%", y=y,
-                width=650, height=80,
-                pivot="center"
-            ))
+        # server_list = [
+        #     "Server 1:172.0.0.1:8080",
+        #     "Server 2:192.0.0.1:8080",
+        #     "Server 3:172.1.1.1:8080",
+        #     "Server 4:123.0.0.1:8080"
+        # ]
+        #
+        # for idx, item in enumerate(server_list[:3]):
+        #     y = 230 + idx * 90  # 230 é o valor inicial, 90 é o espaçamento
+        #     name, ip, port = item.split(":")
+        #     canvas.add(ServerListItem(
+        #         name=name, ip=ip, port=int(port),
+        #         x="50%", y=y,
+        #         width=650, height=80,
+        #         pivot="center"
+        #     ))
 
         self.add(ui)
 
@@ -193,3 +200,5 @@ class JoinMenu(Scene):
 
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()
+
+

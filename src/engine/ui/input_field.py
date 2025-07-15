@@ -55,7 +55,9 @@ class InputField(UIComponent):
         self._text = ""
 
     @property
-    def text(self) -> str:
+    def text(self) -> str | int:
+        if self.allowed_type == int:
+            return int(self._text)
         return self._text
 
     @property

@@ -3,8 +3,8 @@ import errno
 import socket
 import threading
 
-from server import DISCOVERY_PORT
-from packets import (
+from .server import DISCOVERY_PORT
+from .packets import (
     Packet, 
     PacketPlayInJoin, 
     PacketPlayOutWelcome, 

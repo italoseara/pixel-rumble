@@ -1,5 +1,5 @@
 from __future__ import annotations
-from packets import Packet
+from connection.packets import Packet
 
 
 class PacketPlayOutWelcome(Packet):

@@ -45,7 +45,7 @@ class Tilemap(Component):
     group: pg.sprite.Group
     data: pytmx.TiledMap
 
-    _colliders: list[GameObject] = []
+    _colliders: list[GameObject]
 
     def __init__(
         self,
@@ -64,7 +64,7 @@ class Tilemap(Component):
         if not os.path.isfile(path):
             raise FileNotFoundError(f"Tilemap file '{path}' does not exist.")
 
-        self.colliders = []
+        self._colliders = []
         self.group = pg.sprite.Group()
         self.data = load_pygame(path)
         self.pivot = validate_pivot(pivot)

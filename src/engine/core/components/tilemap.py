@@ -104,6 +104,29 @@ class Tilemap(Component):
 
         return pg.Color(self.data.background_color) if self.data.background_color else pg.Color(0, 0, 0)
 
+    def get_position(self, x: int, y: int) -> Vector2:
+        """Get the position of a tile in the tilemap.
+
+        Args:
+            x (int): The x coordinate of the tile.
+            y (int): The y coordinate of the tile.
+        
+        Returns:
+            Vector2: The position of the tile in the tilemap.
+        """
+        
+        transform = self.parent.get_component(Transform)
+        if not transform:
+            raise RuntimeError("Tilemap requires a Transform component on the owner.")
+
+        position = transform.position
+        scale = transform.scale
+
+        return Vector2(
+            x * scale.x + position.x - self.offset.x,
+            y * scale.y + position.y - self.offset.y
+        )
+
     @override
     def start(self) -> None:
         """Initialize the Tilemap component."""
@@ -137,15 +160,9 @@ class Tilemap(Component):
             if not (width and height):
                 continue
 
-            pos = transform.position
-            scale = transform.scale
-
             collider = GameObject(name=f"{self.parent.name} ({name})")
-            collider.add_component(Transform(position=Vector2(
-                x * scale.x + pos.x - self.offset.x,
-                y * scale.y + pos.y - self.offset.y
-            )))
-            collider.add_component(BoxCollider(width=width * scale.x, height=height * scale.y))
+            collider.add_component(Transform(position=self.get_position(x, y)))
+            collider.add_component(BoxCollider(width=width * transform.scale.x, height=height * transform.scale.y))
             self.parent.scene.add(collider)
 
             self._colliders.append(collider)

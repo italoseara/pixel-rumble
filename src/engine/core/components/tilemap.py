@@ -98,6 +98,12 @@ class Tilemap(Component):
             self.height * self.pivot.y
         )
 
+    @property
+    def background_color(self) -> pg.Color:
+        """Get the background color of the tilemap."""
+
+        return pg.Color(self.data.background_color) if self.data.background_color else pg.Color(0, 0, 0)
+
     @override
     def start(self) -> None:
         """Initialize the Tilemap component."""

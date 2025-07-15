@@ -62,16 +62,9 @@ class PlayerController(Component):
 class LobbyScene(Scene):
     @override
     def start(self) -> None:
-        self.background_color = pg.Color(0, 0, 0)
-
-
-        tilemap = GameObject("Tilemap")
-        tilemap.add_component(Transform(x=0, y=-100, scale=2.5))
-        tilemap.add_component(Tilemap("assets/maps/mapatestemario.tmx", pivot="center"))
-        self.add(tilemap)
 
         player = GameObject("Player")
-        player.add_component(Transform(x=0, y=-100, scale=5))
+        player.add_component(Transform(x=0, y=-100, z_index=1, scale=5))
         player.add_component(SpriteRenderer(
             "assets/img/players.png", 
             pivot="midbottom",
@@ -82,6 +75,11 @@ class LobbyScene(Scene):
         player.add_component(RigidBody(drag=0.07, gravity=15))
         player.add_component(PlayerController())
         self.add(player)
+
+        map_object = GameObject("Map")
+        map_object.add_component(Transform(x=0, y=-100, scale=2.5))
+        tilemap = map_object.add_component(Tilemap("assets/maps/mapatestemario.tmx", pivot="center"))
+        self.add(map_object)
 
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
@@ -94,4 +92,5 @@ class LobbyScene(Scene):
         ))
         self.add(ui)
 
-        self.camera.set_target(tilemap, offset=Vector2(0, 100))
+        self.background_color = tilemap.background_color
+        self.camera.set_target(player, smooth=True, smooth_speed=10, offset=(0, -100))

@@ -3,8 +3,8 @@ import pygame as pg
 from pygame.math import Vector2
 from typing import override
 
-from engine import Scene, GameObject, Canvas, Game
-from engine.ui import Button, Text, Image, LoadAnimation, UIComponent
+from engine import Scene, GameObject, Canvas, Game, Transform, SpriteRenderer
+from engine.ui import Button, Text, Image, UIComponent
 from engine.constants import DEFAULT_FONT, DEBUG_MODE
 
 from .direct_connection import DirectConnectionMenu
@@ -164,12 +164,18 @@ class JoinMenu(Scene):
             on_click=lambda: Game.instance().push_scene(DirectConnectionMenu())
         ))
 
-        canvas.add(LoadAnimation(
-            x="50%", y="50%",
-            width=100, height=100,
-            pivot="center",
-            color=(255, 255, 255)
+        loading = GameObject("Loading")
+        loading.add_component(Transform(scale=9))
+        loading.add_component(SpriteRenderer(
+            "assets/img/loading.png",
+            animation_frames = [(i, 0) for i in range(20)],
+            animation_duration=0.5,
+            loop=True,
+            grid_size=(8, 8),
         ))
+
+        self.add(loading)
+
 
         # server_list = [
         #     "Server 1:172.0.0.1:8080",
@@ -200,5 +206,3 @@ class JoinMenu(Scene):
 
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()
-
-

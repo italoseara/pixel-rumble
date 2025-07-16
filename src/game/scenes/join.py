@@ -13,7 +13,7 @@ from engine.constants import DEFAULT_FONT, DEBUG_MODE
 from .direct_connection import DirectConnectionMenu
 from .join_server import JoinServerMenu
 
-MAX_SERVER_LIST_ITEMS = 4  # Maximum number of server list items to display at once
+MAX_SERVER_LIST_ITEMS = 3  # Maximum number of server list items to display at once
 
 class ServerListItem(UIComponent):
     name: str

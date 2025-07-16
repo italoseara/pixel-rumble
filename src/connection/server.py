@@ -14,7 +14,8 @@ from connection.packets import (
     PacketPlayOutWelcome,
     PacketPlayInDisconnect,
     PacketPlayInKeepAlive,
-    PacketPlayOutKeepAlive
+    PacketPlayOutKeepAlive,
+    PacketPlayOutPlayerJoin
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
@@ -108,6 +109,7 @@ class DiscoveryServer(BaseUDPServer):
 
 @dataclass
 class ClientData:
+    id: int
     name: str
     ip: str
     port: int
@@ -173,13 +175,29 @@ class Server(BaseUDPServer):
         match packet:
             case join if isinstance(join, PacketPlayInJoin):
                 if addr not in self.clients:
-                    self.clients[addr] = ClientData(name=join.name, ip=addr[0], port=addr[1])
+                    client_id = random.randint(1, 1_000_000)
+                    self.clients[addr] = ClientData(
+                        id=client_id,
+                        name=join.name,
+                        ip=addr[0],
+                        port=addr[1]
+                    )
+
                     print(f"[Server] Client {addr[0]}:{addr[1]} joined with name: {join.name}")
-                    welcome = PacketPlayOutWelcome(True, "Welcome to the server!")
+                    welcome_packet = PacketPlayOutWelcome(True, client_id, "Welcome to the server!")
+                    self.send(welcome_packet, addr)
+
+                    player_join_packet = PacketPlayOutPlayerJoin(player_id=client_id, name=join.name)
+                    self.broadcast(player_join_packet, exclude=addr)
+
+                    for client_addr, client_data in self.clients.items():
+                        if client_addr != addr:
+                            player_join_packet = PacketPlayOutPlayerJoin(player_id=client_data.id, name=client_data.name)
+                            self.send(player_join_packet, addr)
                 else:
                     print(f"[Server] Client {addr[0]}:{addr[1]} already connected.")
-                    welcome = PacketPlayOutWelcome(False, "You are already connected.")
-                self.send(welcome, addr)
+                    welcome_packet = PacketPlayOutWelcome(False, 0, "You are already connected.")
+                    self.send(welcome_packet, addr)
                 return
 
             case disconnect if isinstance(disconnect, PacketPlayInDisconnect):
@@ -207,13 +225,15 @@ class Server(BaseUDPServer):
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 
-    def broadcast(self, packet: Packet) -> None:
+    def broadcast(self, packet: Packet, exclude: tuple[str, int] = None) -> None:
         if not self.running:
             raise RuntimeError("Server is not running.")
 
         print(f"[Server] Broadcasting packet: {packet}")
         data = packet.to_bytes()
         for client in self.clients:
+            if exclude and client == exclude:
+                continue
             self.sock.sendto(data, client)
 
     def send(self, packet: Packet, addr: tuple[str, int]) -> None:

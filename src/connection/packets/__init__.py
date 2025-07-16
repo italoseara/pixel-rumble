@@ -8,3 +8,4 @@ from .play.client.join import PacketPlayInJoin
 from .play.client.disconnect import PacketPlayInDisconnect
 from .play.server.welcome import PacketPlayOutWelcome
 from .play.server.keep_alive import PacketPlayOutKeepAlive
+from .play.server.player_join import PacketPlayOutPlayerJoin

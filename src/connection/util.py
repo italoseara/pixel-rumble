@@ -29,3 +29,16 @@ def from_uint8(data: bytes) -> int:
         raise ValueError("Data must be exactly 1 byte long.")
 
     return struct.unpack('>B', data)[0]
+
+def to_float(value: float) -> bytes:
+    """Convert a float to a 4-byte representation."""
+
+    return struct.pack('>f', value)
+
+def from_float(data: bytes) -> float:
+    """Convert a 4-byte representation to a float."""
+
+    if len(data) != 4:
+        raise ValueError("Data must be exactly 4 bytes long.")
+
+    return struct.unpack('>f', data)[0]

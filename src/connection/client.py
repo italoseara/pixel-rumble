@@ -14,7 +14,8 @@ from connection.packets import (
     PacketStatusInPing,
     PacketStatusOutPong,
     PacketPlayInKeepAlive,
-    PacketPlayOutKeepAlive
+    PacketPlayOutKeepAlive,
+    PacketPlayOutPlayerJoin
 )
 
 
@@ -115,7 +116,7 @@ class Client:
                     from game.scenes.lobby import LobbyScene
                     
                     Game.instance().clear_scenes()
-                    Game.instance().push_scene(LobbyScene(name=self.name))
+                    Game.instance().push_scene(LobbyScene(id=welcome.player_id, name=self.name))
                     print(f"[Client] Connection successful: {welcome.message}")
                 else:
                     print(f"[Client] Connection failed: {welcome.message}")
@@ -124,8 +125,16 @@ class Client:
                 response_packet = PacketPlayInKeepAlive(value=keep_alive.value)
                 self.send(response_packet)
                 self.last_keep_alive = time.time()
+            case player_join if isinstance(player_join, PacketPlayOutPlayerJoin):
+                current_scene = Game.instance().current_scene
+
+                if hasattr(current_scene, 'add_player'):
+                    current_scene.add_player(player_join.player_id, player_join.name)
+                    print(f"[Client] Player {player_join.name} with ID {player_join.player_id} joined the lobby.")
+                else:
+                    print("[Client] Current scene does not support adding players.")
             case _:
-                print(f"[Client] Unhandled packet type: {type(packet).__name__}")
+                print(f"[Client] Unhandled packet type: {packet}")
 
     def start(self) -> None:
         """Starts the client and begins listening for incoming packets."""

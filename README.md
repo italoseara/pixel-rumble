@@ -129,12 +129,17 @@ The play state is used during the game. It includes packets for player actions, 
   </thead>
   <tbody>
     <tr>
-      <td rowspan="2"><code>0x03</code></td>
-      <td rowspan="2"><code>Play</code></td>
-      <td rowspan="2"><code>Client</code></td>
+      <td rowspan="3"><code>0x03</code></td>
+      <td rowspan="3"><code>Play</code></td>
+      <td rowspan="3"><code>Client</code></td>
       <td>Is Welcome</td>
       <td><code>boolean</code></td>
       <td>Indicates if the player is welcome to join the game.</td>
+    </tr>
+    <tr>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>The ID of the player if they are welcome. If not, this will be `0`.</td>
     </tr>
     <tr>
       <td>Message</td>

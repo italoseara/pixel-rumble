@@ -19,9 +19,11 @@ class RigidBody(Component):
     acceleration: Vector2
     velocity: Vector2
 
-    _transform: Transform | None = None
-    _collider: BoxCollider | None = None
-    
+    is_kinematic: bool
+
+    _transform: Transform | None
+    _collider: BoxCollider | None
+
     def __init__(
         self, 
         mass: float = 1, 
@@ -50,6 +52,7 @@ class RigidBody(Component):
         self._collider = None
 
         self.is_grounded = False
+        self.is_kinematic = False
 
     @override
     def start(self) -> None:
@@ -80,7 +83,7 @@ class RigidBody(Component):
             dt (float): The delta time since the last update.
         """
 
-        if not self._transform or not self._collider:
+        if self.is_kinematic or not self._transform or not self._collider:
             return
         
         # Apply gravity and drag

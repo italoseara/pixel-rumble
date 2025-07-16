@@ -14,16 +14,17 @@ from game.scripts import PlayerAnimation, PlayerController
 class PlayerPrefab(GameObject):
     """A prefab for the player character in the game."""
 
-    def __init__(self, name: str, x: float = 0, y: float = 0, is_local: bool = False) -> None:
+    def __init__(self, id: int, name: str, x: float = 0, y: float = 0, is_local: bool = False) -> None:
         """Initializes the player prefab with a name and position.
 
         Args:
+            id (int): The unique ID of the player.
             name (str): The name of the player.
             x (float): The x-coordinate of the player.
             y (float): The y-coordinate of the player.
         """
 
-        super().__init__("Local Player" if is_local else f"Player ({name})")
+        super().__init__("Local Player" if is_local else f"Player ({id})")
 
         self.add_component(Transform(x=x, y=y, z_index=1, scale=5))
         self.add_component(SpriteRenderer(
@@ -33,10 +34,12 @@ class PlayerPrefab(GameObject):
             sprite_index=(0, 0)
         ))
         self.add_component(BoxCollider(width=30))
-        self.add_component(RigidBody(drag=0.07, gravity=15))
+        rigid_body = self.add_component(RigidBody(drag=0.07, gravity=15))
 
         if is_local:
             self.add_component(PlayerController())
+        else:
+            rigid_body.is_kinematic = True
         
         self.add_component(PlayerAnimation())
         

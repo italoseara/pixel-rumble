@@ -16,7 +16,7 @@ class PlayerAnimation(Component):
     def update(self, dt: float) -> None:
         transform = self.parent.get_component(Transform)
         rigid_body = self.parent.get_component(RigidBody)
-
+        
         if rigid_body.acceleration.length() > 0:
             self.handle_walk_animation(transform)   
         else:

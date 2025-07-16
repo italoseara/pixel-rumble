@@ -6,11 +6,13 @@ from engine.ui import Image
 
         
 class LobbyScene(Scene):
+    player_id: int
     player_name: str
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, id: int, name: str) -> None:
         super().__init__()
 
+        self.player_id = id
         self.player_name = name
     
     @override
@@ -31,8 +33,19 @@ class LobbyScene(Scene):
         ))
         self.add(ui)
 
-        local_player = PlayerPrefab(self.player_name, is_local=True)
+        local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
         self.add(local_player)
 
         self.background_color = tilemap.background_color
         self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+
+    def add_player(self, player_id: int, name: str) -> None:
+        """Adds a player to the lobby scene.
+
+        Args:
+            player_id (int): The unique ID of the player.
+            name (str): The name of the player.
+        """
+
+        player = PlayerPrefab(player_id, name)
+        self.add(player)

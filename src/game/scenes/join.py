@@ -2,7 +2,6 @@ import time
 import pygame as pg
 import threading
 
-from nuitka.build.inline_copy.jinja2.jinja2.runtime import Macro
 from pygame.math import Vector2
 from typing import override
 

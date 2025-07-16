@@ -40,4 +40,4 @@ class PacketStatusOutPong(Packet):
         return cls(name, ip, port)
 
     def __repr__(self) -> str:
-        return f"<PacketStatusOutPong name={self.name} ip={self.ip} port={self.port}>"
+        return f"<PacketStatusOutPong name='{self.name}' ip={self.ip} port={self.port}>"

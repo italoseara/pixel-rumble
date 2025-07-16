@@ -41,7 +41,8 @@ class JoinServerMenu(Scene):
             x="96%", y="90%",
             pivot="midright",
             font_size=42,
-            on_click=lambda: self.connect(canvas)))
+            on_click=lambda: self.connect()
+        ))
 
         canvas.add(Button(
             "< VOLTAR",
@@ -64,8 +65,8 @@ class JoinServerMenu(Scene):
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()
 
-    def connect(self, canvas : Canvas) -> None:
-        name = canvas.get(InputField)[0].text
+    def connect(self) -> None:
+        name = self.find("UI").get_component(Canvas).get(InputField)[0].text
 
         Game.instance().client = Client(
             name=name,

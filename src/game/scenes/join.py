@@ -1,6 +1,8 @@
 import time
 import pygame as pg
 import threading
+
+from nuitka.build.inline_copy.jinja2.jinja2.runtime import Macro
 from pygame.math import Vector2
 from typing import override
 
@@ -12,6 +14,7 @@ from engine.constants import DEFAULT_FONT, DEBUG_MODE
 from .direct_connection import DirectConnectionMenu
 from .join_server import JoinServerMenu
 
+MAX_SERVER_LIST_ITEMS = 4  # Maximum number of server list items to display at once
 
 class ServerListItem(UIComponent):
     name: str
@@ -204,7 +207,9 @@ class JoinMenu(Scene):
 
         parent_canvas = self.find("UI").get_component(Canvas)
 
-        for idx, server in enumerate(self.server_list[:4] if len(self.server_list) > 4 else self.server_list):
+        for idx, server in enumerate(self.server_list[:MAX_SERVER_LIST_ITEMS]
+                                     if len(self.server_list) > MAX_SERVER_LIST_ITEMS
+                                     else self.server_list):
 
             y = 200 + idx * 90  # 200 é o valor inicial, 90 é o espaçamento
             parent_canvas.add(ServerListItem(

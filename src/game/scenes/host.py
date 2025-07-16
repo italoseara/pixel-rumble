@@ -53,7 +53,7 @@ class HostMenu(Scene):
             x="96%", y="90%",
             pivot="midright",
             font_size=42,
-            on_click=lambda: self.open_server(canvas)
+            on_click=lambda: self.open_server()
         ))
 
         canvas.add(Button(
@@ -71,13 +71,15 @@ class HostMenu(Scene):
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()
 
-    def open_server(self, canvas: Canvas) -> None:
+    def open_server(self) -> None:
         """Handle the server operation logic."""
-        name = canvas.get(InputField)[0].text
-        room_name = canvas.get(InputField)[1].text
-        port = canvas.get(InputField)[2].value
+        parent_canvas = self.find("UI").get_component(Canvas)
 
-        Game.instance().server = Server(name = room_name, port = port)
+        name = parent_canvas.get(InputField)[0].text
+        room_name = parent_canvas.get(InputField)[1].text
+        port = parent_canvas.get(InputField)[2].value
+
+        Game.instance().server = Server(name=room_name, port=port)
         Game.instance().server.start()
 
         Game.instance().client = Client(name=name, server_ip="localhost", server_port=port)

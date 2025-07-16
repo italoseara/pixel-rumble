@@ -115,8 +115,7 @@ class JoinMenu(Scene):
     def start(self) -> None:
 
         self.server_list: list[ServerData] = []
-        self.loading = self.loading_animation()
-        self.add(self.loading)
+        self.servers_loaded = False
 
         threading.Thread(target=self.load_servers, daemon=True).start() # Load servers in a separate thread
 
@@ -173,18 +172,17 @@ class JoinMenu(Scene):
             on_click=lambda: Game.instance().push_scene(DirectConnectionMenu())
         ))
 
-        if self.server_list:
-            self.loading.destroy()
+        loading = GameObject("Loading")
+        loading.add_component(Transform(scale=10))
+        loading.add_component(SpriteRenderer(
+            "assets/img/loading.png",
+            animation_frames=[(i, 0) for i in range(20)][::-1],
+            animation_duration=0.5,
+            loop=True,
+            grid_size=(8, 8),
+        ))
 
-            for idx, server in enumerate(self.server_list[:3]):
-                y = 200 + idx * 90  # 200 é o valor inicial, 90 é o espaçamento
-                canvas.add(ServerListItem(
-                    name=server.name, ip=server.ip, port=int(server.port),
-                    x="50%", y=y,
-                    width=650, height=80,
-                    pivot="center"
-                ))
-
+        self.add(loading)
         self.add(ui)
 
     @override
@@ -198,20 +196,20 @@ class JoinMenu(Scene):
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()
 
-    @staticmethod
-    def loading_animation() -> GameObject:
-        """Load animations for the scene."""
-        loading = GameObject("Loading")
-        loading.add_component(Transform(scale=10))
-        loading.add_component(SpriteRenderer(
-            "assets/img/loading.png",
-            animation_frames=[(i, 0) for i in range(20)][::-1],
-            animation_duration=0.5,
-            loop=True,
-            grid_size=(8, 8),
-        ))
-        return loading
-
     def load_servers(self) -> None:
         """Load the list of available servers."""
         self.server_list = Client.search()
+
+        self.find("Loading").destroy()
+
+        parent_canvas = self.find("UI").get_component(Canvas)
+
+        for idx, server in enumerate(self.server_list[:4] if len(self.server_list) > 4 else self.server_list):
+
+            y = 200 + idx * 90  # 200 é o valor inicial, 90 é o espaçamento
+            parent_canvas.add(ServerListItem(
+                name=server.name, ip=server.ip, port=int(server.port),
+                x="50%", y=y,
+                width=650, height=80,
+                pivot="center"
+            ))

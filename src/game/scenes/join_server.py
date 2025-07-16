@@ -41,7 +41,7 @@ class JoinServerMenu(Scene):
             x="96%", y="90%",
             pivot="midright",
             font_size=42,
-            on_click= self.connect(canvas)))
+            on_click=lambda: self.connect(canvas)))
 
         canvas.add(Button(
             "< VOLTAR",

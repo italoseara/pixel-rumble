@@ -81,6 +81,13 @@ class Game:
             return None
         return self._scenes[-1]
 
+    def clear_scenes(self) -> None:
+        """Clear all scenes from the stack."""
+        
+        while self._scenes:
+            self._scenes.pop().stop()
+        print("[Game] All scenes cleared from stack.")
+
     def push_scene(self, scene: "Scene") -> None:
         """Pause current and push a new one on top.
 

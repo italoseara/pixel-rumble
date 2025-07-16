@@ -5,7 +5,6 @@ import threading
 from dataclasses import dataclass
 
 from engine import Game
-from game.scenes.lobby import LobbyScene
 from connection.server import DISCOVERY_PORT
 from connection.packets import (
     Packet, 
@@ -40,6 +39,8 @@ class Client:
 
     running: bool
 
+    last_keep_alive: float
+
     def __init__(self, name: str, server_ip: str, server_port: int, buffer_size: int = 1024) -> None:
         """Initializes the client with the specified IP address and port.
 
@@ -57,6 +58,8 @@ class Client:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.running = False
 
+        self.last_keep_alive = time.time()
+
     @staticmethod
     def search() -> set[ServerData]:
         """Searches for available servers and returns a set of ServerData objects."""
@@ -73,7 +76,7 @@ class Client:
 
         servers = set()
         start = time.time()
-        while True:
+        while True:            
             try:
                 data, addr = sock.recvfrom(1024)
                 try:
@@ -109,6 +112,9 @@ class Client:
         match packet:
             case welcome if isinstance(welcome, PacketPlayOutWelcome):
                 if welcome.is_welcome:
+                    from game.scenes.lobby import LobbyScene
+                    
+                    Game.instance().clear_scenes()
                     Game.instance().push_scene(LobbyScene(name=self.name))
                     print(f"[Client] Connection successful: {welcome.message}")
                 else:
@@ -117,6 +123,7 @@ class Client:
             case keep_alive if isinstance(keep_alive, PacketPlayOutKeepAlive):
                 response_packet = PacketPlayInKeepAlive(value=keep_alive.value)
                 self.send(response_packet)
+                self.last_keep_alive = time.time()
             case _:
                 print(f"[Client] Unhandled packet type: {type(packet).__name__}")
 
@@ -130,6 +137,7 @@ class Client:
         self.running = True
 
         threading.Thread(target=self._listen_for_packets, daemon=True).start()
+        threading.Thread(target=self._wait_for_keep_alive, daemon=True).start()
         print(f"[Client] Client started and connected to {self.address}.")
 
         self.join()
@@ -175,11 +183,26 @@ class Client:
         self.sock.sendto(data, self.address)
         print(f"[Client] Sent packet: {packet}")
 
+    def _wait_for_keep_alive(self) -> None:
+        """Waits for keep-alive packets from the server and handles them."""
+
+        while self.running:
+            if time.time() - self.last_keep_alive > 20:
+                from game.scenes.menu import MainMenu
+                
+                print("[Client] No keep-alive packets received for 20 seconds. Stopping client.")
+                Game.instance().clear_scenes()
+                Game.instance().push_scene(MainMenu())
+                self.disconnect()
+                return
+
+            time.sleep(1)
+
     def _listen_for_packets(self) -> None:
         """Listens for incoming packets from the server and handles them."""
 
         tick_interval = 1.0 / TICK_RATE
-        while self.running:
+        while self.running:                
             start_time = time.time()
             try:
                 data, _ = self.sock.recvfrom(self.buffer_size)

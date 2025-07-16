@@ -3,8 +3,6 @@ from __future__ import annotations
 import pygame as pg
 from typing import TYPE_CHECKING
 
-from .. import GameObject
-
 if TYPE_CHECKING:
     from .scene import Scene
     from connection.client import Client

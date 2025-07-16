@@ -1,17 +1,8 @@
 from typing import override
 
-from engine import (
-    GameObject, 
-    Tilemap, 
-    Scene, 
-    Transform,
-    RigidBody,
-    SpriteRenderer,
-    BoxCollider,
-    Canvas,
-)
-from engine.ui import Image, Text
-from ..scripts import PlayerController
+from game.prefabs import PlayerPrefab
+from engine import GameObject, Tilemap, Scene, Transform, Canvas
+from engine.ui import Image
 
         
 class LobbyScene(Scene):
@@ -40,28 +31,8 @@ class LobbyScene(Scene):
         ))
         self.add(ui)
 
-        player = GameObject("Player")
-        player.add_component(Transform(x=0, y=-100, z_index=1, scale=5))
-        player.add_component(SpriteRenderer(
-            "assets/img/players.png", 
-            pivot="midbottom",
-            grid_size=(8, 8),
-            sprite_index=(0, 0)
-        ))
-        
-        player.add_component(BoxCollider(width=30))
-        player.add_component(RigidBody(drag=0.07, gravity=15))
-        player.add_component(PlayerController())
-        player_canvas = player.add_component(Canvas())
-        player_canvas.add(Text(
-            self.player_name,
-            x=0, y=-45,
-            pivot="midbottom",
-            color=(255, 255, 255),
-            font_size=18
-        ))
-        
-        self.add(player)
+        local_player = PlayerPrefab(self.player_name, is_local=True)
+        self.add(local_player)
 
         self.background_color = tilemap.background_color
-        self.camera.set_target(player, smooth=True, smooth_speed=10, offset=(0, -100))
+        self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))

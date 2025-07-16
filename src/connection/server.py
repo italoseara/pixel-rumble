@@ -184,4 +184,4 @@ class Server(BaseUDPServer):
         super().send(packet, addr)
 
     def __repr__(self) -> str:
-        return f"<Server ip={self.ip} port={self.port} running={self.running} clients={len(self.clients)}>"
+        return f"<Server name='{self.name}' ip={self.ip} port={self.port} running={self.running} clients={len(self.clients)}>"

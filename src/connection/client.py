@@ -139,6 +139,7 @@ class Client:
 
     def stop(self) -> None:
         """Stops the client and closes the socket."""
+
         if not self.running:
             return
 
@@ -179,6 +180,7 @@ class Client:
 
     def _listen_for_packets(self) -> None:
         """Listens for incoming packets from the server and handles them."""
+
         tick_interval = 1.0 / TICK_RATE
         while self.running:
             start_time = time.time()
@@ -203,4 +205,4 @@ class Client:
                 time.sleep(sleep_time)
 
     def __repr__(self) -> str:
-        return f"<Client name={self.name} address={self.address}>"
+        return f"<Client name='{self.name}' address={self.address}>"

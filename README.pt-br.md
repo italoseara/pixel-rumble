@@ -18,6 +18,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
 3. [Jogar](#jogar)
    - [Cliente](#cliente-1)
      - [Entrar](#entrar)
+     - [Desconectar](#desconectar)
    - [Servidor](#servidor-1)
      - [Boas-vindas](#boas-vindas)
 
@@ -46,9 +47,38 @@ O status é usado para verificar se há um servidor de jogo rodando neste endere
 
 #### Pong
 
-| ID do Pacote | Estado   | Destino   | Nome do Campo | Tipo do Campo | Descrição                                                |
-| ------------ | -------- | --------- | ------------- | ------------- | -------------------------------------------------------- |
-| `0x01`       | `Status` | `Cliente` | Endereço IP   | `string`      | O endereço IP e porta do servidor no formato `ip:porta`. |
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><code>0x01</code></td>
+      <td rowspan="3"><code>Play</code></td>
+      <td rowspan="3"><code>Cliente</code></td>
+      <td>Nome</td>
+      <td><code>string</code></td>
+      <td>O nome do servidor.</td>
+    </tr>
+    <tr>
+      <td>Endereço IP</td>
+      <td><code>string</code></td>
+      <td>O endereço IP do servidor.</td>
+    </tr>
+    <tr>
+      <td>Porta</td>
+      <td><code>uint16</code></td>
+      <td>A porta do servidor.</td>
+    </tr>
+  </tbody>
+</table>
 
 ## Jogar
 
@@ -61,6 +91,12 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                                    |
 | ------------ | ------- | ---------- | ------------- | ------------- | -------------------------------------------- |
 | `0x02`       | `Jogar` | `Servidor` | Nome          | `string`      | O nome do jogador que está entrando no jogo. |
+
+#### Desconectar
+
+| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                                           |
+| ------------ | ------- | ---------- | ------------- | ------------- | --------------------------------------------------- |
+| `0x04`       | `Jogar` | `Servidor` | _Sem campos_  |               | Indica que o jogador está se desconectando do jogo. |
 
 ### Servidor
 

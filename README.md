@@ -18,6 +18,7 @@ The game uses a custom protocol for network communication, which is defined in t
 3. [Play](#play)
    - [Client](#client-1)
      - [Join](#join)
+     - [Disconnect](#disconnect)
    - [Server](#server-1)
      - [Welcome](#welcome)
 
@@ -46,9 +47,39 @@ The status is used to check if there is a game server running on this address. T
 
 #### Pong
 
-| Packet ID | State    | Bound To | Field Name | Field Type | Description                                                    |
-| --------- | -------- | -------- | ---------- | ---------- | -------------------------------------------------------------- |
-| `0x01`    | `Status` | `Client` | IP Adress  | `string`   | The IP address and port of the server in the format `ip:port`. |
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><code>0x01</code></td>
+      <td rowspan="3"><code>Play</code></td>
+      <td rowspan="3"><code>Client</code></td>
+      <td>Name</td>
+      <td><code>string</code></td>
+      <td>The Name of the server.</td>
+    </tr>
+    <tr>
+      <td>IP Adress</td>
+      <td><code>string</code></td>
+      <td>The IP address of the server.</td>
+    </tr>
+    <tr>
+      <td>Port</td>
+      <td><code>uint16</code></td>
+      <td>The port of the server.</td>
+    </tr>
+  </tbody>
+</table>
+
 
 ## Play
 
@@ -61,6 +92,12 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                              |
 | --------- | ------ | -------- | ---------- | ---------- | ---------------------------------------- |
 | `0x02`    | `Play` | `Server` | Name       | `string`   | The name of the player joining the game. |
+
+#### Disconnect
+
+| Packet ID | State  | Bound To | Field Name  | Field Type | Description                                               |
+| --------- | ------ | -------- | ----------- | ---------- | --------------------------------------------------------- |
+| `0x04`    | `Play` | `Server` | _No fields_ |            | Indicates that the player is disconnecting from the game. |
 
 ### Server
 

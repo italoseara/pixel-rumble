@@ -3,6 +3,7 @@ from pygame.math import Vector2
 from typing import TYPE_CHECKING
 
 from ..core.game import Game
+from ..core.components.transform import Transform
 from ..util import validate_pivot
 from ..constants import DEBUG_MODE
 
@@ -53,13 +54,17 @@ class UIComponent:
 
         if self._rel_position.x != 0:
             pos.x = self._rel_position.x * pg.display.get_surface().get_width()
+            if pos.x < 0:
+                pos.x += pg.display.get_surface().get_width()
         if self._rel_position.y != 0:
             pos.y = self._rel_position.y * pg.display.get_surface().get_height()
+            if pos.y < 0:
+                pos.y += pg.display.get_surface().get_height()
 
-        if pos.x < 0:
-            pos.x += pg.display.get_surface().get_width()
-        if pos.y < 0:
-            pos.y += pg.display.get_surface().get_height()
+        if self.parent:
+            transform = self.parent.parent.get_component(Transform)
+            if transform:
+                pos += transform.screen_position
 
         return pos + self.offset
 

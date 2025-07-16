@@ -1,3 +1,4 @@
+import math
 import pytmx
 import random
 import pygame as pg
@@ -13,7 +14,7 @@ from engine import (
 )
 
 class PlayerController(Component):
-    def __init__(self, jump_force: float = 700, move_speed: float = 1500) -> None:
+    def __init__(self, jump_force: float = 700, move_speed: float = 1700) -> None:
         super().__init__()
 
         self.flip_x = False
@@ -32,6 +33,65 @@ class PlayerController(Component):
 
         # Set random position for the player
         self.set_random_pos()
+
+    @override
+    def update(self, dt: float) -> None:
+        keys = pg.key.get_pressed()
+        transform = self.parent.get_component(Transform)
+        rigid_body = self.parent.get_component(RigidBody)
+
+        self.handle_movement(keys, rigid_body)
+        self.handle_jump(keys, rigid_body)
+        self.handle_boost(keys, rigid_body)
+        self.handle_sprite_flip()
+        self.reset_if_fallen(transform, rigid_body)
+
+        if rigid_body.acceleration.length() > 0:
+            self.handle_walk_animation(transform)
+        else:
+            self.handle_idle_animation(transform)
+
+    def handle_idle_animation(self, transform: Transform) -> None:
+        transform.scale = Vector2(5, 5 + math.sin(pg.time.get_ticks() / 200) / 7)
+        transform.rotation *= 0.8
+
+    def handle_walk_animation(self, transform: Transform) -> None:
+        transform.scale = Vector2(5, 5 + math.sin(pg.time.get_ticks() / 40) / 5)
+        transform.rotation = math.sin(pg.time.get_ticks() / 80) * 5
+
+    def handle_movement(self, keys: pg.key.ScancodeWrapper, rigid_body: RigidBody) -> None:
+        if keys[pg.K_a]:
+            rigid_body.add_force((-self.move_speed, 0))
+            self.flip_x = True
+        if keys[pg.K_d]:
+            rigid_body.add_force((self.move_speed, 0))
+            self.flip_x = False
+
+    def handle_jump(self, keys: pg.key.ScancodeWrapper, rigid_body: RigidBody) -> None:
+        if (keys[pg.K_SPACE] or keys[pg.K_w]) and rigid_body.is_grounded:
+            rigid_body.add_impulse((0, -self.jump_force))
+
+    def handle_boost(self, keys: pg.key.ScancodeWrapper, rigid_body: RigidBody) -> None:
+        current_time = pg.time.get_ticks() / 1000
+        if keys[pg.K_LSHIFT] and self.boost and self.last_boost_time + 0.5 < current_time:
+            impulse_direction = Vector2(-1, 0) if self.flip_x else Vector2(1, 0)
+            rigid_body.add_impulse(impulse_direction * self.move_speed / 2)
+            self.boost = False
+            self.last_boost_time = current_time
+
+        if not self.boost and rigid_body.is_grounded:
+            self.boost = True
+
+    def handle_sprite_flip(self) -> None:
+        sprite_renderer = self.parent.get_component(SpriteRenderer)
+        if sprite_renderer:
+            sprite_renderer.flip_x = self.flip_x
+
+    def reset_if_fallen(self, transform: Transform, rigid_body: RigidBody) -> None:
+        if transform.y > 1000:
+            self.set_random_pos()
+            rigid_body.velocity = Vector2(0, 0)
+            rigid_body.acceleration = Vector2(0, 0)
 
     def set_random_pos(self) -> None:
         """Initialize the PlayerController component."""
@@ -52,36 +112,3 @@ class PlayerController(Component):
         x, y = random.choice(spawn_points)
         transform = self.parent.get_component(Transform)
         transform.position = tilemap.get_position(x, y)
-
-    @override
-    def update(self, dt: float) -> None:
-        keys = pg.key.get_pressed()
-        transform = self.parent.get_component(Transform)
-        rigid_body = self.parent.get_component(RigidBody)
-
-        if keys[pg.K_a]:
-            rigid_body.add_force((-self.move_speed, 0))
-            self.flip_x = True
-        if keys[pg.K_d]:
-            rigid_body.add_force((self.move_speed, 0))
-            self.flip_x = False
-        if (keys[pg.K_SPACE] or keys[pg.K_w]) and rigid_body.is_grounded:
-            rigid_body.add_impulse((0, -self.jump_force))
-        if keys[pg.K_LSHIFT] and self.boost and self.last_boost_time + 0.5 < pg.time.get_ticks() / 1000:
-            impulse_direction = Vector2(-1, 0) if self.flip_x else Vector2(1, 0)
-            rigid_body.add_impulse(impulse_direction * self.move_speed / 2)
-            self.boost = False
-            self.last_boost_time = pg.time.get_ticks() / 1000  # Reset boost timer
-
-        if not self.boost and rigid_body.is_grounded:
-            self.boost = True
-        
-        sprite_renderer = self.parent.get_component(SpriteRenderer)
-        if sprite_renderer:
-            sprite_renderer.flip_x = self.flip_x
-
-        # Reset position if player falls off the screen
-        if transform.y > 1000:
-            self.set_random_pos()
-            rigid_body.velocity = Vector2(0, 0)
-            rigid_body.acceleration = Vector2(0, 0)

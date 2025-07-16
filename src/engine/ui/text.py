@@ -12,6 +12,7 @@ class Text(UIComponent):
     shadow: bool
     shadow_color: pg.Color
     _font: pg.font.Font
+    _font_size: int
     
     def __init__(
         self, 
@@ -46,6 +47,7 @@ class Text(UIComponent):
         self.shadow = shadow
         self.shadow_color = shadow_color
         self._font = pg.font.Font(DEFAULT_FONT, font_size)
+        self._font_size = font_size
         self._update_size()
 
     @property
@@ -68,7 +70,8 @@ class Text(UIComponent):
 
         if self.shadow:
             shadow = self._font.render(self._text, False, self.shadow_color)
-            surface.blit(shadow, (self.position.x + 5, self.position.y + 5))
+            shadow_offset = min(5, self._font.size(self._text)[1] // 5)  # Offset for shadow
+            surface.blit(shadow, (self.position.x + shadow_offset, self.position.y + shadow_offset))
 
         text = self._font.render(self._text, False, self.color)
         surface.blit(text, self.position)

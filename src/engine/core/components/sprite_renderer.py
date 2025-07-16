@@ -182,35 +182,6 @@ class SpriteRenderer(Component):
                     else:
                         self._current_frame = len(self.animation_frames) - 1
 
-    def _get_transformed_image(self, image: pg.Surface, transform: Transform) -> tuple[pg.Surface, pg.Rect, Vector2]:
-        """Get the transformed image and its position based on the transform.
-
-        Args:
-            image (pg.Surface): The image to transform.
-            transform (Transform): The Transform component of the parent GameObject.
-        Returns:
-            tuple[pg.Surface, pg.Rect, Vector2]: The transformed image, its position, and the rectangle for blitting.
-        """
-
-        # Apply flipping if necessary
-        image = pg.transform.flip(image, self.flip_x, self.flip_y)
-
-        # Scale the image based on the transform's scale
-        image = pg.transform.scale(image, (self.width, self.height))
-
-        # Rotate the image around the pivot point
-        rotated_image = pg.transform.rotate(image, -transform.rotation)
-        rotated_offset = self.offset.rotate(transform.rotation)
-        # rect = rotated_image.get_rect(center=position + offset + rotated_offset)
-
-        # We are doing this because rect coordinates are integer-based,
-        # while we want to use floating-point for more precise positioning
-        width, height = rotated_image.get_size()
-        center = Vector2(width / 2, height / 2)
-        position = transform.screen_position + rotated_offset - center
-
-        return rotated_image, position
-
     @override
     def draw(self, surface: pg.Surface) -> None:
         """Draw the sprite on the given surface.

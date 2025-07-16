@@ -128,12 +128,11 @@ class GameObject:
 
     def destroy(self) -> None:
         """Clean up the GameObject and its components."""
-        
-        for comp in list(self._components):
+
+        for comp in self._components.values():
             comp.parent = None
             comp.destroy()
-            del self._components[type(comp)]
-            
+
         self._components.clear()
         self.name = ""
         self.active = False

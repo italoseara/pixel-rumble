@@ -1,8 +1,10 @@
 import time
 import pygame as pg
+import threading
 from pygame.math import Vector2
 from typing import override
 
+from connection.client import Client, ServerData
 from engine import Scene, GameObject, Canvas, Game, Transform, SpriteRenderer
 from engine.ui import Button, Text, Image, UIComponent
 from engine.constants import DEFAULT_FONT, DEBUG_MODE
@@ -111,6 +113,13 @@ class ServerListItem(UIComponent):
 class JoinMenu(Scene):
     @override
     def start(self) -> None:
+
+        self.server_list: list[ServerData] = []
+        self.loading = self.loading_animation()
+        self.add(self.loading)
+
+        threading.Thread(target=self.load_servers, daemon=True).start() # Load servers in a separate thread
+
         self.background_color = pg.Color(54, 78, 109, 255)
 
         ui = GameObject("UI")
@@ -164,35 +173,17 @@ class JoinMenu(Scene):
             on_click=lambda: Game.instance().push_scene(DirectConnectionMenu())
         ))
 
-        loading = GameObject("Loading")
-        loading.add_component(Transform(scale=9))
-        loading.add_component(SpriteRenderer(
-            "assets/img/loading.png",
-            animation_frames = [(i, 0) for i in range(20)][::-1],
-            animation_duration=0.5,
-            loop=True,
-            grid_size=(8, 8),
-        ))
+        if self.server_list:
+            self.loading.destroy()
 
-        self.add(loading)
-
-
-        # server_list = [
-        #     "Server 1:172.0.0.1:8080",
-        #     "Server 2:192.0.0.1:8080",
-        #     "Server 3:172.1.1.1:8080",
-        #     "Server 4:123.0.0.1:8080"
-        # ]
-        #
-        # for idx, item in enumerate(server_list[:3]):
-        #     y = 230 + idx * 90  # 230 é o valor inicial, 90 é o espaçamento
-        #     name, ip, port = item.split(":")
-        #     canvas.add(ServerListItem(
-        #         name=name, ip=ip, port=int(port),
-        #         x="50%", y=y,
-        #         width=650, height=80,
-        #         pivot="center"
-        #     ))
+            for idx, server in enumerate(self.server_list[:3]):
+                y = 200 + idx * 90  # 200 é o valor inicial, 90 é o espaçamento
+                canvas.add(ServerListItem(
+                    name=server.name, ip=server.ip, port=int(server.port),
+                    x="50%", y=y,
+                    width=650, height=80,
+                    pivot="center"
+                ))
 
         self.add(ui)
 
@@ -206,3 +197,21 @@ class JoinMenu(Scene):
 
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()
+
+    @staticmethod
+    def loading_animation() -> GameObject:
+        """Load animations for the scene."""
+        loading = GameObject("Loading")
+        loading.add_component(Transform(scale=10))
+        loading.add_component(SpriteRenderer(
+            "assets/img/loading.png",
+            animation_frames=[(i, 0) for i in range(20)][::-1],
+            animation_duration=0.5,
+            loop=True,
+            grid_size=(8, 8),
+        ))
+        return loading
+
+    def load_servers(self) -> None:
+        """Load the list of available servers."""
+        self.server_list = Client.search()

@@ -3,6 +3,7 @@ from typing import override
 
 from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Button, InputField, Text
+from connection.client import Client
 
 
 class JoinServerMenu(Scene):
@@ -40,7 +41,7 @@ class JoinServerMenu(Scene):
             x="96%", y="90%",
             pivot="midright",
             font_size=42,
-            on_click=lambda: print("Entrar na sala")
+            on_click=lambda: self.connect()
         ))
 
         canvas.add(Button(
@@ -63,3 +64,14 @@ class JoinServerMenu(Scene):
 
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()
+
+    def connect(self) -> None:
+        name = self.find("UI").get_component(Canvas).get(InputField)[0].text
+
+        Game.instance().client = Client(
+            name=name,
+            server_ip=self.ip,
+            server_port=self.port
+        )
+
+        Game.instance().client.start()

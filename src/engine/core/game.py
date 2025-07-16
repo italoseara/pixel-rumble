@@ -3,6 +3,9 @@ from __future__ import annotations
 import pygame as pg
 from typing import TYPE_CHECKING
 
+from connection.client import Client
+from connection.server import Server
+
 if TYPE_CHECKING:
     from .scene import Scene
 
@@ -13,10 +16,14 @@ class Game:
     screen: pg.Surface
     clock: pg.time.Clock
     fps: int
+    client: Client | None
+    server: Server | None
 
     _scenes: list['Scene']
     _running: bool
     _instance: Game = None
+
+
 
     def __init__(
         self,
@@ -56,6 +63,9 @@ class Game:
         self.clock = pg.time.Clock()
 
         self._scenes = []
+
+        self.client = None
+        self.server = None
 
     @classmethod
     def instance(cls) -> Game:

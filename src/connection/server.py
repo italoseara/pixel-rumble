@@ -3,7 +3,7 @@ import threading
 from typing import override
 from abc import ABC, abstractmethod
 
-from .packets import (
+from connection.packets import (
     Packet,
     PacketStatusInPing,
     PacketStatusOutPong,

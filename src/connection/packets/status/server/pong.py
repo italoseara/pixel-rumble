@@ -18,7 +18,6 @@ class PacketStatusOutPong(Packet):
         self.port = port
 
         port_bytes = struct.pack('>I', port)
-        print(port_bytes)
         super().__init__(data=f"{name}\0{ip}".encode() + port_bytes)
 
     @classmethod
@@ -28,12 +27,14 @@ class PacketStatusOutPong(Packet):
         header, port_bytes = data.rsplit(b'\0', 2)[0:2], data[-4:]
         decoded = header[0].decode()
         parts = decoded.split("\0")
-        print(parts)
+
         if len(parts) != 2:
             raise ValueError("Invalid data format for PacketStatusOutPong")
+
         name, ip = parts
         if not name or not ip:
             raise ValueError("Name and IP cannot be empty in PacketStatusOutPong")
+
         port = struct.unpack('>I', port_bytes)[0]
 
         return cls(name, ip, port)

@@ -3,7 +3,9 @@ from pygame.math import Vector2
 from typing import TYPE_CHECKING
 
 from ..core.game import Game
-from ..constants import DEBUG_MODE, PIVOT_POINTS
+from ..core.components.transform import Transform
+from ..util import validate_pivot
+from ..constants import DEBUG_MODE
 
 if TYPE_CHECKING:
     from ..core.components.canvas import Canvas
@@ -36,7 +38,7 @@ class UIComponent:
         self.height = height
         self.active = True
         self.parent = None
-        self.pivot = self._validate_pivot(pivot)
+        self.pivot = validate_pivot(pivot)
 
     @property
     def rect(self) -> pg.Rect:
@@ -52,13 +54,17 @@ class UIComponent:
 
         if self._rel_position.x != 0:
             pos.x = self._rel_position.x * pg.display.get_surface().get_width()
+            if pos.x < 0:
+                pos.x += pg.display.get_surface().get_width()
         if self._rel_position.y != 0:
             pos.y = self._rel_position.y * pg.display.get_surface().get_height()
+            if pos.y < 0:
+                pos.y += pg.display.get_surface().get_height()
 
-        if pos.x < 0:
-            pos.x += pg.display.get_surface().get_width()
-        if pos.y < 0:
-            pos.y += pg.display.get_surface().get_height()
+        if self.parent:
+            transform = self.parent.parent.get_component(Transform)
+            if transform:
+                pos += transform.screen_position
 
         return pos + self.offset
 
@@ -85,27 +91,13 @@ class UIComponent:
             self._rel_position.y = 0
             self._position.y = float(y)
 
-    def _validate_pivot(self, pivot) -> Vector2:
-        if isinstance(pivot, str):
-            if pivot not in PIVOT_POINTS:
-                raise ValueError(f"Invalid pivot string: {pivot}. Must be one of {list(PIVOT_POINTS.keys())}.")
-            return Vector2(PIVOT_POINTS[pivot])
-        elif isinstance(pivot, tuple):
-            if len(pivot) != 2:
-                raise ValueError("Pivot tuple must be of length 2.")
-            return Vector2(pivot)
-        elif isinstance(pivot, Vector2):
-            return pivot
-        else:
-            raise TypeError("Pivot must be a Vector2, tuple of two floats, or a valid pivot string.")
-
     def is_mouse_over(self, mouse_pos: Vector2) -> bool:
         """Check if the mouse position is within the component's bounds."""
 
         if self.parent is None:
             return False
 
-        scene = self.parent.parent._scene
+        scene = self.parent.parent.scene
         current_scene = Game.instance().current_scene
         
         if current_scene != scene:

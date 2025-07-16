@@ -7,7 +7,8 @@ from pygame.math import Vector2
 
 from .component import Component
 from .transform import Transform
-from ...constants import PIVOT_POINTS, DEBUG_MODE
+from ...util import validate_pivot
+from ...constants import DEBUG_MODE
 from ...spritesheet import SpriteSheet
 
 
@@ -89,7 +90,7 @@ class SpriteRenderer(Component):
         self.flip_y = flip_y
 
         # Pivot validation and assignment
-        self.pivot = self._validate_pivot(pivot)
+        self.pivot = validate_pivot(pivot)
 
     @property
     def width(self) -> int:
@@ -114,7 +115,7 @@ class SpriteRenderer(Component):
     @property
     def offset(self) -> Vector2:
         """Calculate the offset based on the pivot point."""
-        
+
         return Vector2(self.width * -(self.pivot.x - 0.5), 
                        self.height * -(self.pivot.y - 0.5))
 
@@ -134,22 +135,6 @@ class SpriteRenderer(Component):
         else:
             # fallback: full image
             return self.sprite_sheet._spritesheet.copy()
-
-    def _validate_pivot(self, pivot) -> Vector2:
-        """Validate and assign the pivot value."""
-        
-        if isinstance(pivot, str):
-            if pivot not in PIVOT_POINTS:
-                raise ValueError(f"Invalid pivot string: {pivot}. Must be one of {list(PIVOT_POINTS.keys())}.")
-            return Vector2(PIVOT_POINTS[pivot])
-        elif isinstance(pivot, tuple):
-            if len(pivot) != 2:
-                raise ValueError("Pivot tuple must be of length 2.")
-            return Vector2(pivot)
-        elif isinstance(pivot, Vector2):
-            return pivot
-        else:
-            raise TypeError("Pivot must be a Vector2, tuple of two floats, or a valid pivot string.")
 
     def _extract_sprite(self, index_x: int | str, index_y: int | str) -> pg.Surface:
         """Extract a sprite using SpriteSheet.get_sprite."""
@@ -196,35 +181,6 @@ class SpriteRenderer(Component):
                         self._current_frame = 0
                     else:
                         self._current_frame = len(self.animation_frames) - 1
-
-    def _get_transformed_image(self, image: pg.Surface, transform: Transform) -> tuple[pg.Surface, pg.Rect, Vector2]:
-        """Get the transformed image and its position based on the transform.
-
-        Args:
-            image (pg.Surface): The image to transform.
-            transform (Transform): The Transform component of the parent GameObject.
-        Returns:
-            tuple[pg.Surface, pg.Rect, Vector2]: The transformed image, its position, and the rectangle for blitting.
-        """
-
-        # Apply flipping if necessary
-        image = pg.transform.flip(image, self.flip_x, self.flip_y)
-
-        # Scale the image based on the transform's scale
-        image = pg.transform.scale(image, (self.width, self.height))
-
-        # Rotate the image around the pivot point
-        rotated_image = pg.transform.rotate(image, -transform.rotation)
-        rotated_offset = self.offset.rotate(transform.rotation)
-        # rect = rotated_image.get_rect(center=position + offset + rotated_offset)
-
-        # We are doing this because rect coordinates are integer-based,
-        # while we want to use floating-point for more precise positioning
-        width, height = rotated_image.get_size()
-        center = Vector2(width / 2, height / 2)
-        position = transform.screen_position + rotated_offset - center
-
-        return rotated_image, position
 
     @override
     def draw(self, surface: pg.Surface) -> None:

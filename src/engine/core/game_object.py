@@ -16,7 +16,7 @@ class GameObject:
     visible: bool  # skip draw if False
     parent: GameObject | None
 
-    _scene: "Scene" | None
+    scene: "Scene" | None
     _components: dict[Type[Component], Component]
 
     def __init__(self, name: str, parent: GameObject | None = None) -> None:
@@ -37,7 +37,7 @@ class GameObject:
         self.visible = True
         self.parent = parent
 
-        self._scene = None
+        self.scene = None
         self._components = {}
 
     def add_component(self, component: T) -> T:
@@ -61,7 +61,6 @@ class GameObject:
 
         component.parent = self
         self._components[ctype] = component
-        component.start()
         return component
 
     def get_component(self, ctype: Type[T]) -> T | None:

@@ -3,6 +3,7 @@ import pygame as pg
 from .game import Game
 from .camera import Camera
 from .game_object import GameObject
+from .components.transform import Transform
 
 
 class Scene:
@@ -51,7 +52,10 @@ class Scene:
             raise ValueError(f"GameObject with name '{game_object.name}' already exists in the scene")
 
         self._game_objects[game_object.name] = game_object
-        game_object._scene = self
+        game_object.scene = self
+
+        for component in game_object._components.values():
+            component.start()
 
     def start(self) -> None:
         """Called once when the scene is pushed."""
@@ -117,7 +121,11 @@ class Scene:
                 surface.blit(s, (0, 0))
             else:
                 surface.fill(self.background_color)
-                
 
-        for game_object in self._game_objects.values():
+        def get_z_index(game_object: GameObject) -> int:
+            transform = game_object.get_component(Transform)
+            return transform.z_index if transform else 0
+
+        game_objects = sorted(self._game_objects.values(), key=get_z_index)
+        for game_object in game_objects:
             game_object.draw(surface)

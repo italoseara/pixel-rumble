@@ -10,13 +10,14 @@ class Transform(Component):
     position: Vector2
     rotation: float
     scale: Vector2
+    z_index: int
 
     def __init__(
         self, 
         position: Vector2 | tuple[float, float] = (0, 0), 
         rotation: float = 0.0, scale: Vector2 | float = 1, 
         *, 
-        x: float = 0.0, y: float = 0.0
+        x: float = 0.0, y: float = 0.0, z_index: int = 0
     ) -> None:
         """Initialize the Transform component.
 
@@ -26,6 +27,7 @@ class Transform(Component):
             scale (Vector2 | float, optional): The scale of the transform. Defaults to 1.
             x (float, optional): The position in the X axis. Defaults to 0.0.
             y (float, optional): The position in the Y axis. Defaults to 0.0.
+            z_index (int, optional): The z-index for sorting. Defaults to 0.
 
         Note:
             - If `position` is provided, it will override `x` and `y`.
@@ -35,6 +37,7 @@ class Transform(Component):
         super().__init__()
 
         self.position = Vector2(position) or Vector2(x, y)
+        self.z_index = z_index
         self.rotation = rotation
         self.scale = scale if isinstance(scale, Vector2) else Vector2(scale, scale)
 
@@ -52,7 +55,7 @@ class Transform(Component):
         """Get the screen position of the transform."""
         
         if self.parent:
-            return self.parent._scene.camera.world_to_screen(self.world_position)
+            return self.parent.scene.camera.world_to_screen(self.world_position)
         return self.world_position
 
     @property

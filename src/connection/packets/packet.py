@@ -1,5 +1,6 @@
 from __future__ import annotations
-import struct
+
+from connection.util import from_uint8, to_uint8
 
 class PacketMeta(type):
     """Metaclass to automatically register Packet subclasses."""
@@ -29,7 +30,7 @@ class Packet(metaclass=PacketMeta):
     def to_bytes(self) -> bytes:
         """Convert the packet to bytes."""
 
-        return struct.pack("B", self.id) + self.data
+        return to_uint8(self.id) + self.data
 
     @classmethod
     def from_bytes(cls, data: bytes) -> type[Packet]:
@@ -38,7 +39,7 @@ class Packet(metaclass=PacketMeta):
         if len(data) < 1:
             raise ValueError("Packet data too short")
 
-        id_ = struct.unpack("B", data[:1])[0]
+        id_ = from_uint8(data[:1])
 
         packet_class = cls.registry.get(id_)
         if not packet_class:

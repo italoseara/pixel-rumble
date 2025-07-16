@@ -135,21 +135,27 @@ class Tilemap(Component):
         if not transform:
             raise RuntimeError("Tilemap requires a Transform component on the owner.")
 
-        foreground_layer = self.data.get_layer_by_name("Foreground")
-        background_layer = self.data.get_layer_by_name("Background")
         collider_layer = self.data.get_layer_by_name("Collider")
-    
-        if not foreground_layer or not background_layer or not collider_layer:
-            raise ValueError("Tilemap must have 'Foreground', 'Background', and 'Collider' layers.")
 
-        for layer in (background_layer, foreground_layer):
+        for layer in self.data.visible_layers:
+            if not isinstance(layer, pytmx.TiledTileLayer):
+                continue
+
             for x, y, surface in layer.tiles():
                 if not surface:
                     continue
 
+                opacity = layer.opacity
+                if opacity < 1.0:
+                    surface = surface.copy()
+                    surface.set_alpha(int(opacity * 255))
+
                 sprite = Tile(surface, Vector2(x * self.data.tilewidth, y * self.data.tileheight))
                 self.group.add(sprite)
 
+        if not collider_layer:
+            return
+        
         for obj in collider_layer:
             obj: pytmx.TiledObject
 

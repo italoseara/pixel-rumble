@@ -17,7 +17,7 @@ class LobbyScene(Scene):
     def start(self) -> None:
         map_object = GameObject("Map")
         map_object.add_component(Transform(x=0, y=-100, scale=2.5))
-        tilemap = map_object.add_component(Tilemap("assets/maps/mapatestemario.tmx", pivot="center"))
+        tilemap = map_object.add_component(Tilemap("assets/maps/mario.tmx", pivot="center"))
         self.add(map_object)
 
         ui = GameObject("UI")

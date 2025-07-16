@@ -79,6 +79,9 @@ class RigidBody(Component):
         Args:
             dt (float): The delta time since the last update.
         """
+
+        if not self._transform or not self._collider:
+            return
         
         # Apply gravity and drag
         self.acceleration += Vector2(0, 100) * self.gravity

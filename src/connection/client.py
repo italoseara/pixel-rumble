@@ -17,6 +17,7 @@ from connection.packets import (
 
 
 TIMEOUT = 2  # seconds
+TICK_RATE = 20  # ticks per second
 
 class ServerData:
     """A class to hold server data for the client."""
@@ -178,8 +179,9 @@ class Client:
 
     def _listen_for_packets(self) -> None:
         """Listens for incoming packets from the server and handles them."""
-        
+        tick_interval = 1.0 / TICK_RATE
         while self.running:
+            start_time = time.time()
             try:
                 data, _ = self.sock.recvfrom(self.buffer_size)
 
@@ -195,23 +197,10 @@ class Client:
                 else:
                     print(f"[Client] Error receiving packet: {e}")
 
+            elapsed = time.time() - start_time
+            sleep_time = tick_interval - elapsed
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+
     def __repr__(self) -> str:
         return f"<Client name={self.name} address={self.address}>"
-
-
-if __name__ == "__main__":
-    client = Client(name="Player1", server_ip="localhost", server_port=25565)
-
-    try:
-        client.start()
-
-        time.sleep(2)  # Allow some time for the client to start
-        servers = client.search()
-        print(f"Found servers: {servers}")
-        
-        while client.running:
-            pass  # Keep the client running
-    except KeyboardInterrupt:
-        pass
-    finally:
-        client.stop()

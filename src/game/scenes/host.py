@@ -77,9 +77,8 @@ class HostMenu(Scene):
         room_name = canvas.get(InputField)[1].text
         port = canvas.get(InputField)[2].value
 
-
-        # Game.instance().client = Client(name=name, server_ip="localhost", server_port=port)
-        # Game.instance().client.start()
-
         Game.instance().server = Server(name = room_name, port = port)
         Game.instance().server.start()
+
+        Game.instance().client = Client(name=name, server_ip="localhost", server_port=port)
+        Game.instance().client.start()

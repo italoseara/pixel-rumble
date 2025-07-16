@@ -25,7 +25,7 @@ class SpriteSheet:
             scale (int, optional): The scale factor for the sprites. Defaults to 1.
         """
 
-        print("Loading spritesheet:", filename)
+        print("[Game] Loading spritesheet:", filename)
 
         self._spritesheet = pg.image.load(filename).convert_alpha()
         self.size = size if size else (self._spritesheet.get_width(), self._spritesheet.get_height())

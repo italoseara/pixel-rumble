@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import struct
 
 class PacketMeta(type):
     """Metaclass to automatically register Packet subclasses."""
@@ -29,7 +29,7 @@ class Packet(metaclass=PacketMeta):
     def to_bytes(self) -> bytes:
         """Convert the packet to bytes."""
 
-        return bytes([self.id]) + self.data
+        return struct.pack("B", self.id) + self.data
 
     @classmethod
     def from_bytes(cls, data: bytes) -> type[Packet]:
@@ -38,7 +38,7 @@ class Packet(metaclass=PacketMeta):
         if len(data) < 1:
             raise ValueError("Packet data too short")
 
-        id_ = data[0]
+        id_ = struct.unpack("B", data[:1])[0]
 
         packet_class = cls.registry.get(id_)
         if not packet_class:

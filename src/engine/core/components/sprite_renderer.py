@@ -161,7 +161,7 @@ class SpriteRenderer(Component):
             if self.sprite_size:
                 self.sprite_sheet = SpriteSheet(self._path, self.sprite_size)
             else:
-                print(f"Loading image from {self._path}")
+                print(f"[Game] Loading image from {self._path}")
                 self.sprite_sheet = SpriteSheet(self._path)
         except pg.error as e:
             raise RuntimeError(f"Failed to load image at {self._path}: {e}")

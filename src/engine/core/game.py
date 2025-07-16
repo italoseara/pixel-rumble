@@ -97,6 +97,8 @@ class Game:
         self._scenes.append(scene)
         scene.start()
 
+        print(f"[Game] Scene {type(scene).__name__} pushed onto stack. Total scenes: {len(self._scenes)}")
+
     def pop_scene(self) -> None:
         """End current scene and resume the one below."""
         
@@ -108,6 +110,8 @@ class Game:
         if self.current_scene:
             self.current_scene.resume()
 
+        print(f"[Game] Scene {type(top).__name__} popped from stack. Remaining scenes: {len(self._scenes)}")
+
     def replace_scene(self, scene: "Scene") -> None:
         """Remove current scene, then push the new one.
 
@@ -118,10 +122,12 @@ class Game:
         self.pop_scene()
         self.push_scene(scene)
 
+        print(f"[Game] Scene replaced with {type(scene).__name__}. Remaining scenes: {len(self._scenes)}")
+
     def run(self) -> None:
         """Enter the main loop until no scenes remain or quit is called."""
-        
-        print(f"Starting game loop at {self.width}x{self.height} with {self.fps} FPS")
+
+        print(f"[Game] Starting game loop at {self.width}x{self.height} with {self.fps} FPS")
         self.running = True
         while self.running and self.current_scene:
             dt = self.clock.tick(self.fps) / 1000.0  # seconds since last frame

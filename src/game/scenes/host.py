@@ -36,7 +36,7 @@ class HostMenu(Scene):
             x="50%", y="50%",
             width=350, height=48,
             pivot="center",
-            max_char=9,
+            max_char=20,
         ))
 
         canvas.add(InputField(

@@ -1,6 +1,7 @@
 from __future__ import annotations
-from connection.packets import Packet
 
+import struct
+from connection.packets import Packet
 
 class PacketStatusOutPong(Packet):
     """Pong packet for the status state."""
@@ -16,25 +17,24 @@ class PacketStatusOutPong(Packet):
         self.ip = ip
         self.port = port
 
-        super().__init__(data=f"{name}:{ip}:{port}".encode())
+        port_bytes = struct.pack('>I', port)
+        print(port_bytes)
+        super().__init__(data=f"{name}\0{ip}".encode() + port_bytes)
 
     @classmethod
     def from_bytes(cls, data: bytes) -> PacketStatusOutPong:
         """Create a pong packet from bytes."""
 
-        decoded = data.decode()
-        parts = decoded.split(":")
-        if len(parts) != 3:
+        header, port_bytes = data.rsplit(b'\0', 2)[0:2], data[-4:]
+        decoded = header[0].decode()
+        parts = decoded.split("\0")
+        print(parts)
+        if len(parts) != 2:
             raise ValueError("Invalid data format for PacketStatusOutPong")
-
-        name, ip, port_str = parts
+        name, ip = parts
         if not name or not ip:
             raise ValueError("Name and IP cannot be empty in PacketStatusOutPong")
-
-        try:
-            port = int(port_str)
-        except ValueError:
-            raise ValueError("Invalid port number in PacketStatusOutPong data")
+        port = struct.unpack('>I', port_bytes)[0]
 
         return cls(name, ip, port)
 

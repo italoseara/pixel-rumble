@@ -12,7 +12,6 @@ class Text(UIComponent):
     shadow: bool
     shadow_color: pg.Color
     _font: pg.font.Font
-    _font_size: int
     
     def __init__(
         self, 
@@ -47,7 +46,6 @@ class Text(UIComponent):
         self.shadow = shadow
         self.shadow_color = shadow_color
         self._font = pg.font.Font(DEFAULT_FONT, font_size)
-        self._font_size = font_size
         self._update_size()
 
     @property

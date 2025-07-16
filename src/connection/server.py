@@ -1,8 +1,10 @@
 import time
 import socket
 import threading
+import random
 from typing import override
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from connection.packets import (
     Packet,
@@ -10,7 +12,9 @@ from connection.packets import (
     PacketStatusOutPong,
     PacketPlayInJoin,
     PacketPlayOutWelcome,
-    PacketPlayInDisconnect
+    PacketPlayInDisconnect,
+    PacketPlayInKeepAlive,
+    PacketPlayOutKeepAlive
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
@@ -102,19 +106,30 @@ class DiscoveryServer(BaseUDPServer):
         return f"<DiscoveryServer name={self.name} ip={self.ip} port={self.port} target_port={self.target_port} running={self.running}>"
 
 
+@dataclass
+class ClientData:
+    name: str
+    ip: str
+    port: int
+    last_active: float = time.time()
+    keep_alive_id: int = 0
+    missed_keep_alive: int = 0
+
 class Server(BaseUDPServer):
     name: str
     ip: str
-    clients: set[tuple[str, int]]
+    clients: dict[tuple[str, int], ClientData]
     discovery_server: DiscoveryServer
+
+    _keep_alive_thread: threading.Thread
 
     def __init__(self, name: str, port: int, buffer_size: int = BUFFER_SIZE) -> None:
         super().__init__(port, buffer_size)
-
         self.name = name
         self.ip = self._get_ip()
-        self.clients: set[tuple[str, int]] = set()
+        self.clients = {}
         self.discovery_server = DiscoveryServer(name=self.name, ip=self.ip, port=self.port)
+        self._keep_alive_thread = threading.Thread(target=self._send_keep_alive_loop, daemon=True)
 
     def _get_ip(self) -> str:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -127,6 +142,7 @@ class Server(BaseUDPServer):
     def start(self) -> None:
         super().start()
         self.discovery_server.start()
+        self._keep_alive_thread.start()
 
     @override
     def stop(self) -> None:
@@ -134,13 +150,30 @@ class Server(BaseUDPServer):
         self.discovery_server.stop()
         self.clients.clear()
 
+    def _send_keep_alive_loop(self):
+        while self.running:
+            for addr, client in list(self.clients.items()):
+                client.missed_keep_alive += 1
+                if client.missed_keep_alive >= 4:
+                    # TODO: Handle disconnect or removal of unresponsive client
+                    print(f"[Server] Client {addr[0]}:{addr[1]} missed too many keep-alives. Disconnecting.")
+                    self.clients.pop(addr, None)
+                    continue
+
+                keep_alive_id = random.randint(1, 1_000_000)
+                client.keep_alive_id = keep_alive_id
+                
+                packet = PacketPlayOutKeepAlive(keep_alive_id)
+                self.send(packet, addr)
+            time.sleep(5)
+
     @override
     def on_packet_received(self, packet: Packet, addr: tuple[str, int]) -> None:
         print(f"[Server] Received packet from {addr[0]}:{addr[1]}: {packet}")
         match packet:
             case join if isinstance(join, PacketPlayInJoin):
                 if addr not in self.clients:
-                    self.clients.add(addr)
+                    self.clients[addr] = ClientData(name=join.name, ip=addr[0], port=addr[1])
                     print(f"[Server] Client {addr[0]}:{addr[1]} joined with name: {join.name}")
                     welcome = PacketPlayOutWelcome(True, "Welcome to the server!")
                 else:
@@ -151,10 +184,19 @@ class Server(BaseUDPServer):
 
             case disconnect if isinstance(disconnect, PacketPlayInDisconnect):
                 if addr in self.clients:
-                    self.clients.remove(addr)
+                    self.clients.pop(addr)
                     print(f"[Server] Client {addr[0]}:{addr[1]} disconnected.")
                 else:
                     print(f"[Server] Client {addr[0]}:{addr[1]} is not connected.")
+                return
+
+            case keep_alive if isinstance(keep_alive, PacketPlayInKeepAlive):
+                client = self.clients.get(addr)
+                if client and keep_alive.value == client.keep_alive_id:
+                    client.missed_keep_alive = 0
+                    client.last_active = time.time()
+                else:
+                    print(f"[Server] Invalid keep-alive response from {addr[0]}:{addr[1]}")
                 return
 
         if addr not in self.clients:

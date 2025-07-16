@@ -2,6 +2,7 @@ import time
 import errno
 import socket
 import threading
+from dataclasses import dataclass
 
 from engine import Game
 from game.scenes.lobby import LobbyScene
@@ -12,28 +13,21 @@ from connection.packets import (
     PacketPlayOutWelcome, 
     PacketPlayInDisconnect,
     PacketStatusInPing,
-    PacketStatusOutPong
+    PacketStatusOutPong,
+    PacketPlayInKeepAlive,
+    PacketPlayOutKeepAlive
 )
 
 
 TIMEOUT = 2  # seconds
 TICK_RATE = 20  # ticks per second
 
-class ServerData:
-    """A class to hold server data for the client."""
 
+@dataclass(unsafe_hash=True)
+class ServerData:
     name: str
     ip: str
     port: int
-
-    def __init__(self, name: str, ip: str, port: int) -> None:
-        self.name = name
-        self.ip = ip
-        self.port = port
-
-    def __repr__(self) -> str:
-        return f"<ServerData name={self.name} ip={self.ip} port={self.port}>"
-
 
 class Client:
     """A UDP client that connects to a server and sends/receives packets."""
@@ -120,6 +114,9 @@ class Client:
                 else:
                     print(f"[Client] Connection failed: {welcome.message}")
                     self.stop()
+            case keep_alive if isinstance(keep_alive, PacketPlayOutKeepAlive):
+                response_packet = PacketPlayInKeepAlive(value=keep_alive.value)
+                self.send(response_packet)
             case _:
                 print(f"[Client] Unhandled packet type: {type(packet).__name__}")
 

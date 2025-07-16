@@ -16,7 +16,7 @@ class LobbyScene(Scene):
     @override
     def start(self) -> None:
         map_object = GameObject("Map")
-        map_object.add_component(Transform(x=0, y=-100, scale=2.5))
+        map_object.add_component(Transform(x=0, y=0, scale=2.5))
         tilemap = map_object.add_component(Tilemap("assets/maps/mario.tmx", pivot="center"))
         self.add(map_object)
 

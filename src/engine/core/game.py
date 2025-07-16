@@ -3,6 +3,8 @@ from __future__ import annotations
 import pygame as pg
 from typing import TYPE_CHECKING
 
+from .. import GameObject
+
 if TYPE_CHECKING:
     from .scene import Scene
     from connection.client import Client
@@ -160,3 +162,7 @@ class Game:
         self.running = False
         while self._scenes:
             self._scenes.pop().stop()
+
+    def notify(self, gameObject : str, compType, addType, **kwargs) -> None:
+        """Display a notification message in the console."""
+        self.current_scene.find(gameObject).get_component(compType).add(addType(**kwargs))

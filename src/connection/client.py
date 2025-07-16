@@ -3,6 +3,8 @@ import errno
 import socket
 import threading
 
+from engine import Game
+from game.scenes.lobby import LobbyScene
 from connection.server import DISCOVERY_PORT
 from connection.packets import (
     Packet, 
@@ -15,7 +17,6 @@ from connection.packets import (
 
 
 TIMEOUT = 2  # seconds
-
 
 class ServerData:
     """A class to hold server data for the client."""
@@ -101,6 +102,26 @@ class Client:
         print(f"[Client] Search completed. Found {len(servers)} servers.")
         return servers
 
+    def on_packet_received(self, packet: Packet) -> None:
+        """Handles a received packet from the server.
+
+        Args:
+            packet (Packet): The received packet.
+        """
+
+        print(f"[Client] Received packet: {packet}")
+
+        match packet:
+            case welcome if isinstance(welcome, PacketPlayOutWelcome):
+                if welcome.is_welcome:
+                    Game.instance().push_scene(LobbyScene(name=self.name))
+                    print(f"[Client] Connection successful: {welcome.message}")
+                else:
+                    print(f"[Client] Connection failed: {welcome.message}")
+                    self.stop()
+            case _:
+                print(f"[Client] Unhandled packet type: {type(packet).__name__}")
+
     def start(self) -> None:
         """Starts the client and begins listening for incoming packets."""
 
@@ -140,25 +161,6 @@ class Client:
 
         self.send(PacketPlayInDisconnect())
         self.stop()
-
-    def on_packet_received(self, packet: Packet) -> None:
-        """Handles a received packet from the server.
-
-        Args:
-            packet (Packet): The received packet.
-        """
-
-        print(f"[Client] Received packet: {packet}")
-
-        match packet:
-            case welcome if isinstance(welcome, PacketPlayOutWelcome):
-                if welcome.is_welcome:
-                    print(f"[Client] Connection successful: {welcome.message}")
-                else:
-                    print(f"[Client] Connection failed: {welcome.message}")
-                    self.stop()
-            case _:
-                print(f"[Client] Unhandled packet type: {type(packet).__name__}")
 
     def send(self, packet: Packet) -> None:
         """Sends a packet to the server.

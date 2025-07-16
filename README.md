@@ -74,7 +74,7 @@ The status is used to check if there is a game server running on this address. T
     </tr>
     <tr>
       <td>Port</td>
-      <td><code>uint16</code></td>
+      <td><code>uint32</code></td>
       <td>The port of the server.</td>
     </tr>
   </tbody>

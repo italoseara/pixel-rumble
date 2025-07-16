@@ -1,5 +1,5 @@
 from engine import Game
-from game.scenes import MainMenu
+from game.scenes.menu import MainMenu
 
 
 def main() -> None:

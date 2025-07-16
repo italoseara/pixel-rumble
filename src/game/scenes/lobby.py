@@ -15,6 +15,13 @@ from ..scripts import PlayerController
 
         
 class LobbyScene(Scene):
+    player_name: str
+
+    def __init__(self, name: str) -> None:
+        super().__init__()
+
+        self.player_name = name
+    
     @override
     def start(self) -> None:
         map_object = GameObject("Map")
@@ -47,7 +54,7 @@ class LobbyScene(Scene):
         player.add_component(PlayerController())
         player_canvas = player.add_component(Canvas())
         player_canvas.add(Text(
-            "Italo",
+            self.player_name,
             x=0, y=-45,
             pivot="midbottom",
             color=(255, 255, 255),

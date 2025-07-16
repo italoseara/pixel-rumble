@@ -74,7 +74,7 @@ O status é usado para verificar se há um servidor de jogo rodando neste endere
     </tr>
     <tr>
       <td>Porta</td>
-      <td><code>uint16</code></td>
+      <td><code>uint32</code></td>
       <td>A porta do servidor.</td>
     </tr>
   </tbody>

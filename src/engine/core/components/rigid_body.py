@@ -87,10 +87,10 @@ class RigidBody(Component):
 
         if not self.is_kinematic or not self._transform or not self._collider:
             return
-        
+
         # Apply gravity and drag
-        self.acceleration += Vector2(0, 100) * self.gravity
-        self.velocity.x *= (1 - self.drag)
+        self.acceleration += Vector2(0, 100) * self.gravity * dt * 70  # Apply gravity in the Y axis
+        self.velocity.x *= (1 - self.drag * dt * 50)
 
         # Integrate acceleration
         self.velocity += self.acceleration * dt

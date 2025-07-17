@@ -2,7 +2,7 @@ import pygame
 from typing import override
 from pygame.math import Vector2
 
-from engine import Component, GameObject
+from engine import Component, GameObject, Transform, SpriteRenderer
 
 
 class GunController(Component):
@@ -48,10 +48,19 @@ class GunController(Component):
     def find_angle(self) -> None:
         """Finds the angle the player is aiming at based on mouse position."""
 
-        scene = self.parent.scene
+        player_transform = self.player.get_component(Transform)
+        if not player_transform:
+            return
+
         mouse_pos = pygame.mouse.get_pos()
+        player_pos = player_transform.screen_position + Vector2(0, -20)  # Adjust for gun offset
         
-        self._angle = (Vector2(mouse_pos) - Vector2(player_pos)).angle_to(Vector2(1, 0))
+        self._angle = -(Vector2(mouse_pos) - Vector2(player_pos)).angle_to(Vector2(1, 0))
 
         # Update the gun's rotation based on the angle
-        self.game_object.transform.rotation = self._angle
+        transform = self.parent.get_component(Transform)
+        sprite_renderer = self.parent.get_component(SpriteRenderer)
+        
+        transform.rotation = self._angle
+
+        sprite_renderer.flip_y = self._angle > 90 or self._angle < -90

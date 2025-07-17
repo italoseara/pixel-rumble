@@ -178,3 +178,7 @@ class Game:
         if self.server:
             self.server.stop()
             self.server = None
+
+    def notify(self, gameObject : str, compType, addType, **kwargs) -> None:
+        """Display a notification message in the console."""
+        self.current_scene.find(gameObject).get_component(compType).add(addType(**kwargs))

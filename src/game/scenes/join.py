@@ -7,7 +7,7 @@ from typing import override
 
 from connection.client import Client, ServerData
 from engine import Scene, GameObject, Canvas, Game, Transform, SpriteRenderer
-from engine.ui import Button, Text, Image, UIComponent
+from engine.ui import Button, Text, Image, UIComponent, NotificationText
 from engine.constants import DEFAULT_FONT, DEBUG_MODE
 
 from .direct_connection import DirectConnectionMenu
@@ -187,6 +187,11 @@ class JoinMenu(Scene):
         self.add(loading)
         self.add(ui)
 
+        Game.instance().notify("UI", Canvas, NotificationText,text="Carregando servidores...",
+            x=400, y=450,
+            lifespan=1300,
+            pivot="center")
+
     @override
     def handle_event(self, event: pg.event.Event) -> None:
         """Handle an event by forwarding it to all game objects.
@@ -201,7 +206,6 @@ class JoinMenu(Scene):
     def load_servers(self) -> None:
         """Load the list of available servers."""
         self.server_list = Client.search()
-
         self.find("Loading").destroy()
 
         parent_canvas = self.find("UI").get_component(Canvas)

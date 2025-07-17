@@ -11,7 +11,7 @@ class PacketPlayOutKeepAlive(Packet):
 
     value: int
 
-    def __init__(self, value: str) -> None:
+    def __init__(self, value: int) -> None:
         self.value = value
 
         super().__init__(data=to_uint32(value))

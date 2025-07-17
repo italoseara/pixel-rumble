@@ -137,30 +137,27 @@ class Game:
         while self.running and self.current_scene:
             dt = self.clock.tick(self.fps) / 1000.0  # seconds since last frame
 
-            try:
-                # 1) Event handling
-                for event in pg.event.get():
-                    if event.type == pg.QUIT:
-                        self.quit()
-                        break
-                    else:
-                        # give scene a chance to consume it
-                        self.current_scene._handle_event(event)
+            # 1) Event handling
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.quit()
+                    break
                 else:
-                    # 2) Update
-                    self.current_scene._update(dt)
+                    # give scene a chance to consume it
+                    self.current_scene._handle_event(event)
+            else:
+                # 2) Update
+                self.current_scene._update(dt)
 
-                    # 3) Draw
-                    def draw_scene(scene: "Scene", surface: pg.Surface) -> None:
-                        if scene.transparent and len(self._scenes) > 1:
-                            draw_scene(self._scenes[-2], surface)
-                        scene._draw(surface)
-                    self.screen.fill((0, 0, 0))
-                    draw_scene(self.current_scene, self.screen)
-                    
-                    pg.display.flip()
-            except Exception as e:
-                print(f"[Game] Error in main loop: {e}")
+                # 3) Draw
+                def draw_scene(scene: "Scene", surface: pg.Surface) -> None:
+                    if scene.transparent and len(self._scenes) > 1:
+                        draw_scene(self._scenes[-2], surface)
+                    scene._draw(surface)
+                self.screen.fill((0, 0, 0))
+                draw_scene(self.current_scene, self.screen)
+                
+                pg.display.flip()
 
         pg.quit()
 

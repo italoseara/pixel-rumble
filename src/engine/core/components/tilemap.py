@@ -159,16 +159,16 @@ class Tilemap(Component):
         for obj in collider_layer:
             obj: pytmx.TiledObject
 
-            name = obj.name or f"Collider {obj.id}"
             x, y = obj.x, obj.y
             width, height = obj.width, obj.height
+            is_trigger = obj.properties.get("is_trigger", False)
 
             if not (width and height):
                 continue
 
-            collider = GameObject(name=f"{self.parent.name} ({name})")
+            collider = GameObject(name=f"{self.parent.name} (Collider {obj.id})")
             collider.add_component(Transform(position=self.get_position(x, y)))
-            collider.add_component(BoxCollider(width=width * transform.scale.x, height=height * transform.scale.y))
+            collider.add_component(BoxCollider(width=width * transform.scale.x, height=height * transform.scale.y, is_trigger=is_trigger))
             self.parent.scene.add(collider)
 
             self._colliders.append(collider)

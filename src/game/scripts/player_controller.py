@@ -4,14 +4,7 @@ import pygame as pg
 from pygame.math import Vector2
 from typing import override
 
-from engine import (
-    Game,
-    Tilemap,
-    Transform,
-    Component,
-    RigidBody,
-)
-from connection.packets import PacketPlayInPlayerMove
+from engine import Game, Tilemap, Transform, Component, RigidBody
 from .player_animation import PlayerAnimation
 
 class PlayerController(Component):
@@ -107,10 +100,9 @@ class PlayerController(Component):
 
             self.last_position_update = transform.position.copy()
             self.last_position_update_time = current_time
-            packet = PacketPlayInPlayerMove(
-                player_id=self.parent.scene.player_id,
+
+            Game.instance().client.move(
                 position=transform.position,
                 acceleration=rigid_body.acceleration,
                 velocity=rigid_body.velocity
             )
-            Game.instance().client.send(packet)

@@ -119,6 +119,19 @@ class SpriteRenderer(Component):
         return Vector2(self.width * -(self.pivot.x - 0.5), 
                        self.height * -(self.pivot.y - 0.5))
 
+    def set_index(self, index: tuple[int | str, int | str]) -> None:
+        """Set the sprite index for the SpriteRenderer.
+
+        Args:
+            index (tuple[int | str, int | str]): The new sprite index.
+        """
+        
+        if not isinstance(index, tuple) or len(index) != 2:
+            raise ValueError("Index must be a tuple of two elements")
+
+        self.sprite_index = index
+        self._current_frame = 0
+
     def _get_current_sprite(self) -> pg.Surface | None:
         if not self.sprite_sheet:
             return None

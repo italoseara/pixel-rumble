@@ -21,12 +21,14 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Entrar](#entrar)
      - [Desconectar](#desconectar)
      - [Mover Jogador](#mover-jogador)
+     - [Mudar Personagem](#mudar-personagem)
    - [Servidor](#servidor-1)
      - [Manter Vivo](#manter-vivo-1)
      - [Boas-vindas](#boas-vindas)
      - [Mover Jogador](#mover-jogador-1)
      - [Jogador Entrou](#jogador-entrou)
      - [Jogador Saiu](#jogador-saiu)
+     - [Mudar Personagem](#mudar-personagem)
 
 ## Formato do Pacote
 
@@ -150,6 +152,12 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
   </tbody>
 </table>
 
+#### Mudar Personagem
+
+| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                                               |
+| ------------ | ------- | ---------- | ------------- | ------------- | ------------------------------------------------------- |
+| `0x0B`       | `Jogar` | `Servidor` | Índice        | `uint8`       | O índice do personagem para o qual está sendo alterado. |
+
 ### Servidor
 
 #### Manter Vivo
@@ -270,3 +278,33 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                                |
 | ------------ | ------- | --------- | ------------- | ------------- | ---------------------------------------- |
 | `0x0A`       | `Jogar` | `Cliente` | ID do Jogador | `uint32`      | O ID do jogador que está saindo do jogo. |
+
+#### Mudar Personagem
+
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x0B</code></td>
+      <td rowspan="2"><code>Jogar</code></td>
+      <td rowspan="2"><code>Cliente</code></td>
+      <td>Índice</td>
+      <td><code>uint8</code></td>
+      <td>O índice do personagem para o qual está sendo alterado.</td>
+    </tr>
+    <tr>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>O ID do jogador que está mudando de personagem.</td>
+    </tr>
+  </tbody>
+</table>

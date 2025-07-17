@@ -2,6 +2,7 @@ import time
 import errno
 import socket
 import threading
+from pygame.math import Vector2
 from dataclasses import dataclass
 
 from engine import Game
@@ -17,7 +18,10 @@ from connection.packets import (
     PacketPlayOutKeepAlive,
     PacketPlayOutPlayerJoin,
     PacketPlayOutPlayerLeave,
-    PacketPlayOutPlayerMove
+    PacketPlayInPlayerMove,
+    PacketPlayOutPlayerMove,
+    PacketPlayInChangeCharacter,
+    PacketPlayOutChangeCharacter
 )
 
 
@@ -157,6 +161,16 @@ class Client:
                         player_move.velocity
                     )
                     print(f"[Client] Player {player_move.player_id} moved to {player_move.position}.")
+
+            case change_character if isinstance(change_character, PacketPlayOutChangeCharacter):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'change_character'):
+                    current_scene.change_character(
+                        player_id=change_character.player_id,
+                        character_index=change_character.character_index
+                    )
+                    print(f"[Client] Player {change_character.player_id} changed character to index {change_character.character_index}.")
+
             case _:
                 print(f"[Client] Unhandled packet type: {packet}")
 
@@ -184,6 +198,33 @@ class Client:
         self.running = False
         self.sock.close()
         print("[Client] Client stopped.")
+
+    def change_character(self, index: int) -> None:
+        """Changes the character of the local player.
+
+        Args:
+            index (int): The index of the character to change to.
+        """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before changing character.")
+
+        self.send(PacketPlayInChangeCharacter(index))
+
+    def move(self, position: Vector2, acceleration: Vector2, velocity: Vector2) -> None:
+        """Sends a player move packet to the server.
+
+        Args:
+            position (Vector2): The new position of the player.
+            acceleration (Vector2): The acceleration of the player.
+            velocity (Vector2): The velocity of the player.
+        """
+        
+        self.send(PacketPlayInPlayerMove(
+            position=position,
+            acceleration=acceleration,
+            velocity=velocity
+        ))
 
     def join(self) -> None:
         """Sends a join request to the server with the client's name."""

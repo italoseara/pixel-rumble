@@ -1,9 +1,11 @@
+import pytmx
 from typing import override
 from pygame.math import Vector2
 
 from ..scripts import PlayerAnimation
+from ..scripts import CharacterSelector
 from game.prefabs import PlayerPrefab
-from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
+from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, SpriteRenderer
 from engine.ui import Image
 
         
@@ -21,7 +23,7 @@ class LobbyScene(Scene):
     def start(self) -> None:
         map_object = GameObject("Map")
         map_object.add_component(Transform(x=0, y=0, scale=2.5))
-        tilemap = map_object.add_component(Tilemap("assets/maps/mario.tmx", pivot="center"))
+        tilemap = map_object.add_component(Tilemap("assets/maps/lobby.tmx", pivot="center"))
         self.add(map_object)
 
         ui = GameObject("UI")
@@ -38,8 +40,69 @@ class LobbyScene(Scene):
         local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
         self.add(local_player)
 
+        self.add_character_selector(tilemap)
+        
         self.background_color = tilemap.background_color
         self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+
+    def add_character_selector(self, tilemap: Tilemap) -> None:
+        """Adds the character selector to the lobby scene.
+
+        Args:
+            tilemap (Tilemap): The tilemap component of the map object.
+        """
+
+        collider_layer = tilemap.data.get_layer_by_name("Collider")
+
+        for obj in collider_layer:
+            obj: pytmx.TiledObject
+
+            if obj.name != "CharacterSelect":
+                continue
+            
+            game_object = self.find(f"{tilemap.parent.name} (Collider {obj.id})")
+            if not game_object:
+                continue
+
+            character_index = obj.properties.get("character", 0)
+
+            hint = GameObject(f"{game_object.name} - Hint", game_object)
+            hint.add_component(Transform(x=10, y=-25, scale=1.25))
+            hint.add_component(SpriteRenderer(
+                "assets/img/keyboard/E.png",
+                grid_size=(17, 16),
+                animation_frames=[(0, 0), (1, 0)],
+                animation_duration=1.0,
+                loop=True,
+            ))
+            hint.active = False
+            self.add(hint)
+
+            character_selector = game_object.add_component(CharacterSelector(character_index, hint))
+
+            print(f"[Game] Character selector initialized with index {character_selector.character_index}.")
+
+    def change_character(self, player_id: int, character_index: int) -> None:
+        """Changes the character of a player in the lobby.
+
+        Args:
+            player_id (int): The unique ID of the player.
+            character_index (int): The index of the character to change to.
+        """
+
+        player = self.find(f"Player ({player_id})")
+        if not player:
+            print(f"[Game] Player with ID {player_id} not found.")
+            return
+
+        sprite_renderer = player.get_component(SpriteRenderer)
+        if not sprite_renderer:
+            print(f"[Game] Player {player_id} does not have a SpriteRenderer component.")
+            return
+
+        index = character_index % 16
+        sprite_renderer.set_index((index % 4, index // 4))
+        print(f"[Game] Player {player_id} changed character to index {index}.")
 
     def add_player(self, player_id: int, name: str) -> None:
         """Adds a player to the lobby scene.
@@ -62,9 +125,9 @@ class LobbyScene(Scene):
         player = self.find(f"Player ({player_id})")
         if player:
             self.remove(player)
-            print(f"[LobbyScene] Player with ID {player_id} removed.")
+            print(f"[Game] Player with ID {player_id} removed.")
         else:
-            print(f"[LobbyScene] Player with ID {player_id} not found.")
+            print(f"[Game] Player with ID {player_id} not found.")
 
     def move_player(self, player_id: int, position: Vector2, acceleration: Vector2, velocity: Vector2) -> None:
         """Updates the position and movement of a player in the lobby.
@@ -85,4 +148,4 @@ class LobbyScene(Scene):
             rigid_body.acceleration = acceleration
             rigid_body.velocity = velocity
         else:
-            print(f"[LobbyScene] Player with ID {player_id} not found.")
+            print(f"[Game] Player with ID {player_id} not found.")

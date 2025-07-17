@@ -28,7 +28,7 @@ class RigidBody(Component):
         self, 
         mass: float = 1, 
         drag: float = 0.05, 
-        gravity: float = 10.0,
+        gravity: float = 10,
         is_kinematic: bool = True
     ) -> None:
         """Initialize the RigidBody component.
@@ -89,7 +89,7 @@ class RigidBody(Component):
             return
 
         # Apply gravity and drag
-        self.acceleration += Vector2(0, 100) * self.gravity  # Apply gravity in the Y axis
+        self.acceleration += Vector2(0, 110) * self.gravity  # Apply gravity in the Y axis
         self.velocity.x *= (1 - self.drag * dt * 50)
 
         # Integrate acceleration

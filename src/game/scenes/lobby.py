@@ -72,9 +72,9 @@ class LobbyScene(Scene):
     def start_game(self, map_name: str = None) -> None:
         """Starts the game by transitioning to the GameScene."""
 
-        if (len(self.players) + 1) < 2:
-            print("[Game] Not enough players to start the game.")
-            return
+        # if (len(self.players) + 1) < 2:
+        #     print("[Game] Not enough players to start the game.")
+        #     return
 
         print("[Game] Starting game...")
         if map_name is None:

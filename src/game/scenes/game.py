@@ -5,8 +5,8 @@ from pygame.math import Vector2
 
 from engine.ui import Image
 from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
-from game.prefabs import PlayerPrefab
-from ..scripts import PlayerController, PlayerAnimation
+from game.prefabs import PlayerPrefab, GunPrefab
+from ..scripts import PlayerController, PlayerAnimation, GunController
 
 
 class GameScene(Scene):
@@ -49,21 +49,32 @@ class GameScene(Scene):
         ))
         self.add(ui)
 
-        local_player = PlayerPrefab(
+        self.local_player = PlayerPrefab(
             self.player_id, 
             self.player_name, 
             character_index=self.character_index, 
             is_local=True
         )
-        local_player.add_component(PlayerController())
-        local_player.add_component(PlayerAnimation())
-        self.add(local_player)
+        self.local_player.add_component(PlayerController())
+        self.local_player.add_component(PlayerAnimation())
+        self.add(self.local_player)
+
+        gun = GunPrefab(self.local_player, "pistol")
+        gun.add_component(GunController(
+            automatic=False, 
+            fire_rate=0.5, 
+            damage=10, 
+            bullet_speed=500,
+            bullet_lifetime=2,
+            bullet_size=(10, 10)
+        ))
+        self.add(gun)
 
         for player in self.players.values():
             self.add(player)
         
         self.background_color = tilemap.background_color
-        self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+        self.camera.set_target(self.local_player, smooth=True, smooth_speed=10, offset=(0, -100))
     
     def add_player(self, player_id: int, name: str) -> None:
         """Adds a player to the lobby scene.

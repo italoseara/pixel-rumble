@@ -1,3 +1,4 @@
-from .lobby_player_controller import PlayerController
+from .player_controller import PlayerController
 from .player_animation import PlayerAnimation
 from .character_selector import CharacterSelector
+from .gun_controller import GunController

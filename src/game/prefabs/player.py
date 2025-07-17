@@ -7,7 +7,6 @@ from engine import (
     RigidBody,
     Canvas
 )
-from game.scripts import PlayerAnimation
 
 
 class PlayerPrefab(GameObject):
@@ -34,7 +33,6 @@ class PlayerPrefab(GameObject):
         ))
         self.add_component(BoxCollider(width=30))
         self.add_component(RigidBody(drag=0.07, gravity=15, is_kinematic=is_local))
-        self.add_component(PlayerAnimation())
         
         # Add a text component for the player's name
         self.add_component(Canvas()).add(Text(

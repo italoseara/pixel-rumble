@@ -2,12 +2,12 @@ import pytmx
 from typing import override
 from pygame.math import Vector2
 
-from .menu import MainMenu
-from ..scripts import PlayerAnimation
-from ..scripts import CharacterSelector
 from game.prefabs import PlayerPrefab
 from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, SpriteRenderer, Game
 from engine.ui import Image, Button
+
+from .menu import MainMenu
+from ..scripts import PlayerAnimation, CharacterSelector, PlayerController
 
 
 class LobbyScene(Scene):
@@ -56,6 +56,8 @@ class LobbyScene(Scene):
         self.add(ui)
 
         local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
+        local_player.add_component(PlayerController())
+        local_player.add_component(PlayerAnimation())
         self.add(local_player)
 
         self.add_character_selector(tilemap)
@@ -131,6 +133,7 @@ class LobbyScene(Scene):
         """
 
         player = PlayerPrefab(player_id, name)
+        player.add_component(PlayerAnimation())
         self.add(player)
 
     def remove_player(self, player_id: int) -> None:

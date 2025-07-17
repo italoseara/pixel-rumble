@@ -106,12 +106,14 @@ class Transform(Component):
     def clone(self) -> Transform:
         """Create a copy of this Transform component."""
         
-        return Transform(
+        new_transform = Transform(
             position=self.position,
             rotation=self.rotation,
             scale=self.scale,
             z_index=self.z_index
         )
+        new_transform.parent = self.parent
+        return new_transform
     
     def __repr__(self) -> str:
         return f"<{super().__repr__()} position={self.world_position}, rotation={self.rotation}, scale={self.scale}>"

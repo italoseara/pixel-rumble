@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytmx
 import random
 import pygame as pg
@@ -65,7 +67,7 @@ class PlayerController(Component):
             self.boost = True
 
     def reset_if_fallen(self, transform: Transform, rigid_body: RigidBody) -> None:
-        if transform.y > 1000:
+        if transform.y > 500:
             self.set_random_pos()
             rigid_body.velocity = Vector2(0, 0)
             rigid_body.acceleration = Vector2(0, 0)
@@ -106,3 +108,14 @@ class PlayerController(Component):
                 acceleration=rigid_body.acceleration,
                 velocity=rigid_body.velocity
             )
+
+    @override
+    def clone(self) -> PlayerController:
+        """Create a copy of this PlayerController component."""
+        
+        new_controller = PlayerController(self.jump_force, self.move_speed)
+        new_controller.boost = self.boost
+        new_controller.last_boost_time = self.last_boost_time
+        new_controller.last_position_update = self.last_position_update.copy()
+        new_controller.last_position_update_time = self.last_position_update_time
+        return new_controller

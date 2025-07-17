@@ -19,6 +19,7 @@ class Game:
     client: Client | None
     server: Server | None
 
+    is_admin: bool
     _scenes: list['Scene']
     _running: bool
     _instance: Game = None
@@ -66,6 +67,7 @@ class Game:
         self.server = None
 
         self.is_admin = False
+
     @classmethod
     def instance(cls) -> Game:
         """Returns the singleton instance of the Game class."""

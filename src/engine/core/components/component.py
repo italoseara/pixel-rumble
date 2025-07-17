@@ -34,7 +34,7 @@ class Component:
 
     def clone(self) -> 'Component':
         """Create a copy of this component."""
-        pass
+        raise NotImplementedError(f"{self.__class__.__name__} does not implement clone method.")
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__} parent=\"{self.parent.name}\","

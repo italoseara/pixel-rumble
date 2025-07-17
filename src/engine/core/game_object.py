@@ -151,6 +151,7 @@ class GameObject:
         new_object.active = self.active
         new_object.visible = self.visible
         new_object.scene = self.scene
+        new_object.parent = self.parent
 
         for comp in self._components.values():
             new_object.add_component(comp.clone())

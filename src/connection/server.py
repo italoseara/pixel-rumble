@@ -20,7 +20,9 @@ from connection.packets import (
     PacketPlayInPlayerMove,
     PacketPlayOutPlayerMove,
     PacketPlayInChangeCharacter,
-    PacketPlayOutChangeCharacter
+    PacketPlayOutChangeCharacter,
+    PacketPlayInStartGame,
+    PacketPlayOutStartGame
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
@@ -231,6 +233,11 @@ class Server(BaseUDPServer):
                 )
                 self.broadcast(change_packet, exclude=addr)
 
+            case start_game if isinstance(start_game, PacketPlayInStartGame):
+                client = self.clients.get(addr)
+                
+                start_game_packet = PacketPlayOutStartGame(map_name=start_game.map_name)
+                self.broadcast(start_game_packet, exclude=addr)
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 

@@ -83,7 +83,8 @@ class Text(UIComponent):
         """Create a copy of this Text component."""
         return Text(
             text=self._text,
-            x=self.x, y=self.y,
+            x=self.position.x,
+            y=self.position.y,
             pivot=self.pivot,
             color=self.color,
             shadow=self.shadow,

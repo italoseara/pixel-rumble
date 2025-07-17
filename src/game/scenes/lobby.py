@@ -1,4 +1,5 @@
 import pytmx
+import random
 from typing import override
 from pygame.math import Vector2
 
@@ -30,6 +31,11 @@ class LobbyScene(Scene):
         tilemap = map_object.add_component(Tilemap("assets/maps/lobby.tmx", pivot="center"))
         self.add(map_object)
 
+        self.local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
+        self.local_player.add_component(PlayerController())
+        self.local_player.add_component(PlayerAnimation())
+        self.add(self.local_player)
+
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
         canvas.add(Image(
@@ -53,20 +59,38 @@ class LobbyScene(Scene):
                 x="96%", y="90%",
                 pivot="midright",
                 font_size=42,
-                on_click=lambda: Game.instance().push_scene(GameScene(self.player_id, self.player_name, self.players))
+                on_click=self.start_game
             ))
 
         self.add(ui)
 
-        local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
-        local_player.add_component(PlayerController())
-        local_player.add_component(PlayerAnimation())
-        self.add(local_player)
-
         self.add_character_selector(tilemap)
         
         self.background_color = tilemap.background_color
-        self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+        self.camera.set_target(self.local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+
+    def start_game(self, map_name: str = None) -> None:
+        """Starts the game by transitioning to the GameScene."""
+
+        if (len(self.players) + 1) < 2:
+            print("[Game] Not enough players to start the game.")
+            return
+
+        print("[Game] Starting game...")
+        if map_name is None:
+            map_name = random.choice(["mario", "adventure_time"])
+
+        if Game.instance().is_admin:
+            Game.instance().client.start_game(map_name)
+
+        character_index = self.local_player.get_component(SpriteRenderer).sprite_index
+        Game.instance().push_scene(GameScene(
+            id=self.player_id, 
+            name=self.player_name, 
+            character_index=character_index,
+            players=self.players,
+            map_name=map_name
+        ))
 
     def add_character_selector(self, tilemap: Tilemap) -> None:
         """Adds the character selector to the lobby scene.

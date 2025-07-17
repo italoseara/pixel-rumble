@@ -204,4 +204,5 @@ class Tilemap(Component):
         new_tilemap = Tilemap(self.data.filename, self.pivot)
         new_tilemap._colliders = [collider.clone() for collider in self._colliders]
         new_tilemap.group = self.group.copy()
+        new_tilemap.parent = self.parent
         return new_tilemap

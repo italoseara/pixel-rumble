@@ -186,6 +186,7 @@ class RigidBody(Component):
             gravity=self.gravity,
             is_kinematic=self.is_kinematic
         )
+        new_rigidbody.parent = self.parent
         new_rigidbody._transform = self._transform.clone() if self._transform else None
         new_rigidbody._collider = self._collider.clone() if self._collider else None
         return new_rigidbody

@@ -252,6 +252,7 @@ class SpriteRenderer(Component):
             animation_duration=self.animation_duration,
             loop=self.loop
         )
+        new_renderer.parent = self.parent
         new_renderer._current_frame = self._current_frame
         new_renderer._animation_timer = self._animation_timer
         return new_renderer

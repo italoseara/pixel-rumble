@@ -61,6 +61,7 @@ class Canvas(Component):
         """Create a copy of this Canvas component."""
 
         new_canvas = Canvas()
+        new_canvas.parent = self.parent
         new_canvas._components = [comp.clone() for comp in self._components]
         return new_canvas
 

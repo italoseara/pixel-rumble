@@ -12,25 +12,30 @@ from ..scripts import PlayerController, PlayerAnimation
 class GameScene(Scene):
     player_id: int
     player_name: str
+    character_index: tuple[int, int]
     players: dict[int, GameObject]
 
-    def __init__(self, id: int, name: str, players: dict[int, GameObject]) -> None:
+    def __init__(
+        self, 
+        id: int, 
+        name: str, 
+        character_index: tuple[int, int],
+        players: dict[int, GameObject],
+        map_name: str
+    ) -> None:
         super().__init__()
 
         self.player_id = id
         self.player_name = name
-        self.players = players
-    
+        self.character_index = character_index
+        self.players = players.copy()
+        self.map_name = map_name
+
     @override
     def start(self) -> None:
-        maps = [
-            "assets/maps/mario.tmx",
-            "assets/maps/adventure_time.tmx",
-        ]
-        
         map_object = GameObject("Map")
         map_object.add_component(Transform(x=0, y=0, scale=2.5))
-        tilemap = map_object.add_component(Tilemap(random.choice(maps), pivot="center"))
+        tilemap = map_object.add_component(Tilemap(f"assets/maps/{self.map_name}.tmx", pivot="center"))
         self.add(map_object)
 
         ui = GameObject("UI")
@@ -44,13 +49,18 @@ class GameScene(Scene):
         ))
         self.add(ui)
 
-        local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
-        self.add_component(PlayerController())
-        self.add_component(PlayerAnimation())
+        local_player = PlayerPrefab(
+            self.player_id, 
+            self.player_name, 
+            character_index=self.character_index, 
+            is_local=True
+        )
+        local_player.add_component(PlayerController())
+        local_player.add_component(PlayerAnimation())
         self.add(local_player)
 
-        for player_id, player in self.players.items():
-            self.add(player.clone())
+        for player in self.players.values():
+            self.add(player)
         
         self.background_color = tilemap.background_color
         self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))

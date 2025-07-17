@@ -21,7 +21,9 @@ from connection.packets import (
     PacketPlayInPlayerMove,
     PacketPlayOutPlayerMove,
     PacketPlayInChangeCharacter,
-    PacketPlayOutChangeCharacter
+    PacketPlayOutChangeCharacter,
+    PacketPlayInStartGame,
+    PacketPlayOutStartGame
 )
 
 
@@ -171,6 +173,12 @@ class Client:
                     )
                     print(f"[Client] Player {change_character.player_id} changed character to index {change_character.character_index}.")
 
+            case start_game if isinstance(start_game, PacketPlayOutStartGame):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'start_game'):
+                    current_scene.start_game(map_name=start_game.map_name)
+                    print(f"[Client] Starting game on map '{start_game.map_name}'.")
+        
             case _:
                 print(f"[Client] Unhandled packet type: {packet}")
 
@@ -198,6 +206,19 @@ class Client:
         self.running = False
         self.sock.close()
         print("[Client] Client stopped.")
+
+    def start_game(self, map_name: str) -> None:
+        """Sends a request to start the game with the specified map name.
+
+        Args:
+            map_name (str): The name of the map to start the game on.
+        """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before starting the game.")
+
+        self.send(PacketPlayInStartGame(map_name=map_name))
+        print(f"[Client] Requesting to start game on map '{map_name}'.")
 
     def change_character(self, index: int) -> None:
         """Changes the character of the local player.

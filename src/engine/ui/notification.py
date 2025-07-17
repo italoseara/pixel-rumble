@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pygame as pg
 from pygame.math import Vector2
 
@@ -64,3 +66,16 @@ class NotificationText(UIComponent):
         surface.blit(text_surface, self.rect)
 
         super().draw(surface)
+
+    @override
+    def clone(self) -> NotificationText:
+        """Create a copy of this NotificationText component."""
+
+        return NotificationText(
+            text=self._text,
+            x=self.position.x, y=self.position.y,
+            lifespan=self.lifespan,
+            pivot=self.pivot,
+            color=self._color,
+            font_size=self._font.get_height()
+        )

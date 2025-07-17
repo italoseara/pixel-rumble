@@ -140,6 +140,23 @@ class GameObject:
         self.active = False
         self.visible = False
 
+    def clone(self) -> GameObject:
+        """Create a copy of this GameObject with its components.
+
+        Returns:
+            GameObject: A new GameObject instance with the same name and components.
+        """
+        
+        new_object = GameObject(self.name, self.parent)
+        new_object.active = self.active
+        new_object.visible = self.visible
+        new_object.scene = self.scene
+
+        for comp in self._components.values():
+            new_object.add_component(comp.clone())
+
+        return new_object
+
     def has_component(self, ctype: Type[Component]) -> bool:
         """Check if the GameObject has a component of the specified type.
 

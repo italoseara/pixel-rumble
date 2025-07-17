@@ -7,18 +7,21 @@ from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, Spr
 from engine.ui import Image, Button
 
 from .menu import MainMenu
+from .game import GameScene
 from ..scripts import PlayerAnimation, CharacterSelector, PlayerController
 
 
 class LobbyScene(Scene):
     player_id: int
     player_name: str
+    players: dict[int, GameObject]
 
     def __init__(self, id: int, name: str) -> None:
         super().__init__()
 
         self.player_id = id
         self.player_name = name
+        self.players = {}
     
     @override
     def start(self) -> None:
@@ -50,8 +53,8 @@ class LobbyScene(Scene):
                 x="96%", y="90%",
                 pivot="midright",
                 font_size=42,
-                on_click=lambda: print("[Game] Starting game... (This should be replaced with actual game start logic)"
-            )))
+                on_click=lambda: Game.instance().push_scene(GameScene(self.player_id, self.player_name, self.players))
+            ))
 
         self.add(ui)
 
@@ -135,6 +138,8 @@ class LobbyScene(Scene):
         player = PlayerPrefab(player_id, name)
         player.add_component(PlayerAnimation())
         self.add(player)
+
+        self.players[player_id] = player
 
     def remove_player(self, player_id: int) -> None:
         """Removes a player from the lobby scene.

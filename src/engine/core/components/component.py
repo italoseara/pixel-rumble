@@ -8,7 +8,7 @@ class Component:
     """Base class for all components."""
 
     parent: 'GameObject'
-    
+
     def __init__(self) -> None:
         pass
 
@@ -30,6 +30,10 @@ class Component:
 
     def destroy(self) -> None:
         """Called when the component is removed from the GameObject."""
+        pass
+
+    def clone(self) -> 'Component':
+        """Create a copy of this component."""
         pass
 
     def __repr__(self) -> str:

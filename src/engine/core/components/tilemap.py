@@ -196,3 +196,12 @@ class Tilemap(Component):
         self.group.empty()
 
         super().destroy()
+
+    @override
+    def clone(self) -> Tilemap:
+        """Create a copy of this Tilemap component."""
+        
+        new_tilemap = Tilemap(self.data.filename, self.pivot)
+        new_tilemap._colliders = [collider.clone() for collider in self._colliders]
+        new_tilemap.group = self.group.copy()
+        return new_tilemap

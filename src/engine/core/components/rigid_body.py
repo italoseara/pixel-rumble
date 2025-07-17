@@ -176,6 +176,20 @@ class RigidBody(Component):
         impulse = Vector2(impulse)
         self.velocity += impulse / self.mass
 
+    @override
+    def clone(self) -> RigidBody:
+        """Create a copy of this RigidBody component."""
+        
+        new_rigidbody = RigidBody(
+            mass=self.mass,
+            drag=self.drag,
+            gravity=self.gravity,
+            is_kinematic=self.is_kinematic
+        )
+        new_rigidbody._transform = self._transform.clone() if self._transform else None
+        new_rigidbody._collider = self._collider.clone() if self._collider else None
+        return new_rigidbody
+
     def __repr__(self) -> str:
         return (f"<{super().__repr__()} mass={self.mass} linear_drag={self.drag} "
                 f"gravity_scale={self.gravity} is_grounded={self.is_grounded} "

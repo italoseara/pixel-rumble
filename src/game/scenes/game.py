@@ -46,7 +46,11 @@ class GameScene(Scene):
 
         local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
         self.add_component(PlayerController())
+        self.add_component(PlayerAnimation())
         self.add(local_player)
+
+        for player_id, player in self.players.items():
+            self.add(player.clone())
         
         self.background_color = tilemap.background_color
         self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))
@@ -60,7 +64,10 @@ class GameScene(Scene):
         """
 
         player = PlayerPrefab(player_id, name)
+        player.add_component(PlayerAnimation())
         self.add(player)
+
+        self.players[player_id] = player
 
     def remove_player(self, player_id: int) -> None:
         """Removes a player from the lobby scene.

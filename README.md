@@ -20,9 +20,11 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Keep Alive](#keep-alive)
      - [Join](#join)
      - [Disconnect](#disconnect)
+     - [Player Move](#player-move)
    - [Server](#server-1)
      - [Keep Alive](#keep-alive-1)
      - [Welcome](#welcome)
+     - [Player Move](#player-move)
      - [Player Join](#player-join)
 
 ## Packet Format
@@ -107,6 +109,46 @@ The play state is used during the game. It includes packets for player actions, 
 | --------- | ------ | -------- | ----------- | ---------- | --------------------------------------------------------- |
 | `0x04`    | `Play` | `Server` | _No fields_ |            | Indicates that the player is disconnecting from the game. |
 
+#### Player Move
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4"><code>0x09</code></td>
+      <td rowspan="4"><code>Play</code></td>
+      <td rowspan="4"><code>Server</code></td>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>The ID of the player moving.</td>
+    </tr>
+    <tr>
+      <td>Position</td>
+      <td><code>float[2]</code></td>
+      <td>The new position of the player in the game world.</td>
+    </tr>
+    <tr>
+      <td>Acceleration</td>
+      <td><code>float[2]</code></td>
+      <td>The acceleration vector of the player.</td>
+    </tr>
+    <tr>
+      <td>Velocity</td>
+      <td><code>float[2]</code></td>
+      <td>The velocity vector of the player.</td>
+    </tr>
+  </tbody>
+</table>
+
 ### Server
 
 #### Keep Alive
@@ -150,4 +192,72 @@ The play state is used during the game. It includes packets for player actions, 
   </tbody>
 </table>
 
+#### Player Move
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4"><code>0x08</code></td>
+      <td rowspan="4"><code>Play</code></td>
+      <td rowspan="4"><code>Client</code></td>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>The ID of the player moving.</td>
+    </tr>
+    <tr>
+      <td>Position</td>
+      <td><code>float[2]</code></td>
+      <td>The new position of the player in the game world.</td>
+    </tr>
+    <tr>
+      <td>Acceleration</td>
+      <td><code>float[2]</code></td>
+      <td>The acceleration vector of the player.</td>
+    </tr>
+    <tr>
+      <td>Velocity</td>
+      <td><code>float[2]</code></td>
+      <td>The velocity vector of the player.</td>
+    </tr>
+  </tbody>
+</table>
+
 #### Player Join
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x07</code></td>
+      <td rowspan="2"><code>Play</code></td>
+      <td rowspan="2"><code>Client</code></td>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>The joining player's ID.</td>
+    </tr>
+    <tr>
+      <td>Name</td>
+      <td><code>string</code></td>
+      <td>The joining player's nickname.</td>
+    </tr>
+  </tbody>
+</table>

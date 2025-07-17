@@ -87,13 +87,11 @@ class BaseUDPServer(ABC):
 
 class DiscoveryServer(BaseUDPServer):
     name: str
-    ip: str
     target_port: int
     
-    def __init__(self, name: str, ip: str, port: int, buffer_size: int = BUFFER_SIZE) -> None:
+    def __init__(self, name: str, port: int, buffer_size: int = BUFFER_SIZE) -> None:
         super().__init__(DISCOVERY_PORT, buffer_size)
         self.name = name
-        self.ip = ip
         self.target_port = port
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
@@ -101,13 +99,13 @@ class DiscoveryServer(BaseUDPServer):
     def on_packet_received(self, packet: Packet, addr: tuple[str, int]) -> None:
         print(f"[DiscoveryServer] Received packet from {addr[0]}:{addr[1]}: {packet}")
         if isinstance(packet, PacketStatusInPing):
-            response_packet = PacketStatusOutPong(self.name, self.ip, self.target_port)
+            response_packet = PacketStatusOutPong(self.name, self.target_port)
             self.send(response_packet, addr)
         else:
             print(f"[DiscoveryServer] Unhandled packet type: {type(packet).__name__}")
 
     def __repr__(self) -> str:
-        return f"<DiscoveryServer name={self.name} ip={self.ip} port={self.port} target_port={self.target_port} running={self.running}>"
+        return f"<DiscoveryServer name={self.name} port={self.port} target_port={self.target_port} running={self.running}>"
 
 
 @dataclass
@@ -122,7 +120,6 @@ class ClientData:
 
 class Server(BaseUDPServer):
     name: str
-    ip: str
     clients: dict[tuple[str, int], ClientData]
     discovery_server: DiscoveryServer
 
@@ -131,17 +128,9 @@ class Server(BaseUDPServer):
     def __init__(self, name: str, port: int, buffer_size: int = BUFFER_SIZE) -> None:
         super().__init__(port, buffer_size)
         self.name = name
-        self.ip = self._get_ip()
         self.clients = {}
-        self.discovery_server = DiscoveryServer(name=self.name, ip=self.ip, port=self.port)
+        self.discovery_server = DiscoveryServer(name=self.name, port=self.port)
         self._keep_alive_thread = threading.Thread(target=self._send_keep_alive_loop, daemon=True)
-
-    def _get_ip(self) -> str:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.connect(('8.8.8.8', 1))
-        ip = sock.getsockname()[0]
-        sock.close()
-        return ip
 
     @override
     def start(self) -> None:
@@ -268,4 +257,4 @@ class Server(BaseUDPServer):
             print(f"[Server] Client {addr[0]}:{addr[1]} is not connected.")
 
     def __repr__(self) -> str:
-        return f"<Server name='{self.name}' ip={self.ip} port={self.port} running={self.running} clients={len(self.clients)}>"
+        return f"<Server name='{self.name}' port={self.port} running={self.running} clients={len(self.clients)}>"

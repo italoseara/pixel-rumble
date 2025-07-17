@@ -1,3 +1,6 @@
+import random
+
+from engine.ui import Text
 from engine import (
     GameObject,
     Transform,
@@ -6,8 +9,6 @@ from engine import (
     RigidBody,
     Canvas
 )
-from engine.ui import Text
-
 from game.scripts import PlayerAnimation, PlayerController
 
 

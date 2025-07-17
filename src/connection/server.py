@@ -15,12 +15,14 @@ from connection.packets import (
     PacketPlayInDisconnect,
     PacketPlayInKeepAlive,
     PacketPlayOutKeepAlive,
-    PacketPlayOutPlayerJoin
+    PacketPlayOutPlayerJoin,
+    PacketPlayInPlayerMove,
+    PacketPlayOutPlayerMove
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
 BUFFER_SIZE = 1024  # bytes
-TICK_RATE = 20  # ticks per second
+TICK_RATE = 64  # ticks per second
 
 class BaseUDPServer(ABC):
     port: int
@@ -176,6 +178,11 @@ class Server(BaseUDPServer):
             case join if isinstance(join, PacketPlayInJoin):
                 if addr not in self.clients:
                     client_id = random.randint(1, 1_000_000)
+
+                    # Ensure the 1 in a million chance of duplicate client IDs is handled
+                    while any(client.id == client_id for client in self.clients.values()):
+                        client_id = random.randint(1, 1_000_000)
+                    
                     self.clients[addr] = ClientData(
                         id=client_id,
                         name=join.name,
@@ -208,20 +215,30 @@ class Server(BaseUDPServer):
                     print(f"[Server] Client {addr[0]}:{addr[1]} is not connected.")
                 return
 
+        if addr not in self.clients:
+            print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring packet.")
+            return
+
+        match packet:
             case keep_alive if isinstance(keep_alive, PacketPlayInKeepAlive):
                 client = self.clients.get(addr)
-                if client and keep_alive.value == client.keep_alive_id:
+                if keep_alive.value == client.keep_alive_id:
                     client.missed_keep_alive = 0
                     client.last_active = time.time()
                 else:
                     print(f"[Server] Invalid keep-alive response from {addr[0]}:{addr[1]}")
                 return
 
-        if addr not in self.clients:
-            print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring packet.")
-            return
+            case player_move if isinstance(player_move, PacketPlayInPlayerMove):
+                client = self.clients.get(addr)
+                move_packet = PacketPlayOutPlayerMove(
+                    player_id=client.id, 
+                    position=player_move.position,
+                    acceleration=player_move.acceleration,
+                    velocity=player_move.velocity
+                )
+                self.broadcast(move_packet, exclude=addr)
 
-        match packet:
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 

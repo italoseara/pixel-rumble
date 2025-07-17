@@ -29,6 +29,7 @@ class RigidBody(Component):
         mass: float = 1, 
         drag: float = 0.05, 
         gravity: float = 10.0,
+        is_kinematic: bool = True
     ) -> None:
         """Initialize the RigidBody component.
 
@@ -36,6 +37,7 @@ class RigidBody(Component):
             mass (float, optional): The mass of the object. Defaults to 1.
             drag (float, optional): The drag force to be applied in the X axis. Defaults to 0.05.
             gravity (float, optional): The gravity scale to be applied in the Y axis. Defaults to 10.0.
+            is_kinematic (bool, optional): If False, the RigidBody will not be affected by forces and will only move when explicitly set. Defaults to True.
         """
         
         super().__init__()
@@ -52,7 +54,7 @@ class RigidBody(Component):
         self._collider = None
 
         self.is_grounded = False
-        self.is_kinematic = False
+        self.is_kinematic = is_kinematic
 
     @override
     def start(self) -> None:
@@ -83,7 +85,7 @@ class RigidBody(Component):
             dt (float): The delta time since the last update.
         """
 
-        if self.is_kinematic or not self._transform or not self._collider:
+        if not self.is_kinematic or not self._transform or not self._collider:
             return
         
         # Apply gravity and drag

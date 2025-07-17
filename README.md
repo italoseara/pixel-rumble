@@ -23,6 +23,7 @@ The game uses a custom protocol for network communication, which is defined in t
    - [Server](#server-1)
      - [Keep Alive](#keep-alive-1)
      - [Welcome](#welcome)
+     - [Player Join](#player-join)
 
 ## Packet Format
 
@@ -148,3 +149,5 @@ The play state is used during the game. It includes packets for player actions, 
     </tr>
   </tbody>
 </table>
+
+#### Player Join

@@ -1,7 +1,9 @@
 from typing import override
+from pygame.math import Vector2
 
+from ..scripts import PlayerAnimation
 from game.prefabs import PlayerPrefab
-from engine import GameObject, Tilemap, Scene, Transform, Canvas
+from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
 from engine.ui import Image
 
         
@@ -49,3 +51,24 @@ class LobbyScene(Scene):
 
         player = PlayerPrefab(player_id, name)
         self.add(player)
+
+    def move_player(self, player_id: int, position: Vector2, acceleration: Vector2, velocity: Vector2) -> None:
+        """Updates the position and movement of a player in the lobby.
+
+        Args:
+            player_id (int): The unique ID of the player.
+            position (Vector2): The new position of the player.
+            acceleration (Vector2): The acceleration vector of the player.
+            velocity (Vector2): The velocity vector of the player.
+        """
+
+        player = self.find(f"Player ({player_id})")
+        if player:
+            player_animation = player.get_component(PlayerAnimation)
+            player_animation.desired_position = position
+
+            rigid_body = player.get_component(RigidBody)
+            rigid_body.acceleration = acceleration
+            rigid_body.velocity = velocity
+        else:
+            print(f"[LobbyScene] Player with ID {player_id} not found.")

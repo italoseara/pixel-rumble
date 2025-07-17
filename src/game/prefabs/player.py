@@ -34,12 +34,10 @@ class PlayerPrefab(GameObject):
             sprite_index=(0, 0)
         ))
         self.add_component(BoxCollider(width=30))
-        rigid_body = self.add_component(RigidBody(drag=0.07, gravity=15))
+        self.add_component(RigidBody(drag=0.07, gravity=15, is_kinematic=is_local))
 
         if is_local:
             self.add_component(PlayerController())
-        else:
-            rigid_body.is_kinematic = True
         
         self.add_component(PlayerAnimation())
         

@@ -5,6 +5,7 @@ import threading
 from dataclasses import dataclass
 
 from engine import Game
+from engine.constants import DEBUG_MODE
 from connection.server import DISCOVERY_PORT
 from connection.packets import (
     Packet, 
@@ -15,12 +16,14 @@ from connection.packets import (
     PacketStatusOutPong,
     PacketPlayInKeepAlive,
     PacketPlayOutKeepAlive,
-    PacketPlayOutPlayerJoin
+    PacketPlayOutPlayerJoin,
+    PacketPlayInPlayerMove,
+    PacketPlayOutPlayerMove
 )
 
 
 TIMEOUT = 2  # seconds
-TICK_RATE = 20  # ticks per second
+TICK_RATE = 64  # ticks per second
 
 
 @dataclass(unsafe_hash=True)
@@ -121,10 +124,12 @@ class Client:
                 else:
                     print(f"[Client] Connection failed: {welcome.message}")
                     self.stop()
+
             case keep_alive if isinstance(keep_alive, PacketPlayOutKeepAlive):
                 response_packet = PacketPlayInKeepAlive(value=keep_alive.value)
                 self.send(response_packet)
                 self.last_keep_alive = time.time()
+
             case player_join if isinstance(player_join, PacketPlayOutPlayerJoin):
                 current_scene = Game.instance().current_scene
 
@@ -133,6 +138,17 @@ class Client:
                     print(f"[Client] Player {player_join.name} with ID {player_join.player_id} joined the lobby.")
                 else:
                     print("[Client] Current scene does not support adding players.")
+
+            case player_move if isinstance(player_move, PacketPlayOutPlayerMove):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'move_player'):
+                    current_scene.move_player(
+                        player_move.player_id,
+                        player_move.position,
+                        player_move.acceleration,
+                        player_move.velocity
+                    )
+                    print(f"[Client] Player {player_move.player_id} moved to {player_move.position}.")
             case _:
                 print(f"[Client] Unhandled packet type: {packet}")
 

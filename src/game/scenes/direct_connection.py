@@ -1,6 +1,7 @@
 import pygame as pg
 from typing import override
 
+from connection.client import Client
 from engine import Scene, GameObject, Canvas, Game
 from engine.ui import Button, InputField, Text
 
@@ -34,7 +35,7 @@ class DirectConnectionMenu(Scene):
             x="50%", y="50%",
             width=350, height=48,
             pivot="center",
-            max_char=9,
+            max_char=20,
         ))
 
         canvas.add(InputField(
@@ -51,7 +52,7 @@ class DirectConnectionMenu(Scene):
             x="96%", y="90%",
             pivot="midright",
             font_size=42,
-            on_click=lambda: print("Entrar na sala")
+            on_click=lambda: self.connect()
         ))
 
         canvas.add(Button(
@@ -74,3 +75,13 @@ class DirectConnectionMenu(Scene):
 
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             Game.instance().pop_scene()
+
+    def connect(self) -> None:
+        """Connect to the server using the provided IP and port."""
+
+        name = self.find("UI").get_component(Canvas).get(InputField)[0].text
+        ip = self.find("UI").get_component(Canvas).get(InputField)[1].text
+        port = self.find("UI").get_component(Canvas).get(InputField)[2].value
+
+        Game.instance().client = Client(name=name, server_ip=ip, server_port=port)
+        Game.instance().client.start()

@@ -28,4 +28,4 @@ class PacketPlayOutKeepAlive(Packet):
         return cls(value)
 
     def __repr__(self) -> str:
-        return f"<PacketPlayInKeepAlive value={self.value}>"
+        return f"<PacketPlayOutKeepAlive value={self.value}>"

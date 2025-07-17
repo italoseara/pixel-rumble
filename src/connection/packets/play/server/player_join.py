@@ -31,4 +31,4 @@ class PacketPlayOutPlayerJoin(Packet):
         return cls(player_id, name)
 
     def __repr__(self) -> str:
-        return f"<PacketPlayInJoin player_id={self.player_id} name='{self.name}'>"
+        return f"<PacketPlayOutPlayerJoin player_id={self.player_id} name='{self.name}'>"

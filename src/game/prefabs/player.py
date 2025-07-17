@@ -1,5 +1,3 @@
-import random
-
 from engine.ui import Text
 from engine import (
     GameObject,
@@ -9,7 +7,7 @@ from engine import (
     RigidBody,
     Canvas
 )
-from game.scripts import PlayerAnimation, PlayerController
+from game.scripts import PlayerAnimation
 
 
 class PlayerPrefab(GameObject):
@@ -36,10 +34,6 @@ class PlayerPrefab(GameObject):
         ))
         self.add_component(BoxCollider(width=30))
         self.add_component(RigidBody(drag=0.07, gravity=15, is_kinematic=is_local))
-
-        if is_local:
-            self.add_component(PlayerController())
-        
         self.add_component(PlayerAnimation())
         
         # Add a text component for the player's name

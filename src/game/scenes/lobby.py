@@ -52,6 +52,20 @@ class LobbyScene(Scene):
         player = PlayerPrefab(player_id, name)
         self.add(player)
 
+    def remove_player(self, player_id: int) -> None:
+        """Removes a player from the lobby scene.
+
+        Args:
+            player_id (int): The unique ID of the player to remove.
+        """
+
+        player = self.find(f"Player ({player_id})")
+        if player:
+            self.remove(player)
+            print(f"[LobbyScene] Player with ID {player_id} removed.")
+        else:
+            print(f"[LobbyScene] Player with ID {player_id} not found.")
+
     def move_player(self, player_id: int, position: Vector2, acceleration: Vector2, velocity: Vector2) -> None:
         """Updates the position and movement of a player in the lobby.
 

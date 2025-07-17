@@ -26,6 +26,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Boas-vindas](#boas-vindas)
      - [Mover Jogador](#mover-jogador-1)
      - [Jogador Entrou](#jogador-entrou)
+     - [Jogador Saiu](#jogador-saiu)
 
 ## Formato do Pacote
 
@@ -261,3 +262,11 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
     </tr>
   </tbody>
 </table>
+
+#### Jogador Saiu
+
+#### Player Leave
+
+| ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                                |
+| ------------ | ------- | --------- | ------------- | ------------- | ---------------------------------------- |
+| `0x0A`       | `Jogar` | `Cliente` | ID do Jogador | `uint32`      | O ID do jogador que está saindo do jogo. |

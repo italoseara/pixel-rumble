@@ -16,6 +16,7 @@ from connection.packets import (
     PacketPlayInKeepAlive,
     PacketPlayOutKeepAlive,
     PacketPlayOutPlayerJoin,
+    PacketPlayOutPlayerLeave,
     PacketPlayInPlayerMove,
     PacketPlayOutPlayerMove
 )
@@ -159,9 +160,8 @@ class Server(BaseUDPServer):
             for addr, client in list(self.clients.items()):
                 client.missed_keep_alive += 1
                 if client.missed_keep_alive >= 4:
-                    # TODO: Handle disconnect or removal of unresponsive client
                     print(f"[Server] Client {addr[0]}:{addr[1]} missed too many keep-alives. Disconnecting.")
-                    self.clients.pop(addr, None)
+                    self.remove_client(addr)
                     continue
 
                 keep_alive_id = random.randint(1, 1_000_000)
@@ -208,11 +208,7 @@ class Server(BaseUDPServer):
                 return
 
             case disconnect if isinstance(disconnect, PacketPlayInDisconnect):
-                if addr in self.clients:
-                    self.clients.pop(addr)
-                    print(f"[Server] Client {addr[0]}:{addr[1]} disconnected.")
-                else:
-                    print(f"[Server] Client {addr[0]}:{addr[1]} is not connected.")
+                self.remove_client(addr)
                 return
 
         if addr not in self.clients:
@@ -261,6 +257,15 @@ class Server(BaseUDPServer):
             raise ValueError(f"Client {addr[0]}:{addr[1]} is not connected.")
 
         super().send(packet, addr)
+
+    def remove_client(self, addr: tuple[str, int]) -> None:
+        if addr in self.clients:
+            client = self.clients.pop(addr)
+            leave_packet = PacketPlayOutPlayerLeave(player_id=client.id)
+            self.broadcast(leave_packet, exclude=addr)
+            print(f"[Server] Client {addr[0]}:{addr[1]} disconnected.")
+        else:
+            print(f"[Server] Client {addr[0]}:{addr[1]} is not connected.")
 
     def __repr__(self) -> str:
         return f"<Server name='{self.name}' ip={self.ip} port={self.port} running={self.running} clients={len(self.clients)}>"

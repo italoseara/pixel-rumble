@@ -10,4 +10,5 @@ from .play.client.player_move import PacketPlayInPlayerMove
 from .play.server.welcome import PacketPlayOutWelcome
 from .play.server.keep_alive import PacketPlayOutKeepAlive
 from .play.server.player_join import PacketPlayOutPlayerJoin
+from .play.server.player_leave import PacketPlayOutPlayerLeave
 from .play.server.player_move import PacketPlayOutPlayerMove

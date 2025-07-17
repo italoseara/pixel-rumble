@@ -26,6 +26,7 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Welcome](#welcome)
      - [Player Move](#player-move)
      - [Player Join](#player-join)
+     - [Player Leave](#player-leave)
 
 ## Packet Format
 
@@ -261,3 +262,9 @@ The play state is used during the game. It includes packets for player actions, 
     </tr>
   </tbody>
 </table>
+
+#### Player Leave
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                            |
+| --------- | ------ | -------- | ---------- | ---------- | -------------------------------------- |
+| `0x0A`    | `Play` | `Client` | Player ID  | `uint32`   | The ID of the player leaving the game. |

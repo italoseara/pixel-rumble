@@ -5,7 +5,7 @@ from connection.packets import Packet
 
 
 class PacketPlayOutPlayerJoin(Packet):
-    """Join packet for the play state."""
+    """Player Join packet for the play state."""
 
     id = 0x07
 

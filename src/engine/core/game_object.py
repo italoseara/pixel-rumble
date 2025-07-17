@@ -132,6 +132,9 @@ class GameObject:
             comp.parent = None
             comp.destroy()
 
+        if self.scene:
+            self.scene.remove(self)
+
         self._components.clear()
         self.name = ""
         self.active = False

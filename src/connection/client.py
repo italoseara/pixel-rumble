@@ -5,7 +5,6 @@ import threading
 from dataclasses import dataclass
 
 from engine import Game
-from engine.constants import DEBUG_MODE
 from connection.server import DISCOVERY_PORT
 from connection.packets import (
     Packet, 
@@ -17,7 +16,7 @@ from connection.packets import (
     PacketPlayInKeepAlive,
     PacketPlayOutKeepAlive,
     PacketPlayOutPlayerJoin,
-    PacketPlayInPlayerMove,
+    PacketPlayOutPlayerLeave,
     PacketPlayOutPlayerMove
 )
 
@@ -139,6 +138,15 @@ class Client:
                 else:
                     print("[Client] Current scene does not support adding players.")
 
+            case player_leave if isinstance(player_leave, PacketPlayOutPlayerLeave):
+                current_scene = Game.instance().current_scene
+
+                if hasattr(current_scene, 'remove_player'):
+                    current_scene.remove_player(player_leave.player_id)
+                    print(f"[Client] Player with ID {player_leave.player_id} left the lobby.")
+                else:
+                    print("[Client] Current scene does not support removing players.")
+
             case player_move if isinstance(player_move, PacketPlayOutPlayerMove):
                 current_scene = Game.instance().current_scene
                 if hasattr(current_scene, 'move_player'):
@@ -239,8 +247,13 @@ class Client:
                     break
 
                 if e.errno == errno.ECONNREFUSED:
+                    from game.scenes.menu import MainMenu
+                    
                     print("[Client] Connection refused by the server. Stopping client.")
                     self.stop()
+
+                    Game.instance().clear_scenes()
+                    Game.instance().push_scene(MainMenu())
                 else:
                     print(f"[Client] Error receiving packet: {e}")
 

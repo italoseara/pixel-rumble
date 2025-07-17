@@ -36,6 +36,22 @@ class Scene:
         
         return self._game_objects.get(name, None)
 
+    def remove(self, game_object: GameObject) -> None:
+        """Remove a GameObject from the scene.
+
+        Args:
+            game_object (GameObject): The GameObject to remove.
+        
+        Raises:
+            ValueError: If the GameObject is not found in the scene.
+        """
+        
+        if game_object.name not in self._game_objects:
+            raise ValueError(f"GameObject with name '{game_object.name}' not found in the scene")
+
+        del self._game_objects[game_object.name]
+        game_object.scene = None
+
     def add(self, game_object: GameObject) -> None:
         """Add a GameObject to the scene.
 

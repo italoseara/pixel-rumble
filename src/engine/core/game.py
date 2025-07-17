@@ -171,13 +171,13 @@ class Game:
         while self._scenes:
             self._scenes.pop().stop()
 
-        if self.client:
-            self.client.disconnect()
-            self.client = None
-
         if self.server:
             self.server.stop()
             self.server = None
+
+        if self.client:
+            self.client.disconnect()
+            self.client = None
 
     def notify(self, gameObject : str, compType, addType, **kwargs) -> None:
         """Display a notification message in the console."""

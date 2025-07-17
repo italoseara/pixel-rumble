@@ -61,6 +61,7 @@ class GameScene(Scene):
 
         gun = GunPrefab(self.local_player, "pistol")
         gun.add_component(GunController(
+            self.local_player,
             automatic=False, 
             fire_rate=0.5, 
             damage=10, 

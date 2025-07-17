@@ -88,7 +88,7 @@ class Client:
                         print("[Client] Received packet is not a Pong packet")
                         continue
                     
-                    servers.add(ServerData(name=packet.name, ip=packet.ip, port=packet.port))
+                    servers.add(ServerData(name=packet.name, ip=addr[0], port=packet.port))
                     print(f"[Client] Received response from {addr[0]}:{addr[1]}: {packet}")
                 except ValueError as e:
                     print(f"[Client] Received invalid packet from {addr[0]}:{addr[1]}: {e}")
@@ -191,6 +191,7 @@ class Client:
         if not self.running:
             raise RuntimeError("Client is not running. Start the client before joining.")
 
+        print(self.address)
         self.send(PacketPlayInJoin(name=self.name))
 
     def disconnect(self) -> None:

@@ -2,13 +2,14 @@ import pytmx
 from typing import override
 from pygame.math import Vector2
 
+from .menu import MainMenu
 from ..scripts import PlayerAnimation
 from ..scripts import CharacterSelector
 from game.prefabs import PlayerPrefab
-from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, SpriteRenderer
-from engine.ui import Image
+from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, SpriteRenderer, Game
+from engine.ui import Image, Button
 
-        
+
 class LobbyScene(Scene):
     player_id: int
     player_name: str
@@ -35,6 +36,23 @@ class LobbyScene(Scene):
             pivot="topleft",
             opacity=0.4
         ))
+        canvas.add(Button(
+            "< VOLTAR",
+            x="5%", y="-10%",
+            pivot="midleft",
+            font_size=42,
+            on_click=lambda: self.exit()
+        ))
+
+        if Game.instance().is_admin:
+            canvas.add(Button(
+                "INICIAR >",
+                x="96%", y="90%",
+                pivot="midright",
+                font_size=42,
+                on_click=lambda: print("[Game] Starting game... (This should be replaced with actual game start logic)"
+            )))
+
         self.add(ui)
 
         local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
@@ -149,3 +167,14 @@ class LobbyScene(Scene):
             rigid_body.velocity = velocity
         else:
             print(f"[Game] Player with ID {player_id} not found.")
+
+    def exit(self):
+        """Exits the lobby scene and returns to the main menu."""
+        Game.instance().client.disconnect()
+
+        if Game.instance().is_admin:
+            Game.instance().server.stop()
+            Game.instance().is_admin = False
+
+        Game.instance().clear_scenes()
+        Game.instance().push_scene(MainMenu())

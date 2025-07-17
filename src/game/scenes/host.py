@@ -73,6 +73,8 @@ class HostMenu(Scene):
 
     def open_server(self) -> None:
         """Handle the server operation logic."""
+        Game.instance().is_admin = True
+
         parent_canvas = self.find("UI").get_component(Canvas)
 
         name = parent_canvas.get(InputField)[0].text

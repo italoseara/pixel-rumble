@@ -232,7 +232,6 @@ class Client:
         if not self.running:
             raise RuntimeError("Client is not running. Start the client before joining.")
 
-        print(self.address)
         self.send(PacketPlayInJoin(name=self.name))
 
     def disconnect(self) -> None:

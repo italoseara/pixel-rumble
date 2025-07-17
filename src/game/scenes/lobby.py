@@ -37,7 +37,7 @@ class LobbyScene(Scene):
             opacity=0.4
         ))
         canvas.add(Button(
-            "< VOLTAR",
+            "< SAIR",
             x="5%", y="-10%",
             pivot="midleft",
             font_size=42,

@@ -261,7 +261,7 @@ class Client:
         """Waits for keep-alive packets from the server and handles them."""
 
         while self.running:
-            if time.time() - self.last_keep_alive > 20:
+            if time.time() - self.last_keep_alive > 10:
                 from game.scenes.menu import MainMenu
                 
                 print("[Client] No keep-alive packets received for 20 seconds. Stopping client.")

@@ -89,7 +89,7 @@ class RigidBody(Component):
             return
 
         # Apply gravity and drag
-        self.acceleration += Vector2(0, 100) * self.gravity * dt * 70  # Apply gravity in the Y axis
+        self.acceleration += Vector2(0, 100) * self.gravity  # Apply gravity in the Y axis
         self.velocity.x *= (1 - self.drag * dt * 50)
 
         # Integrate acceleration

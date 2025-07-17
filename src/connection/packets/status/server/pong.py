@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import struct
 from connection.packets import Packet
+from connection.util import from_uint32, to_uint32
 
 class PacketStatusOutPong(Packet):
     """Pong packet for the status state."""
@@ -17,8 +17,7 @@ class PacketStatusOutPong(Packet):
         self.ip = ip
         self.port = port
 
-        port_bytes = struct.pack('>I', port)
-        super().__init__(data=f"{name}\0{ip}".encode() + port_bytes)
+        super().__init__(data=f"{name}\0{ip}".encode() + to_uint32(port))
 
     @classmethod
     def from_bytes(cls, data: bytes) -> PacketStatusOutPong:
@@ -35,7 +34,7 @@ class PacketStatusOutPong(Packet):
         if not name or not ip:
             raise ValueError("Name and IP cannot be empty in PacketStatusOutPong")
 
-        port = struct.unpack('>I', port_bytes)[0]
+        port = from_uint32(port_bytes)
 
         return cls(name, ip, port)
 

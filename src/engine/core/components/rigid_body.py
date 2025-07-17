@@ -19,14 +19,17 @@ class RigidBody(Component):
     acceleration: Vector2
     velocity: Vector2
 
-    _transform: Transform | None = None
-    _collider: BoxCollider | None = None
-    
+    is_kinematic: bool
+
+    _transform: Transform | None
+    _collider: BoxCollider | None
+
     def __init__(
         self, 
         mass: float = 1, 
         drag: float = 0.05, 
-        gravity: float = 10.0,
+        gravity: float = 10,
+        is_kinematic: bool = True
     ) -> None:
         """Initialize the RigidBody component.
 
@@ -34,6 +37,7 @@ class RigidBody(Component):
             mass (float, optional): The mass of the object. Defaults to 1.
             drag (float, optional): The drag force to be applied in the X axis. Defaults to 0.05.
             gravity (float, optional): The gravity scale to be applied in the Y axis. Defaults to 10.0.
+            is_kinematic (bool, optional): If False, the RigidBody will not be affected by forces and will only move when explicitly set. Defaults to True.
         """
         
         super().__init__()
@@ -50,6 +54,7 @@ class RigidBody(Component):
         self._collider = None
 
         self.is_grounded = False
+        self.is_kinematic = is_kinematic
 
     @override
     def start(self) -> None:
@@ -79,10 +84,13 @@ class RigidBody(Component):
         Args:
             dt (float): The delta time since the last update.
         """
-        
+
+        if not self.is_kinematic or not self._transform or not self._collider:
+            return
+
         # Apply gravity and drag
-        self.acceleration += Vector2(0, 100) * self.gravity
-        self.velocity.x *= (1 - self.drag)
+        self.acceleration += Vector2(0, 110) * self.gravity  # Apply gravity in the Y axis
+        self.velocity.x *= (1 - self.drag * dt * 50)
 
         # Integrate acceleration
         self.velocity += self.acceleration * dt

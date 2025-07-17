@@ -75,7 +75,6 @@ class BoxCollider(Component):
         else:
             self.offset = Vector2(self.offset)
 
-
     @override
     def draw(self, surface) -> None:
         """Draw the collider's rectangle on the surface for debugging purposes."""
@@ -113,6 +112,9 @@ class BoxCollider(Component):
         other_transform = other.parent.get_component(Transform)
         if not transform or not other_transform:
             raise RuntimeError("Both BoxColliders must have a Transform component on their owners.")
+
+        if self.offset is None or other.offset is None:
+            return False
 
         pos1 = transform.world_position + self.offset
         pos2 = other_transform.world_position + other.offset

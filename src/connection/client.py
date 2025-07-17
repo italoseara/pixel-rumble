@@ -2,9 +2,10 @@ import time
 import errno
 import socket
 import threading
+from dataclasses import dataclass
 
 from engine import Game
-from game.scenes.lobby import LobbyScene
+from engine.constants import DEBUG_MODE
 from connection.server import DISCOVERY_PORT
 from connection.packets import (
     Packet, 
@@ -12,28 +13,24 @@ from connection.packets import (
     PacketPlayOutWelcome, 
     PacketPlayInDisconnect,
     PacketStatusInPing,
-    PacketStatusOutPong
+    PacketStatusOutPong,
+    PacketPlayInKeepAlive,
+    PacketPlayOutKeepAlive,
+    PacketPlayOutPlayerJoin,
+    PacketPlayInPlayerMove,
+    PacketPlayOutPlayerMove
 )
 
 
 TIMEOUT = 2  # seconds
-TICK_RATE = 20  # ticks per second
+TICK_RATE = 64  # ticks per second
 
+
+@dataclass(unsafe_hash=True)
 class ServerData:
-    """A class to hold server data for the client."""
-
     name: str
     ip: str
     port: int
-
-    def __init__(self, name: str, ip: str, port: int) -> None:
-        self.name = name
-        self.ip = ip
-        self.port = port
-
-    def __repr__(self) -> str:
-        return f"<ServerData name={self.name} ip={self.ip} port={self.port}>"
-
 
 class Client:
     """A UDP client that connects to a server and sends/receives packets."""
@@ -45,6 +42,8 @@ class Client:
     sock: socket.socket
 
     running: bool
+
+    last_keep_alive: float
 
     def __init__(self, name: str, server_ip: str, server_port: int, buffer_size: int = 1024) -> None:
         """Initializes the client with the specified IP address and port.
@@ -63,6 +62,8 @@ class Client:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.running = False
 
+        self.last_keep_alive = time.time()
+
     @staticmethod
     def search() -> set[ServerData]:
         """Searches for available servers and returns a set of ServerData objects."""
@@ -79,7 +80,7 @@ class Client:
 
         servers = set()
         start = time.time()
-        while True:
+        while True:            
             try:
                 data, addr = sock.recvfrom(1024)
                 try:
@@ -115,13 +116,41 @@ class Client:
         match packet:
             case welcome if isinstance(welcome, PacketPlayOutWelcome):
                 if welcome.is_welcome:
-                    Game.instance().push_scene(LobbyScene(name=self.name))
+                    from game.scenes.lobby import LobbyScene
+                    
+                    Game.instance().clear_scenes()
+                    Game.instance().push_scene(LobbyScene(id=welcome.player_id, name=self.name))
                     print(f"[Client] Connection successful: {welcome.message}")
                 else:
                     print(f"[Client] Connection failed: {welcome.message}")
                     self.stop()
+
+            case keep_alive if isinstance(keep_alive, PacketPlayOutKeepAlive):
+                response_packet = PacketPlayInKeepAlive(value=keep_alive.value)
+                self.send(response_packet)
+                self.last_keep_alive = time.time()
+
+            case player_join if isinstance(player_join, PacketPlayOutPlayerJoin):
+                current_scene = Game.instance().current_scene
+
+                if hasattr(current_scene, 'add_player'):
+                    current_scene.add_player(player_join.player_id, player_join.name)
+                    print(f"[Client] Player {player_join.name} with ID {player_join.player_id} joined the lobby.")
+                else:
+                    print("[Client] Current scene does not support adding players.")
+
+            case player_move if isinstance(player_move, PacketPlayOutPlayerMove):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'move_player'):
+                    current_scene.move_player(
+                        player_move.player_id,
+                        player_move.position,
+                        player_move.acceleration,
+                        player_move.velocity
+                    )
+                    print(f"[Client] Player {player_move.player_id} moved to {player_move.position}.")
             case _:
-                print(f"[Client] Unhandled packet type: {type(packet).__name__}")
+                print(f"[Client] Unhandled packet type: {packet}")
 
     def start(self) -> None:
         """Starts the client and begins listening for incoming packets."""
@@ -133,12 +162,14 @@ class Client:
         self.running = True
 
         threading.Thread(target=self._listen_for_packets, daemon=True).start()
+        threading.Thread(target=self._wait_for_keep_alive, daemon=True).start()
         print(f"[Client] Client started and connected to {self.address}.")
 
         self.join()
 
     def stop(self) -> None:
         """Stops the client and closes the socket."""
+
         if not self.running:
             return
 
@@ -177,10 +208,26 @@ class Client:
         self.sock.sendto(data, self.address)
         print(f"[Client] Sent packet: {packet}")
 
+    def _wait_for_keep_alive(self) -> None:
+        """Waits for keep-alive packets from the server and handles them."""
+
+        while self.running:
+            if time.time() - self.last_keep_alive > 20:
+                from game.scenes.menu import MainMenu
+                
+                print("[Client] No keep-alive packets received for 20 seconds. Stopping client.")
+                Game.instance().clear_scenes()
+                Game.instance().push_scene(MainMenu())
+                self.disconnect()
+                return
+
+            time.sleep(1)
+
     def _listen_for_packets(self) -> None:
         """Listens for incoming packets from the server and handles them."""
+
         tick_interval = 1.0 / TICK_RATE
-        while self.running:
+        while self.running:                
             start_time = time.time()
             try:
                 data, _ = self.sock.recvfrom(self.buffer_size)
@@ -203,4 +250,4 @@ class Client:
                 time.sleep(sleep_time)
 
     def __repr__(self) -> str:
-        return f"<Client name={self.name} address={self.address}>"
+        return f"<Client name='{self.name}' address={self.address}>"

@@ -1,1 +1,2 @@
 from .player_controller import PlayerController
+from .player_animation import PlayerAnimation

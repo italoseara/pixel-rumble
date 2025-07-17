@@ -17,10 +17,13 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Pong](#pong)
 3. [Play](#play)
    - [Client](#client-1)
+     - [Keep Alive](#keep-alive)
      - [Join](#join)
      - [Disconnect](#disconnect)
    - [Server](#server-1)
+     - [Keep Alive](#keep-alive-1)
      - [Welcome](#welcome)
+     - [Player Join](#player-join)
 
 ## Packet Format
 
@@ -80,12 +83,17 @@ The status is used to check if there is a game server running on this address. T
   </tbody>
 </table>
 
-
 ## Play
 
 The play state is used during the game. It includes packets for player actions, game state updates, and other gameplay-related events.
 
 ### Client
+
+#### Keep Alive
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                                                                              |
+| --------- | ------ | -------- | ---------- | ---------- | ---------------------------------------------------------------------------------------- |
+| `0x05`    | `Play` | `Server` | Value      | `uint32`   | A value expected to be returned by the client to check if the client is still connected. |
 
 #### Join
 
@@ -100,6 +108,12 @@ The play state is used during the game. It includes packets for player actions, 
 | `0x04`    | `Play` | `Server` | _No fields_ |            | Indicates that the player is disconnecting from the game. |
 
 ### Server
+
+#### Keep Alive
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                                                                                                                                            |
+| --------- | ------ | -------- | ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `0x06`    | `Play` | `Client` | Value      | `uint32`   | A value sent by the server to the client to check if the client is still connected. The client should respond with a packet containing the same value. |
 
 #### Welcome
 
@@ -116,12 +130,17 @@ The play state is used during the game. It includes packets for player actions, 
   </thead>
   <tbody>
     <tr>
-      <td rowspan="2"><code>0x03</code></td>
-      <td rowspan="2"><code>Play</code></td>
-      <td rowspan="2"><code>Client</code></td>
+      <td rowspan="3"><code>0x03</code></td>
+      <td rowspan="3"><code>Play</code></td>
+      <td rowspan="3"><code>Client</code></td>
       <td>Is Welcome</td>
       <td><code>boolean</code></td>
       <td>Indicates if the player is welcome to join the game.</td>
+    </tr>
+    <tr>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>The ID of the player if they are welcome. If not, this will be `0`.</td>
     </tr>
     <tr>
       <td>Message</td>
@@ -130,3 +149,5 @@ The play state is used during the game. It includes packets for player actions, 
     </tr>
   </tbody>
 </table>
+
+#### Player Join

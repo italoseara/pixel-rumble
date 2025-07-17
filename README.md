@@ -21,12 +21,14 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Join](#join)
      - [Disconnect](#disconnect)
      - [Player Move](#player-move)
+     - [Change Character](#change-character)
    - [Server](#server-1)
      - [Keep Alive](#keep-alive-1)
      - [Welcome](#welcome)
      - [Player Move](#player-move)
      - [Player Join](#player-join)
      - [Player Leave](#player-leave)
+     - [Change Character](#change-character-1)
 
 ## Packet Format
 
@@ -150,6 +152,12 @@ The play state is used during the game. It includes packets for player actions, 
   </tbody>
 </table>
 
+#### Change Character
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                                  |
+| --------- | ------ | -------- | ---------- | ---------- | -------------------------------------------- |
+| `0x0B`    | `Play` | `Server` | Index      | `uint8`    | The index of the character being changed to. |
+
 ### Server
 
 #### Keep Alive
@@ -268,3 +276,33 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                            |
 | --------- | ------ | -------- | ---------- | ---------- | -------------------------------------- |
 | `0x0A`    | `Play` | `Client` | Player ID  | `uint32`   | The ID of the player leaving the game. |
+
+#### Change Character
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x0C</code></td>
+      <td rowspan="2"><code>Play</code></td>
+      <td rowspan="2"><code>Client</code></td>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>The ID of the player changing character.</td>
+    </tr>
+    <tr>
+      <td>Index</td>
+      <td><code>uint8</code></td>
+      <td>The index of the character being changed to.</td>
+    </tr>
+  </tbody>
+</table>

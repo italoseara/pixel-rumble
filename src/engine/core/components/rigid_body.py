@@ -111,7 +111,7 @@ class RigidBody(Component):
         # Move and resolve X collisions
         self._transform.x = new_pos.x
         for collider in colliders:
-            if self._collider.collides_with(collider):
+            if self._collider.collides_with(collider) and not collider.is_trigger:
                 if self.velocity.x > 0:
                     self._transform.x = collider.get_rect().left - self._collider.width - self._collider.offset.x
                 elif self.velocity.x < 0:
@@ -121,7 +121,7 @@ class RigidBody(Component):
         # Move and resolve Y collisions
         self._transform.y = new_pos.y
         for collider in colliders:
-            if self._collider.collides_with(collider):
+            if self._collider.collides_with(collider) and not collider.is_trigger:
                 if self.velocity.y > 0:
                     self._transform.y = collider.get_rect().top - self._collider.height - self._collider.offset.y
                     self.is_grounded = True

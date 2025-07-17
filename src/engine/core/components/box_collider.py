@@ -14,12 +14,15 @@ class BoxCollider(Component):
     width: float
     height: float
     offset: Vector2
+
+    is_trigger: bool
     
     def __init__(
         self, 
         width: float = None, 
         height: float = None, 
-        offset: Vector2 | tuple[float, float] = None
+        offset: Vector2 | tuple[float, float] = None,
+        is_trigger: bool = False
     ) -> None:
         """Initialize the BoxCollider component.
 
@@ -37,6 +40,7 @@ class BoxCollider(Component):
         self.width = width
         self.height = height
         self.offset = offset
+        self.is_trigger = is_trigger
 
     @override
     def start(self) -> None:

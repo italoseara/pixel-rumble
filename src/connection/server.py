@@ -18,7 +18,9 @@ from connection.packets import (
     PacketPlayOutPlayerJoin,
     PacketPlayOutPlayerLeave,
     PacketPlayInPlayerMove,
-    PacketPlayOutPlayerMove
+    PacketPlayOutPlayerMove,
+    PacketPlayInChangeCharacter,
+    PacketPlayOutChangeCharacter
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
@@ -194,11 +196,9 @@ class Server(BaseUDPServer):
                     print(f"[Server] Client {addr[0]}:{addr[1]} already connected.")
                     welcome_packet = PacketPlayOutWelcome(False, 0, "You are already connected.")
                     self.send(welcome_packet, addr)
-                return
 
             case disconnect if isinstance(disconnect, PacketPlayInDisconnect):
                 self.remove_client(addr)
-                return
 
         if addr not in self.clients:
             print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring packet.")
@@ -212,17 +212,24 @@ class Server(BaseUDPServer):
                     client.last_active = time.time()
                 else:
                     print(f"[Server] Invalid keep-alive response from {addr[0]}:{addr[1]}")
-                return
 
             case player_move if isinstance(player_move, PacketPlayInPlayerMove):
                 client = self.clients.get(addr)
                 move_packet = PacketPlayOutPlayerMove(
-                    player_id=client.id, 
+                    player_id=client.id,
                     position=player_move.position,
                     acceleration=player_move.acceleration,
                     velocity=player_move.velocity
                 )
                 self.broadcast(move_packet, exclude=addr)
+
+            case change_character if isinstance(change_character, PacketPlayInChangeCharacter):
+                client = self.clients.get(addr)
+                change_packet = PacketPlayOutChangeCharacter(
+                    player_id=client.id, 
+                    character_index=change_character.character_index
+                )
+                self.broadcast(change_packet, exclude=addr)
 
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")

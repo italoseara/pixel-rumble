@@ -2,6 +2,7 @@ import time
 import errno
 import socket
 import threading
+import logging
 from dataclasses import dataclass
 
 from engine import Game
@@ -67,7 +68,7 @@ class Client:
     def search() -> set[ServerData]:
         """Searches for available servers and returns a set of ServerData objects."""
 
-        print("[Client] Searching for available servers...")
+        logging.info("[Client] Searching for available servers...")
 
         # Send a ping request using broadcast
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -85,13 +86,13 @@ class Client:
                 try:
                     packet = Packet.from_bytes(data)
                     if not isinstance(packet, PacketStatusOutPong):
-                        print("[Client] Received packet is not a Pong packet")
+                        logging.warning("[Client] Received packet is not a Pong packet")
                         continue
                     
                     servers.add(ServerData(name=packet.name, ip=packet.ip, port=packet.port))
-                    print(f"[Client] Received response from {addr[0]}:{addr[1]}: {packet}")
+                    logging.info(f"[Client] Received response from {addr[0]}:{addr[1]}: {packet}")
                 except ValueError as e:
-                    print(f"[Client] Received invalid packet from {addr[0]}:{addr[1]}: {e}")
+                    logging.warning(f"[Client] Received invalid packet from {addr[0]}:{addr[1]}: {e}")
                     continue
             except socket.timeout:
                 break
@@ -100,7 +101,7 @@ class Client:
                 break
 
         sock.close()
-        print(f"[Client] Search completed. Found {len(servers)} servers.")
+        logging.info(f"[Client] Search completed. Found {len(servers)} servers.")
         return servers
 
     def on_packet_received(self, packet: Packet) -> None:
@@ -110,7 +111,7 @@ class Client:
             packet (Packet): The received packet.
         """
 
-        print(f"[Client] Received packet: {packet}")
+        logging.info(f"[Client] Received packet: {packet}")
 
         match packet:
             case welcome if isinstance(welcome, PacketPlayOutWelcome):
@@ -119,9 +120,9 @@ class Client:
                     
                     Game.instance().clear_scenes()
                     Game.instance().push_scene(LobbyScene(id=welcome.player_id, name=self.name))
-                    print(f"[Client] Connection successful: {welcome.message}")
+                    logging.info(f"[Client] Connection successful: {welcome.message}")
                 else:
-                    print(f"[Client] Connection failed: {welcome.message}")
+                    logging.info(f"[Client] Connection failed: {welcome.message}")
                     self.stop()
 
             case keep_alive if isinstance(keep_alive, PacketPlayOutKeepAlive):
@@ -134,18 +135,18 @@ class Client:
 
                 if hasattr(current_scene, 'add_player'):
                     current_scene.add_player(player_join.player_id, player_join.name)
-                    print(f"[Client] Player {player_join.name} with ID {player_join.player_id} joined the lobby.")
+                    logging.info(f"[Client] Player {player_join.name} with ID {player_join.player_id} joined the lobby.")
                 else:
-                    print("[Client] Current scene does not support adding players.")
+                    logging.warning("[Client] Current scene does not support adding players.")
 
             case player_leave if isinstance(player_leave, PacketPlayOutPlayerLeave):
                 current_scene = Game.instance().current_scene
 
                 if hasattr(current_scene, 'remove_player'):
                     current_scene.remove_player(player_leave.player_id)
-                    print(f"[Client] Player with ID {player_leave.player_id} left the lobby.")
+                    logging.info(f"[Client] Player with ID {player_leave.player_id} left the lobby.")
                 else:
-                    print("[Client] Current scene does not support removing players.")
+                    logging.warning("[Client] Current scene does not support removing players.")
 
             case player_move if isinstance(player_move, PacketPlayOutPlayerMove):
                 current_scene = Game.instance().current_scene
@@ -156,9 +157,9 @@ class Client:
                         player_move.acceleration,
                         player_move.velocity
                     )
-                    print(f"[Client] Player {player_move.player_id} moved to {player_move.position}.")
+                    logging.info(f"[Client] Player {player_move.player_id} moved to {player_move.position}.")
             case _:
-                print(f"[Client] Unhandled packet type: {packet}")
+                logging.warning(f"[Client] Unhandled packet type: {packet}")
 
     def start(self) -> None:
         """Starts the client and begins listening for incoming packets."""
@@ -171,7 +172,7 @@ class Client:
 
         threading.Thread(target=self._listen_for_packets, daemon=True).start()
         threading.Thread(target=self._wait_for_keep_alive, daemon=True).start()
-        print(f"[Client] Client started and connected to {self.address}.")
+        logging.info(f"[Client] Client started and connected to {self.address}.")
 
         self.join()
 
@@ -183,7 +184,7 @@ class Client:
 
         self.running = False
         self.sock.close()
-        print("[Client] Client stopped.")
+        logging.info("[Client] Client stopped.")
 
     def join(self) -> None:
         """Sends a join request to the server with the client's name."""
@@ -214,7 +215,7 @@ class Client:
 
         data = packet.to_bytes()
         self.sock.sendto(data, self.address)
-        print(f"[Client] Sent packet: {packet}")
+        logging.info(f"[Client] Sent packet: {packet}")
 
     def _wait_for_keep_alive(self) -> None:
         """Waits for keep-alive packets from the server and handles them."""
@@ -223,7 +224,7 @@ class Client:
             if time.time() - self.last_keep_alive > 20:
                 from game.scenes.menu import MainMenu
                 
-                print("[Client] No keep-alive packets received for 20 seconds. Stopping client.")
+                logging.warning("[Client] No keep-alive packets received for 20 seconds. Stopping client.")
                 Game.instance().clear_scenes()
                 Game.instance().push_scene(MainMenu())
                 self.disconnect()
@@ -249,13 +250,13 @@ class Client:
                 if e.errno == errno.ECONNREFUSED:
                     from game.scenes.menu import MainMenu
                     
-                    print("[Client] Connection refused by the server. Stopping client.")
+                    logging.warning("[Client] Connection refused by the server. Stopping client.")
                     self.stop()
 
                     Game.instance().clear_scenes()
                     Game.instance().push_scene(MainMenu())
                 else:
-                    print(f"[Client] Error receiving packet: {e}")
+                    logging.error(f"[Client] Error receiving packet: {e}")
 
             elapsed = time.time() - start_time
             sleep_time = tick_interval - elapsed

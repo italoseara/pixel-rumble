@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import pygame as pg
+import logging
 from typing import override
 from pygame.math import Vector2
 
@@ -161,7 +162,7 @@ class SpriteRenderer(Component):
             if self.sprite_size:
                 self.sprite_sheet = SpriteSheet(self._path, self.sprite_size)
             else:
-                print(f"[Game] Loading image from {self._path}")
+                logging.info(f"[Game] Loading image from {self._path}")
                 self.sprite_sheet = SpriteSheet(self._path)
         except pg.error as e:
             raise RuntimeError(f"Failed to load image at {self._path}: {e}")

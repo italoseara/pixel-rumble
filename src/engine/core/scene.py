@@ -1,4 +1,5 @@
 import pygame as pg
+import logging
 
 from .game import Game
 from .camera import Camera
@@ -96,7 +97,7 @@ class Scene:
 
     def stop(self) -> None:
         """Called when the scene is popped or replaced."""
-        print(f"[Scene] Stopping scene {type(self).__name__}")
+        logging.info(f"[Scene] Stopping scene {type(self).__name__}")
         pass
 
     def _handle_event(self, event: pg.event.Event) -> None:

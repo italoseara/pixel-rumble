@@ -13,6 +13,7 @@ class Scene:
 
     _game: Game
     _game_objects: dict[str, GameObject]
+    _deleted_game_objects: list[GameObject]
     
     def __init__(self) -> None:
         """Initialize the Scene."""
@@ -23,6 +24,7 @@ class Scene:
 
         self._game = None
         self._game_objects = {}
+        self._deleted_game_objects = []
 
     def find(self, name: str) -> GameObject | None:
         """Find a GameObject by name in the scene.
@@ -49,7 +51,7 @@ class Scene:
         if game_object.name not in self._game_objects:
             raise ValueError(f"GameObject with name '{game_object.name}' not found in the scene")
 
-        del self._game_objects[game_object.name]
+        self._deleted_game_objects.append(game_object)
         game_object.scene = None
 
     def add(self, game_object: GameObject) -> None:
@@ -117,7 +119,10 @@ class Scene:
         Args:
             dt (float): The time since the last update in seconds.
         """
-        
+        for game_object in self._deleted_game_objects:
+            if game_object.name in self._game_objects:
+                del self._game_objects[game_object.name]
+
         for game_object in self._game_objects.values():
             game_object.update(dt)
 

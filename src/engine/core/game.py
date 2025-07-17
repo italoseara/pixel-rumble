@@ -65,6 +65,7 @@ class Game:
         self.client = None
         self.server = None
 
+        self.is_admin = False
     @classmethod
     def instance(cls) -> Game:
         """Returns the singleton instance of the Game class."""

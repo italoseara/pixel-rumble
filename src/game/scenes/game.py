@@ -5,7 +5,7 @@ from engine.ui import Image, Text
 from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
 from game.prefabs import PlayerPrefab, GunPrefab, ItemPrefab
 
-from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic
+from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic, VisualGunController
 from ..consts import GUN_ATTRIBUTES
 
 
@@ -129,6 +129,7 @@ class GameScene(Scene):
                 self.ammo_counter,
                 **GUN_ATTRIBUTES[gun_type]
             ))
+            gun.add_component(VisualGunController(self.local_player))
         else:
             player = self.find(f"Player ({player_id})")
             if not player:
@@ -136,6 +137,7 @@ class GameScene(Scene):
                 return
             
             gun = GunPrefab(player, gun_type)
+            gun.add_component(VisualGunController(player))
             
         self.add(gun)
     
@@ -204,5 +206,20 @@ class GameScene(Scene):
             rigid_body = player.get_component(RigidBody)
             rigid_body.acceleration = acceleration
             rigid_body.velocity = velocity
+        else:
+            print(f"[Game] Player with ID {player_id} not found.")
+
+    def player_look(self, player_id: int, angle: float) -> None:
+        """Updates the look direction of a player.
+
+        Args:
+            player_id (int): The unique ID of the player.
+            angle (float): The angle to look at.
+        """
+
+        player = self.find(f"Player ({player_id})")
+        if player:
+            player_animation = player.get_component(PlayerAnimation)
+            player_animation.look_angle = angle
         else:
             print(f"[Game] Player with ID {player_id} not found.")

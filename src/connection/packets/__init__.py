@@ -13,6 +13,7 @@ from .play.client.start_game import PacketPlayInStartGame
 from .play.client.item_pickup import PacketPlayInItemPickup
 from .play.client.add_item import PacketPlayInAddItem
 from .play.client.item_drop import PacketPlayInItemDrop
+from .play.client.player_look import PacketPlayInPlayerLook
 
 from .play.server.welcome import PacketPlayOutWelcome
 from .play.server.keep_alive import PacketPlayOutKeepAlive
@@ -24,3 +25,4 @@ from .play.server.start_game import PacketPlayOutStartGame
 from .play.server.item_pickup import PacketPlayOutItemPickup
 from .play.server.add_item import PacketPlayOutAddItem
 from .play.server.item_drop import PacketPlayOutItemDrop
+from .play.server.player_look import PacketPlayOutPlayerLook

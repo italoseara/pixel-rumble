@@ -29,12 +29,14 @@ from connection.packets import (
     PacketPlayOutItemPickup,
     PacketPlayOutAddItem,
     PacketPlayInItemDrop,
-    PacketPlayOutItemDrop
+    PacketPlayOutItemDrop,
+    PacketPlayInPlayerLook,
+    PacketPlayOutPlayerLook
 )
 
 
 TIMEOUT = 2  # seconds
-TICK_RATE = 64  # ticks per second
+TICK_RATE = 128  # ticks per second
 
 
 @dataclass(unsafe_hash=True)
@@ -146,18 +148,12 @@ class Client:
 
                 if hasattr(current_scene, 'add_player'):
                     current_scene.add_player(player_join.player_id, player_join.name)
-                    print(f"[Client] Player {player_join.name} with ID {player_join.player_id} joined the lobby.")
-                else:
-                    print("[Client] Current scene does not support adding players.")
 
             case player_leave if isinstance(player_leave, PacketPlayOutPlayerLeave):
                 current_scene = Game.instance().current_scene
 
                 if hasattr(current_scene, 'remove_player'):
                     current_scene.remove_player(player_leave.player_id)
-                    print(f"[Client] Player with ID {player_leave.player_id} left the lobby.")
-                else:
-                    print("[Client] Current scene does not support removing players.")
 
             case player_move if isinstance(player_move, PacketPlayOutPlayerMove):
                 current_scene = Game.instance().current_scene
@@ -168,7 +164,6 @@ class Client:
                         player_move.acceleration,
                         player_move.velocity
                     )
-                    print(f"[Client] Player {player_move.player_id} moved to {player_move.position}.")
 
             case change_character if isinstance(change_character, PacketPlayOutChangeCharacter):
                 current_scene = Game.instance().current_scene
@@ -177,13 +172,11 @@ class Client:
                         player_id=change_character.player_id,
                         character_index=change_character.character_index
                     )
-                    print(f"[Client] Player {change_character.player_id} changed character to index {change_character.character_index}.")
 
             case start_game if isinstance(start_game, PacketPlayOutStartGame):
                 current_scene = Game.instance().current_scene
                 if hasattr(current_scene, 'start_game'):
                     current_scene.start_game(map_name=start_game.map_name)
-                    print(f"[Client] Starting game on map '{start_game.map_name}'.")
 
             case item if isinstance(item, PacketPlayOutAddItem):
                 current_scene = Game.instance().current_scene
@@ -193,7 +186,6 @@ class Client:
                         x=int(item.position_x),
                         y=int(item.position_y)
                     )
-                    print(f"[Client] Added item of type '{item.gun_type}' at position ({item.position_x}, {item.position_y}).")
 
             case item_pickup if isinstance(item_pickup, PacketPlayOutItemPickup):
                 current_scene = Game.instance().current_scene
@@ -204,13 +196,19 @@ class Client:
                         gun_type=item_pickup.gun_type,
                         object_id=item_pickup.object_id
                     )
-                    print(f"[Client] Player {item_pickup.player_id} picked up item '{item_pickup.gun_type}' with object ID {item_pickup.object_id}.")
 
             case item_drop if isinstance(item_drop, PacketPlayOutItemDrop):
                 current_scene = Game.instance().current_scene
                 if hasattr(current_scene, 'drop_item'):
                     current_scene.drop_item(player_id=item_drop.player_id)
-                    print(f"[Client] Player {item_drop.player_id} dropped their item.")
+
+            case player_look if isinstance(player_look, PacketPlayOutPlayerLook):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'player_look'):
+                    current_scene.player_look(
+                        player_id=player_look.player_id,
+                        angle=player_look.angle
+                    )
 
             case _:
                 print(f"[Client] Unhandled packet type: {packet}")
@@ -303,6 +301,18 @@ class Client:
             raise RuntimeError("Client is not running. Start the client before changing character.")
 
         self.send(PacketPlayInChangeCharacter(index))
+
+    def look(self, angle: float) -> None:
+        """Sends a player look packet to the server.
+
+        Args:
+            angle (float): The new angle of the player.
+        """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before looking.")
+
+        self.send(PacketPlayInPlayerLook(angle=angle))
 
     def move(self, position: Vector2, acceleration: Vector2, velocity: Vector2) -> None:
         """Sends a player move packet to the server.

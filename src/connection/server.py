@@ -30,12 +30,14 @@ from connection.packets import (
     PacketPlayOutItemPickup,
     PacketPlayOutAddItem,
     PacketPlayInItemDrop,
-    PacketPlayOutItemDrop
+    PacketPlayOutItemDrop,
+    PacketPlayInPlayerLook,
+    PacketPlayOutPlayerLook
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
 BUFFER_SIZE = 1024  # bytes
-TICK_RATE = 64  # ticks per second
+TICK_RATE = 128  # ticks per second
 
 class BaseUDPServer(ABC):
     port: int
@@ -281,6 +283,15 @@ class Server(BaseUDPServer):
 
                 drop_packet = PacketPlayOutItemDrop(player_id=client.id)
                 self.broadcast(drop_packet, exclude=addr)
+
+            case player_look if isinstance(player_look, PacketPlayInPlayerLook):
+                client = self.clients.get(addr)
+
+                look_packet = PacketPlayOutPlayerLook(
+                    player_id=client.id,
+                    angle=player_look.angle
+                )
+                self.broadcast(look_packet, exclude=addr)
 
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")

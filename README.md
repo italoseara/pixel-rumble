@@ -26,6 +26,12 @@ cd src
 python main.py
 ```
 
+## Authors
+
+- [Italo Seara](https://github.com/italoseara)
+- [Lucas Luige](https://github.com/lluigecm)
+- [Mateus Soares](https://github.com/mateussoaress)
+
 ## Protocol
 
 The game uses a custom protocol for network communication, which is defined in the `packets` module. The protocol includes various packet types for different game events and states. It uses the UDP protocol for communication, as it is lighter and more suitable for real-time games where losing some packets is not critical.
@@ -608,3 +614,7 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                             |
 | --------- | ------ | -------- | ---------- | ---------- | --------------------------------------- |
 | `0x14`    | `Play` | `Client` | Player ID  | `uint32`   | The ID of the player dropping the item. |
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

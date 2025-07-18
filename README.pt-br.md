@@ -26,6 +26,12 @@ cd src
 python main.py
 ```
 
+## Autores
+
+- [Italo Seara](https://github.com/italoseara)
+- [Lucas Luige](https://github.com/lluigecm)
+- [Mateus Soares](https://github.com/mateussoaress)
+
 ## Protocolo
 
 O jogo utiliza um protocolo customizado para comunicação em rede, definido no módulo `packets`. O protocolo inclui vários tipos de pacotes para diferentes eventos e estados do jogo. Foi escolhido o protocolo UDP para comunicação, pois ele é mais leve e adequado para jogos em tempo real, onde a perda de alguns pacotes não é crítica.
@@ -608,3 +614,7 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                                 |
 | ------------ | ------- | --------- | ------------- | ------------- | ----------------------------------------- |
 | `0x14`       | `Jogar` | `Cliente` | ID do Jogador | `uint32`      | O ID do jogador que está dropando o item. |
+
+## Licença
+
+Este projeto está licenciado sob a Licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.

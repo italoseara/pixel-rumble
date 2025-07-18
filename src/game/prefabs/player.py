@@ -15,7 +15,7 @@ class PlayerPrefab(GameObject):
     def __init__(
         self, 
         id: int, 
-        name: str, 
+        name: str,
         x: float = 0, 
         y: float = 0, 
         character_index: tuple[int, int] = None, 

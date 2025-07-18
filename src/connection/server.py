@@ -53,6 +53,7 @@ class BaseUDPServer(ABC):
         self.port = port
         self.buffer_size = buffer_size
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.settimeout(2)
         self.running = False
 
     def start(self) -> None:

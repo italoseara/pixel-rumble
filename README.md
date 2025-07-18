@@ -22,6 +22,7 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Disconnect](#disconnect)
      - [Player Move](#player-move)
      - [Change Character](#change-character)
+     - [Start Game](#start-game)
    - [Server](#server-1)
      - [Keep Alive](#keep-alive-1)
      - [Welcome](#welcome)
@@ -29,6 +30,7 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Player Join](#player-join)
      - [Player Leave](#player-leave)
      - [Change Character](#change-character-1)
+     - [Start Game](#start-game-1)
 
 ## Packet Format
 
@@ -157,6 +159,12 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                                  |
 | --------- | ------ | -------- | ---------- | ---------- | -------------------------------------------- |
 | `0x0B`    | `Play` | `Server` | Index      | `uint8`    | The index of the character being changed to. |
+
+#### Start Game
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                               |
+| --------- | ------ | -------- | ---------- | ---------- | ----------------------------------------- |
+| `0x0D`    | `Play` | `Server` | Map Name   | `string`   | The name of the map to start the game on. |
 
 ### Server
 
@@ -306,3 +314,9 @@ The play state is used during the game. It includes packets for player actions, 
     </tr>
   </tbody>
 </table>
+
+#### Start Game
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                               |
+| --------- | ------ | -------- | ---------- | ---------- | ----------------------------------------- |
+| `0x0E`    | `Play` | `Client` | Map Name   | `string`   | The name of the map to start the game on. |

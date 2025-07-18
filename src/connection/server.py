@@ -20,7 +20,9 @@ from connection.packets import (
     PacketPlayInPlayerMove,
     PacketPlayOutPlayerMove,
     PacketPlayInChangeCharacter,
-    PacketPlayOutChangeCharacter
+    PacketPlayOutChangeCharacter,
+    PacketPlayInStartGame,
+    PacketPlayOutStartGame
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
@@ -167,7 +169,17 @@ class Server(BaseUDPServer):
         print(f"[Server] Received packet from {addr[0]}:{addr[1]}: {packet}")
         match packet:
             case join if isinstance(join, PacketPlayInJoin):
+                from engine import Game
+                from game.scenes.lobby import LobbyScene
+                from game.scenes.host import HostMenu
+
                 if addr not in self.clients:
+                    if not isinstance(Game.instance().current_scene, (LobbyScene, HostMenu)):
+                        print(f"[Server] Client {addr[0]}:{addr[1]} tried to join while not in lobby. Ignoring.")
+                        welcome_packet = PacketPlayOutWelcome(False, 0, "Game already started.")
+                        self.send(welcome_packet, addr)
+                        return
+
                     client_id = random.randint(1, 1_000_000)
 
                     # Ensure the 1 in a million chance of duplicate client IDs is handled
@@ -231,6 +243,11 @@ class Server(BaseUDPServer):
                 )
                 self.broadcast(change_packet, exclude=addr)
 
+            case start_game if isinstance(start_game, PacketPlayInStartGame):
+                client = self.clients.get(addr)
+                
+                start_game_packet = PacketPlayOutStartGame(map_name=start_game.map_name)
+                self.broadcast(start_game_packet, exclude=addr)
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 
@@ -248,9 +265,6 @@ class Server(BaseUDPServer):
     def send(self, packet: Packet, addr: tuple[str, int]) -> None:
         if not self.running:
             raise RuntimeError("Server is not running.")
-
-        if addr not in self.clients:
-            raise ValueError(f"Client {addr[0]}:{addr[1]} is not connected.")
 
         super().send(packet, addr)
 

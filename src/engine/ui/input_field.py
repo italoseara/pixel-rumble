@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import pygame as pg
 from pygame.math import Vector2
@@ -182,3 +184,22 @@ class InputField(UIComponent):
         surface.blit(text_surface, text_rect)
 
         super().draw(surface)
+
+    @override
+    def clone(self) -> InputField:
+        """Create a copy of this InputField component."""
+        
+        new_input_field = InputField(
+            placeholder=self.placeholder,
+            x=self._position.x,
+            y=self._position.y,
+            width=self.width,
+            height=self.height,
+            max_char=self.max_char,
+            allowed_type=self.allowed_type,
+            on_submit=self.on_submit,
+            pivot=self.pivot
+        )
+        new_input_field._text = self._text
+        new_input_field._is_focused = self._is_focused
+        return new_input_field

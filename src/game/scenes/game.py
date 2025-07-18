@@ -3,35 +3,90 @@ import random
 from typing import override
 from pygame.math import Vector2
 
-from engine.ui import Image
+from engine.ui import Image, Text
 from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
-from game.prefabs import PlayerPrefab
-from ..scripts import PlayerController, PlayerAnimation
+from game.prefabs import PlayerPrefab, GunPrefab
+from ..scripts import PlayerController, PlayerAnimation, GunController
+
+
+GUN_ATTRIBUTES = {
+    "uzi": {
+        "automatic": True,
+        "fire_rate": 0.05,
+        "camera_shake": 5,
+        "spread": 0.1,
+        "recoil": 0.05,
+        "damage": 10,
+        "bullet_speed": 1000,
+        "bullet_lifetime": 2,
+        "bullet_size": (10, 10),
+        "max_ammo": 60
+    },
+    "pistol": {
+        "automatic": False,
+        "fire_rate": 0.2,
+        "camera_shake": 5,
+        "spread": 0.0,
+        "recoil": 0.1,
+        "damage": 20,
+        "bullet_speed": 1000,
+        "bullet_lifetime": 2,
+        "bullet_size": (10, 10),
+        "max_ammo": 20
+    },
+    "awm": {
+        "automatic": False,
+        "fire_rate": 2.0,
+        "camera_shake": 50,
+        "spread": 0.0,
+        "recoil": 0.5,
+        "damage": 100,
+        "bullet_speed": 1500,
+        "bullet_lifetime": 3,
+        "bullet_size": (15, 15),
+        "max_ammo": 5
+    }
+}
 
 
 class GameScene(Scene):
     player_id: int
     player_name: str
+    character_index: tuple[int, int]
     players: dict[int, GameObject]
 
-    def __init__(self, id: int, name: str, players: dict[int, GameObject]) -> None:
+    def __init__(
+        self, 
+        id: int, 
+        name: str, 
+        character_index: tuple[int, int],
+        players: dict[int, GameObject],
+        map_name: str
+    ) -> None:
         super().__init__()
 
         self.player_id = id
         self.player_name = name
-        self.players = players
-    
+        self.character_index = character_index
+        self.players = players.copy()
+        self.map_name = map_name
+
     @override
     def start(self) -> None:
-        maps = [
-            "assets/maps/mario.tmx",
-            "assets/maps/adventure_time.tmx",
-        ]
-        
         map_object = GameObject("Map")
         map_object.add_component(Transform(x=0, y=0, scale=2.5))
-        tilemap = map_object.add_component(Tilemap(random.choice(maps), pivot="center"))
+        tilemap = map_object.add_component(Tilemap(f"assets/maps/{self.map_name}.tmx", pivot="center"))
         self.add(map_object)
+
+        self.local_player = PlayerPrefab(
+            self.player_id, 
+            self.player_name, 
+            character_index=self.character_index, 
+            is_local=True
+        )
+        self.local_player.add_component(PlayerController())
+        self.local_player.add_component(PlayerAnimation())
+        self.add(self.local_player)
 
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
@@ -42,14 +97,31 @@ class GameScene(Scene):
             pivot="topleft",
             opacity=0.4
         ))
+        ammo_counter = canvas.add(Text(
+            f"Ammo: 0",
+            x="1%", y="-1%",
+            font_size=24, 
+            color=(255, 255, 255),
+            pivot="bottomleft"
+        ))
         self.add(ui)
 
-        local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
-        self.add_component(PlayerController())
-        self.add(local_player)
+        # gun_type = random.choice(list(GUN_ATTRIBUTES.keys()))
+        gun_type = "pistol"
+        gun = GunPrefab(self.local_player, gun_type)
+        gun.add_component(GunController(
+            self.player_id,
+            self.local_player,
+            ammo_counter,
+            **GUN_ATTRIBUTES[gun_type]
+        ))
+        self.add(gun)
+
+        for player in self.players.values():
+            self.add(player)
         
         self.background_color = tilemap.background_color
-        self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+        self.camera.set_target(self.local_player, smooth=True, smooth_speed=10, offset=(0, -100))
     
     def add_player(self, player_id: int, name: str) -> None:
         """Adds a player to the lobby scene.
@@ -60,7 +132,10 @@ class GameScene(Scene):
         """
 
         player = PlayerPrefab(player_id, name)
+        player.add_component(PlayerAnimation())
         self.add(player)
+
+        self.players[player_id] = player
 
     def remove_player(self, player_id: int) -> None:
         """Removes a player from the lobby scene.

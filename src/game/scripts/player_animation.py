@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 import pygame as pg
 from pygame.math import Vector2
@@ -55,3 +57,12 @@ class PlayerAnimation(Component):
             transform.position = transform.position.lerp(self.desired_position, 0.2)
             transform.position.x = int(transform.position.x)
             transform.position.y = int(transform.position.y)
+
+    @override
+    def clone(self) -> PlayerAnimation:
+        """Create a copy of this PlayerAnimation component."""
+        
+        new_animation = PlayerAnimation()
+        new_animation.flip_x = self.flip_x
+        new_animation.desired_position = self.desired_position
+        return new_animation

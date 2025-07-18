@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pygame as pg
 from pygame.math import Vector2
 from typing import override
@@ -100,5 +102,18 @@ class Transform(Component):
             rot_text = font.render(f"rot: {self.rotation:.1f}°", True, (0, 255, 0))
             surface.blit(rot_text, self.screen_position + Vector2(0, 20))
 
+    @override
+    def clone(self) -> Transform:
+        """Create a copy of this Transform component."""
+        
+        new_transform = Transform(
+            position=self.position,
+            rotation=self.rotation,
+            scale=self.scale,
+            z_index=self.z_index
+        )
+        new_transform.parent = self.parent
+        return new_transform
+    
     def __repr__(self) -> str:
         return f"<{super().__repr__()} position={self.world_position}, rotation={self.rotation}, scale={self.scale}>"

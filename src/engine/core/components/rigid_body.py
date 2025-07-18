@@ -11,6 +11,8 @@ from ...constants import DEBUG_MODE
 
 
 class RigidBody(Component):
+    is_trigger: bool
+    
     mass: float
     drag: float
     gravity: float
@@ -29,7 +31,8 @@ class RigidBody(Component):
         mass: float = 1, 
         drag: float = 0.05, 
         gravity: float = 10,
-        is_kinematic: bool = True
+        is_kinematic: bool = True,
+        is_trigger: bool = False
     ) -> None:
         """Initialize the RigidBody component.
 
@@ -55,6 +58,7 @@ class RigidBody(Component):
 
         self.is_grounded = False
         self.is_kinematic = is_kinematic
+        self.is_trigger = is_trigger
 
     @override
     def start(self) -> None:
@@ -85,6 +89,9 @@ class RigidBody(Component):
             dt (float): The delta time since the last update.
         """
 
+        if not self.parent.active:
+            return
+
         if not self.is_kinematic or not self._transform or not self._collider:
             return
 
@@ -111,7 +118,7 @@ class RigidBody(Component):
         # Move and resolve X collisions
         self._transform.x = new_pos.x
         for collider in colliders:
-            if self._collider.collides_with(collider) and not collider.is_trigger:
+            if self._collider.collides_with(collider) and not collider.is_trigger and not self.is_trigger:
                 if self.velocity.x > 0:
                     self._transform.x = collider.get_rect().left - self._collider.width - self._collider.offset.x
                 elif self.velocity.x < 0:
@@ -121,7 +128,7 @@ class RigidBody(Component):
         # Move and resolve Y collisions
         self._transform.y = new_pos.y
         for collider in colliders:
-            if self._collider.collides_with(collider) and not collider.is_trigger:
+            if self._collider.collides_with(collider) and not collider.is_trigger and not self.is_trigger:
                 if self.velocity.y > 0:
                     self._transform.y = collider.get_rect().top - self._collider.height - self._collider.offset.y
                     self.is_grounded = True
@@ -175,6 +182,21 @@ class RigidBody(Component):
         
         impulse = Vector2(impulse)
         self.velocity += impulse / self.mass
+
+    @override
+    def clone(self) -> RigidBody:
+        """Create a copy of this RigidBody component."""
+        
+        new_rigidbody = RigidBody(
+            mass=self.mass,
+            drag=self.drag,
+            gravity=self.gravity,
+            is_kinematic=self.is_kinematic
+        )
+        new_rigidbody.parent = self.parent
+        new_rigidbody._transform = self._transform.clone() if self._transform else None
+        new_rigidbody._collider = self._collider.clone() if self._collider else None
+        return new_rigidbody
 
     def __repr__(self) -> str:
         return (f"<{super().__repr__()} mass={self.mass} linear_drag={self.drag} "

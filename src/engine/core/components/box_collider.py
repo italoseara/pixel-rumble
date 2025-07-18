@@ -143,5 +143,18 @@ class BoxCollider(Component):
         
         return False
 
+    @override
+    def clone(self) -> BoxCollider:
+        """Create a copy of this BoxCollider."""
+        
+        new_box_collider = BoxCollider(
+            width=self.width,
+            height=self.height,
+            offset=self.offset.copy(),
+            is_trigger=self.is_trigger
+        )
+        new_box_collider.parent = self.parent
+        return new_box_collider
+
     def __repr__(self) -> str:
         return f"<{super().__repr__()} width={self.width} height={self.height} offset={self.offset}>"

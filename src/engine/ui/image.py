@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import pygame as pg
 from pygame.math import Vector2
-from typing import Literal
+from typing import Literal, override
 
 from .component import UIComponent
 
@@ -81,6 +83,7 @@ class Image(UIComponent):
         self._opacity = max(0.0, min(1.0, opacity))
         self._update_scaled_image()
 
+    @override
     def update(self, dt: float) -> None:
         # Recalculate width/height if they are percent-based
         updated = False
@@ -97,8 +100,25 @@ class Image(UIComponent):
         if updated:
             self._update_scaled_image()
 
+    @override
     def draw(self, surface: pg.Surface) -> None:
         if not self.active:
             return
         surface.blit(self._image, self.position)
         super().draw(surface)
+
+    @override
+    def clone(self) -> Image:
+        """Create a copy of this Image component."""
+        new_image = Image(
+            image_path=self._image_path,
+            x=self._position.x,
+            y=self._position.y,
+            width=self._width_value,
+            height=self._height_value,
+            pivot=self.pivot,
+            opacity=self._opacity
+        )
+        new_image._original_image = self._original_image.copy()
+        new_image._image = self._image.copy()
+        return new_image

@@ -22,6 +22,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Desconectar](#desconectar)
      - [Mover Jogador](#mover-jogador)
      - [Mudar Personagem](#mudar-personagem)
+     - [Iniciar Jogo](#iniciar-jogo)
    - [Servidor](#servidor-1)
      - [Manter Vivo](#manter-vivo-1)
      - [Boas-vindas](#boas-vindas)
@@ -29,6 +30,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Jogador Entrou](#jogador-entrou)
      - [Jogador Saiu](#jogador-saiu)
      - [Mudar Personagem](#mudar-personagem)
+     - [Iniciar Jogo](#iniciar-jogo-1)
 
 ## Formato do Pacote
 
@@ -157,6 +159,12 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                                               |
 | ------------ | ------- | ---------- | ------------- | ------------- | ------------------------------------------------------- |
 | `0x0B`       | `Jogar` | `Servidor` | Índice        | `uint8`       | O índice do personagem para o qual está sendo alterado. |
+
+#### Iniciar Jogo
+
+| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                           |
+| ------------ | ------- | ---------- | ------------- | ------------- | ----------------------------------- |
+| `0x0D`       | `Jogar` | `Servidor` | Nome do Mapa  | `string`      | O nome do mapa para iniciar o jogo. |
 
 ### Servidor
 
@@ -308,3 +316,9 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
     </tr>
   </tbody>
 </table>
+
+#### Iniciar Jogo
+
+| ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                           |
+| ------------ | ------- | --------- | ------------- | ------------- | ----------------------------------- |
+| `0x0E`       | `Jogar` | `Cliente` | Nome do Mapa  | `string`      | O nome do mapa para iniciar o jogo. |

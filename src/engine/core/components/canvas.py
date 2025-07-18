@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pygame as pg
 from pygame.math import Vector2
 from typing import TypeVar, override
@@ -53,6 +55,15 @@ class Canvas(Component):
     def draw(self, surface: pg.Surface) -> None:
         for component in self._components:
             component.draw(surface)
+
+    @override
+    def clone(self) -> Canvas:
+        """Create a copy of this Canvas component."""
+
+        new_canvas = Canvas()
+        new_canvas.parent = self.parent
+        new_canvas._components = [comp.clone() for comp in self._components]
+        return new_canvas
 
     def get(self, component_type: type[T]) -> list[T]:
         """Return a list of components of the specified type."""

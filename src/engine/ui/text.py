@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pygame as pg
 from pygame.math import Vector2
 from typing import override
@@ -75,3 +77,17 @@ class Text(UIComponent):
         surface.blit(text, self.position)
 
         super().draw(surface)
+
+    @override
+    def clone(self) -> Text:
+        """Create a copy of this Text component."""
+        return Text(
+            text=self._text,
+            x=self.position.x,
+            y=self.position.y,
+            pivot=self.pivot,
+            color=self.color,
+            shadow=self.shadow,
+            shadow_color=self.shadow_color,
+            font_size=self._font.get_height()
+        )

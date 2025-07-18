@@ -1,4 +1,5 @@
 import pytmx
+import random
 from typing import override
 from pygame.math import Vector2
 
@@ -7,18 +8,21 @@ from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, Spr
 from engine.ui import Image, Button
 
 from .menu import MainMenu
+from .game import GameScene
 from ..scripts import PlayerAnimation, CharacterSelector, PlayerController
 
 
 class LobbyScene(Scene):
     player_id: int
     player_name: str
+    players: dict[int, GameObject]
 
     def __init__(self, id: int, name: str) -> None:
         super().__init__()
 
         self.player_id = id
         self.player_name = name
+        self.players = {}
     
     @override
     def start(self) -> None:
@@ -26,6 +30,11 @@ class LobbyScene(Scene):
         map_object.add_component(Transform(x=0, y=0, scale=2.5))
         tilemap = map_object.add_component(Tilemap("assets/maps/lobby.tmx", pivot="center"))
         self.add(map_object)
+
+        self.local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
+        self.local_player.add_component(PlayerController())
+        self.local_player.add_component(PlayerAnimation())
+        self.add(self.local_player)
 
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
@@ -50,20 +59,38 @@ class LobbyScene(Scene):
                 x="96%", y="90%",
                 pivot="midright",
                 font_size=42,
-                on_click=lambda: print("[Game] Starting game... (This should be replaced with actual game start logic)"
-            )))
+                on_click=self.start_game
+            ))
 
         self.add(ui)
-
-        local_player = PlayerPrefab(self.player_id, self.player_name, is_local=True)
-        local_player.add_component(PlayerController())
-        local_player.add_component(PlayerAnimation())
-        self.add(local_player)
 
         self.add_character_selector(tilemap)
         
         self.background_color = tilemap.background_color
-        self.camera.set_target(local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+        self.camera.set_target(self.local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+
+    def start_game(self, map_name: str = None) -> None:
+        """Starts the game by transitioning to the GameScene."""
+
+        # if (len(self.players) + 1) < 2:
+        #     print("[Game] Not enough players to start the game.")
+        #     return
+
+        print("[Game] Starting game...")
+        if map_name is None:
+            map_name = random.choice(["mario", "adventure_time"])
+
+        if Game.instance().is_admin:
+            Game.instance().client.start_game(map_name)
+
+        character_index = self.local_player.get_component(SpriteRenderer).sprite_index
+        Game.instance().push_scene(GameScene(
+            id=self.player_id, 
+            name=self.player_name, 
+            character_index=character_index,
+            players=self.players,
+            map_name=map_name
+        ))
 
     def add_character_selector(self, tilemap: Tilemap) -> None:
         """Adds the character selector to the lobby scene.
@@ -135,6 +162,8 @@ class LobbyScene(Scene):
         player = PlayerPrefab(player_id, name)
         player.add_component(PlayerAnimation())
         self.add(player)
+
+        self.players[player_id] = player
 
     def remove_player(self, player_id: int) -> None:
         """Removes a player from the lobby scene.

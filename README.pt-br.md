@@ -22,6 +22,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Desconectar](#desconectar)
      - [Mover Jogador](#mover-jogador)
      - [Olhar Jogador](#olhar-jogador)
+     - [Matar Jogador](#matar-jogador)
      - [Atirar](#atirar)
      - [Mudar Personagem](#mudar-personagem)
      - [Iniciar Jogo](#iniciar-jogo)
@@ -33,6 +34,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Boas-vindas](#boas-vindas)
      - [Mover Jogador](#mover-jogador-1)
      - [Olhar Jogador](#olhar-jogador-1)
+     - [Matar Jogador](#matar-jogador-1)
      - [Jogador Entrou](#jogador-entrou)
      - [Jogador Saiu](#jogador-saiu)
      - [Atirar](#atirar-1)
@@ -169,6 +171,12 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                                      |
 | ------------ | ------- | ---------- | ------------- | ------------- | ---------------------------------------------- |
 | `0x15`       | `Jogar` | `Servidor` | Ângulo        | `float`       | O ângulo que o jogador está olhando, em graus. |
+
+#### Matar Jogador
+
+| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                    |
+| ------------ | ------- | ---------- | ------------- | ------------- | ---------------------------- |
+| `0x19`       | `Jogar` | `Servidor` | _Sem campos_  |               | Indica que o jogador morreu. |
 
 #### Atirar
 
@@ -395,6 +403,12 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
     </tr>
   </tbody>
 </table>
+
+#### Matar Jogador
+
+| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                   |
+| ------------ | ------- | ---------- | ------------- | ------------- | --------------------------- |
+| `0x1A`       | `Jogar` | `Servidor` | Id do Jogador | `uint32`      | O ID do jogador que morreu. |
 
 #### Jogador Entrou
 

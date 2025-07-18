@@ -43,6 +43,8 @@ def setup_logger() -> None:
 def compress_logs() -> None:
     """Compresses the log files into a zip archive."""
 
+    logging.shutdown()
+
     today = datetime.now().strftime("%Y-%m-%d")
     zip_filename = f"logs/{today}.zip"
 

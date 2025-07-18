@@ -22,6 +22,7 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Disconnect](#disconnect)
      - [Player Move](#player-move)
      - [Player Look](#player-look)
+     - [Player Die](#player-die)
      - [Shoot](#shoot)
      - [Change Character](#change-character)
      - [Start Game](#start-game)
@@ -35,6 +36,7 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Player Join](#player-join)
      - [Player Leave](#player-leave)
      - [Player Look](#player-look-1)
+     - [Player Die](#player-die-1)
      - [Shoot](#shoot-1)
      - [Change Character](#change-character-1)
      - [Start Game](#start-game-1)
@@ -169,6 +171,12 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                                     |
 | --------- | ------ | -------- | ---------- | ---------- | ----------------------------------------------- |
 | `0x15`    | `Play` | `Server` | Angle      | `float`    | The angle the player is looking at, in degrees. |
+
+#### Player Die
+
+| Packet ID | State  | Bound To | Field Name  | Field Type | Description                         |
+| --------- | ------ | -------- | ----------- | ---------- | ----------------------------------- |
+| `0x19`    | `Play` | `Server` | _No fields_ |            | Indicates that the player has died. |
 
 #### Shoot
 
@@ -431,6 +439,12 @@ The play state is used during the game. It includes packets for player actions, 
     </tr>
   </tbody>
 </table>
+
+#### Player Die
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                         |
+| --------- | ------ | -------- | ---------- | ---------- | ----------------------------------- |
+| `0x1A`    | `Play` | `Server` | Player ID  | `uint32`   | The ID of the player that has died. |
 
 #### Shoot
 

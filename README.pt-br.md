@@ -3,7 +3,7 @@
 Um jogo de plataforma 2D construído com um motor de jogo customizado em Pygame. Este motor oferece uma arquitetura flexível e modular para criar jogos com Pygame, incluindo componentes para física, renderização, UI e mais.
 
 > [!NOTE]
-> Click [here](README.md) For the ![Estados Unidos](https://raw.githubusercontent.com/stevenrskelton/flag-icon/master/png/16/country-4x3/us.png "United States") English version.
+> Clique [aqui](README.md) para a versão em ![Estados Unidos](https://raw.githubusercontent.com/stevenrskelton/flag-icon/master/png/16/country-4x3/us.png "United States") English.
 
 ## Protocolo
 
@@ -23,14 +23,18 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Mover Jogador](#mover-jogador)
      - [Mudar Personagem](#mudar-personagem)
      - [Iniciar Jogo](#iniciar-jogo)
+     - [Adicionar Item](#adicionar-item)
+     - [Destruir Item](#destruir-item)
    - [Servidor](#servidor-1)
      - [Manter Vivo](#manter-vivo-1)
      - [Boas-vindas](#boas-vindas)
      - [Mover Jogador](#mover-jogador-1)
      - [Jogador Entrou](#jogador-entrou)
      - [Jogador Saiu](#jogador-saiu)
-     - [Mudar Personagem](#mudar-personagem)
+     - [Mudar Personagem](#mudar-personagem-1)
      - [Iniciar Jogo](#iniciar-jogo-1)
+     - [Adicionar Item](#adicionar-item-1)
+     - [Destruir Item](#destruir-item-1)
 
 ## Formato do Pacote
 
@@ -166,6 +170,42 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ------------ | ------- | ---------- | ------------- | ------------- | ----------------------------------- |
 | `0x0D`       | `Jogar` | `Servidor` | Nome do Mapa  | `string`      | O nome do mapa para iniciar o jogo. |
 
+#### Adicionar Item
+
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x0F</code></td>
+      <td rowspan="2"><code>Jogar</code></td>
+      <td rowspan="2"><code>Servidor</code></td>
+      <td>Tipo da Arma</td>
+      <td><code>string</code></td>
+      <td>O tipo do item de arma sendo adicionado.</td>
+    </tr>
+    <tr>
+      <td>Posição</td>
+      <td><code>float[2]</code></td>
+      <td>A nova posição do item no mundo do jogo.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Destruir Item
+
+| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                             |
+| ------------ | ------- | ---------- | ------------- | ------------- | ------------------------------------- |
+| `0x10`       | `Jogar` | `Servidor` | Nome do Item  | `string`      | O nome do GameObject a ser destruído. |
+
 ### Servidor
 
 #### Manter Vivo
@@ -281,8 +321,6 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 
 #### Jogador Saiu
 
-#### Player Leave
-
 | ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                                |
 | ------------ | ------- | --------- | ------------- | ------------- | ---------------------------------------- |
 | `0x0A`       | `Jogar` | `Cliente` | ID do Jogador | `uint32`      | O ID do jogador que está saindo do jogo. |
@@ -302,17 +340,17 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
   </thead>
   <tbody>
     <tr>
-      <td rowspan="2"><code>0x0B</code></td>
+      <td rowspan="2"><code>0x0C</code></td>
       <td rowspan="2"><code>Jogar</code></td>
       <td rowspan="2"><code>Cliente</code></td>
+      <td>ID do Jogador</td>
+      <td><code>uint32</code></td>
+      <td>O ID do jogador que está mudando de personagem.</td>
+    </tr>
+    <tr>
       <td>Índice</td>
       <td><code>uint8</code></td>
       <td>O índice do personagem para o qual está sendo alterado.</td>
-    </tr>
-    <tr>
-      <td>Player ID</td>
-      <td><code>uint32</code></td>
-      <td>O ID do jogador que está mudando de personagem.</td>
     </tr>
   </tbody>
 </table>
@@ -322,3 +360,39 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                           |
 | ------------ | ------- | --------- | ------------- | ------------- | ----------------------------------- |
 | `0x0E`       | `Jogar` | `Cliente` | Nome do Mapa  | `string`      | O nome do mapa para iniciar o jogo. |
+
+#### Adicionar Item
+
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x11</code></td>
+      <td rowspan="2"><code>Jogar</code></td>
+      <td rowspan="2"><code>Cliente</code></td>
+      <td>Tipo da Arma</td>
+      <td><code>string</code></td>
+      <td>O tipo do item de arma sendo adicionado.</td>
+    </tr>
+    <tr>
+      <td>Posição</td>
+      <td><code>float[2]</code></td>
+      <td>A nova posição do item no mundo do jogo.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Destruir Item
+
+| ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                             |
+| ------------ | ------- | --------- | ------------- | ------------- | ------------------------------------- |
+| `0x12`       | `Jogar` | `Cliente` | Nome do Item  | `string`      | O nome do GameObject a ser destruído. |

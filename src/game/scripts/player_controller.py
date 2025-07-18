@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import logging
-
 import pytmx
 import random
 import pygame as pg
@@ -24,11 +22,14 @@ class PlayerController(Component):
     _last_position_update_time: float
 
     _health_text: Text
+    _you_died: Text
 
-    def __init__(self, health_text: Text = None, jump_force: float = 700, move_speed: float = 1700) -> None:
+    def __init__(self, health_text: Text = None, you_died: Text = None,
+                 jump_force: float = 700, move_speed: float = 1700) -> None:
         super().__init__()
 
         self._health_text = health_text
+        self._you_died = you_died
         self.health = 100
 
         self.jump_force = jump_force
@@ -141,7 +142,14 @@ class PlayerController(Component):
         if self.health <= 0:
             self.health = 0
             Game.instance().client.kill_player()
-            logging.info(f"[PlayerController] {self.parent.name} has died.")
+
+            scene = self.parent.scene
+            active_players = [p for p in scene.players.values() if p.active]
+
+            self.parent.active = False
+            scene.camera.target = random.choice(active_players) if active_players else None
+
+            self._you_died.active = True
 
     @override
     def clone(self) -> PlayerController:

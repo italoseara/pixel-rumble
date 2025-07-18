@@ -8,7 +8,6 @@ class PacketPlayInPlayerDie(Packet):
 
     id = 0x19
 
-
     def __init__(self) -> None:
         super().__init__(data=b"")
 

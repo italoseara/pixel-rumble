@@ -57,6 +57,15 @@ class GameScene(Scene):
             opacity=0.4
         ))
 
+        self.you_died = canvas.add(Text(
+            "VOCÊ MORREU",
+            x="50%", y="30%",
+            font_size=64,
+            color=(255, 64, 64),
+            pivot="center",
+        ))
+        self.you_died.active = False
+
         canvas.add(Image(
             "assets/img/icons/heart.png",
             x="5%", y="-6%",
@@ -92,7 +101,7 @@ class GameScene(Scene):
             character_index=self.character_index, 
             is_local=True
         )
-        self.local_player.add_component(PlayerController(self.health_text))
+        self.local_player.add_component(PlayerController(self.health_text, self.you_died))
         self.local_player.add_component(PlayerAnimation())
         self.add(self.local_player)
 
@@ -273,7 +282,4 @@ class GameScene(Scene):
         """
 
         player = self.find(f"Player ({player_id})")
-        if player:
-            logging.info(f"[Game] Player with ID {player_id} has died.")
-        else:
-            logging.warning(f"[Game] Player with ID {player_id} not found for death handling.")
+        player.active = False

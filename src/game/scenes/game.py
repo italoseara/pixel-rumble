@@ -4,7 +4,7 @@ from pygame.math import Vector2
 from engine.ui import Image, Text
 from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
 from game.prefabs import PlayerPrefab, GunPrefab, ItemPrefab
-from ..scripts import PlayerController, PlayerAnimation, GunController
+from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic
 
 
 GUN_ATTRIBUTES = {
@@ -75,6 +75,7 @@ class GameScene(Scene):
     @override
     def start(self) -> None:
         map_object = GameObject("Map")
+        map_object.add_component(GameLogic())
         map_object.add_component(Transform(x=0, y=0, scale=2.5))
         tilemap = map_object.add_component(Tilemap(f"assets/maps/{self.map_name}.tmx", pivot="center"))
         self.add(map_object)
@@ -107,8 +108,6 @@ class GameScene(Scene):
         ))
         self.add(ui)
 
-        self.add_gun_item("uzi", x=0, y=100)
-
         for player in self.players.values():
             self.add(player)
         
@@ -138,6 +137,10 @@ class GameScene(Scene):
 
         if gun_type not in GUN_ATTRIBUTES:
             print(f"[Game] Gun '{gun_type}' not found.")
+            return
+
+        if self.find(f"{self.local_player.name}'s Gun"):
+            print(f"[Game] Player already has a gun.")
             return
 
         gun = GunPrefab(self.local_player, gun_type)

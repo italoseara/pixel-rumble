@@ -1,3 +1,5 @@
+import pygame as pg
+
 from engine import GameObject, Transform, SpriteRenderer, BoxCollider, RigidBody
 from ..scripts import ItemController
 from .player import PlayerPrefab
@@ -5,7 +7,7 @@ from .player import PlayerPrefab
 
 class ItemPrefab(GameObject):
     def __init__(self, player: GameObject, item_type: str, x: int, y: int) -> None:
-        super().__init__(f"{player.name}'s {item_type}")
+        super().__init__(f"Gun ({item_type}) - {pg.time.get_ticks()}")
 
         # Add components for the item
         self.add_component(Transform(x=x, y=y, scale=2, z_index=2))

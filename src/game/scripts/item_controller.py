@@ -11,7 +11,7 @@ class ItemController(Component):
     """Controls the item pickup and usage logic."""
 
     item_type: str
-    position: Vector2 = Vector2(0, 0)
+    position: Vector2
 
     hint : GameObject
 
@@ -21,6 +21,8 @@ class ItemController(Component):
         super().__init__()
 
         self.item_type = item_type
+        self.position = Vector2(0, 0)
+        self.hint = None
 
     def start(self) -> None:
         """Initialize the item controller, setting the position of the item."""
@@ -34,7 +36,6 @@ class ItemController(Component):
             animation_duration=1.0,
             loop=True,
         ))
-
         self.hint.active = False
 
         Game.instance().current_scene.add(self.hint)
@@ -43,9 +44,7 @@ class ItemController(Component):
     def update(self, dt: float) -> None:
         """Update the item state, checking for player interaction."""
 
-        #update the position of the hint
         local_player = self.parent.scene.find("Local Player")
-
         if not local_player:
             return
 
@@ -63,6 +62,9 @@ class ItemController(Component):
             if not local_player:
                 return
 
+            if self.parent.scene.find(f"{local_player.name}'s Gun"):
+                return
+        
             # Add the item to the player's inventory
             self.parent.scene.set_player_gun(self.item_type)
 

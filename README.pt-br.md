@@ -103,17 +103,12 @@ O status é usado para verificar se há um servidor de jogo rodando neste endere
   </thead>
   <tbody>
     <tr>
-      <td rowspan="3"><code>0x01</code></td>
-      <td rowspan="3"><code>Jogar</code></td>
-      <td rowspan="3"><code>Cliente</code></td>
+      <td rowspan="2"><code>0x01</code></td>
+      <td rowspan="2"><code>Jogar</code></td>
+      <td rowspan="2"><code>Cliente</code></td>
       <td>Nome</td>
       <td><code>string</code></td>
       <td>O nome do servidor.</td>
-    </tr>
-    <tr>
-      <td>Endereço IP</td>
-      <td><code>string</code></td>
-      <td>O endereço IP do servidor.</td>
     </tr>
     <tr>
       <td>Porta</td>

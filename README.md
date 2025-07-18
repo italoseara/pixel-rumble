@@ -103,17 +103,12 @@ The status is used to check if there is a game server running on this address. T
   </thead>
   <tbody>
     <tr>
-      <td rowspan="3"><code>0x01</code></td>
-      <td rowspan="3"><code>Play</code></td>
-      <td rowspan="3"><code>Client</code></td>
+      <td rowspan="2"><code>0x01</code></td>
+      <td rowspan="2"><code>Play</code></td>
+      <td rowspan="2"><code>Client</code></td>
       <td>Name</td>
       <td><code>string</code></td>
       <td>The Name of the server.</td>
-    </tr>
-    <tr>
-      <td>IP Adress</td>
-      <td><code>string</code></td>
-      <td>The IP address of the server.</td>
     </tr>
     <tr>
       <td>Port</td>

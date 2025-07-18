@@ -130,7 +130,7 @@ class BoxCollider(Component):
             pos1.y + self.height > pos2.y
         )
 
-    def is_colliding(self) -> bool:
+    def is_colliding(self) -> BoxCollider | None:
         """Check if this collider is colliding with any other BoxCollider in the scene."""
 
         for game_object in self.parent.scene._game_objects.values():
@@ -139,9 +139,9 @@ class BoxCollider(Component):
             
             collider = game_object.get_component(BoxCollider)
             if collider and self.collides_with(collider):
-                return True
+                return collider
         
-        return False
+        return None
 
     @override
     def clone(self) -> BoxCollider:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 import math
 import pygame as pg
 from pygame.math import Vector2
@@ -14,26 +15,45 @@ from engine import (
 )
 
 class PlayerAnimation(Component):
+    flip_x: bool
+    desired_position: Vector2 | None
+    look_angle: float
+
+    _hit_time: float
+    
     def __init__(self) -> None:
         super().__init__()
 
-        self.flip_x = False  # Indicates if the player is facing left
-        self.desired_position = None  # Position to move towards, if any
-        self.look_angle = 0.0  # Angle the player is looking at
+        self.flip_x = False
+        self.desired_position = None
+        self.look_angle = 0.0
+
+        self._hit_time = 0 
     
     @override
     def update(self, dt: float) -> None:
         transform = self.parent.get_component(Transform)
         rigid_body = self.parent.get_component(RigidBody)
+        sprite_renderer = self.parent.get_component(SpriteRenderer)
 
         self.handle_look_angle()
         self.handle_desired_position(transform)
-        self.handle_sprite_flip(rigid_body)
+        self.handle_sprite_flip(rigid_body, sprite_renderer)
+        self.handle_hit_animation(sprite_renderer)
 
         if rigid_body.acceleration.length() > 0:
             self.handle_walk_animation(transform)   
         else:
             self.handle_idle_animation(transform)
+
+    def handle_hit_animation(self, sprite_renderer: SpriteRenderer) -> None:
+        """Handle hit animation logic."""
+        
+        if self._hit_time > 0 and time.time() - self._hit_time < 0.1:
+            sprite_renderer.color = (255, 128, 128)
+        else:
+            sprite_renderer.color = (255, 255, 255)
+            self._hit_time = 0
 
     def handle_idle_animation(self, transform: Transform) -> None:
         transform.scale = Vector2(5, 5 + math.sin(pg.time.get_ticks() / 200) / 7)
@@ -43,15 +63,13 @@ class PlayerAnimation(Component):
         transform.scale = Vector2(5, 5 + math.sin(pg.time.get_ticks() / 40) / 5)
         transform.rotation = math.sin(pg.time.get_ticks() / 80) * 5
 
-    def handle_sprite_flip(self, rigid_body: RigidBody) -> None:
+    def handle_sprite_flip(self, rigid_body: RigidBody, sprite_renderer: SpriteRenderer) -> None:
         if rigid_body.acceleration.x < 0:
             self.flip_x = True
         elif rigid_body.acceleration.x > 0:
             self.flip_x = False
         
-        sprite_renderer = self.parent.get_component(SpriteRenderer)
-        if sprite_renderer:
-            sprite_renderer.flip_x = self.flip_x
+        sprite_renderer.flip_x = self.flip_x
 
     def handle_desired_position(self, transform: Transform) -> None:
         """Interpolate from the current position to the desired position."""
@@ -80,6 +98,11 @@ class PlayerAnimation(Component):
             Game.instance().client.look(angle=new_look_angle)
 
         self.look_angle = new_look_angle
+
+    def play_hit_animation(self) -> None:
+        """Play hit animation when the player is hit by a bullet."""
+
+        self._hit_time = time.time()
 
     @override
     def clone(self) -> PlayerAnimation:

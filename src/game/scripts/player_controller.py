@@ -10,16 +10,28 @@ from engine import Game, Tilemap, Transform, Component, RigidBody
 from .player_animation import PlayerAnimation
 
 class PlayerController(Component):
+    health: int
+    
+    jump_force: float
+    move_speed: float
+    boost: bool
+
+    _last_boost_time: float
+    _last_position_update: Vector2
+    _last_position_update_time: float
+
     def __init__(self, jump_force: float = 700, move_speed: float = 1700) -> None:
         super().__init__()
+
+        self.health = 100
 
         self.jump_force = jump_force
         self.move_speed = move_speed
         self.boost = True
-        self.last_boost_time = 0
-
-        self.last_position_update = Vector2(0, 0)
-        self.last_position_update_time = 0  # Track last forced update time
+        
+        self._last_boost_time = 0
+        self._last_position_update = Vector2(0, 0)
+        self._last_position_update_time = 0  # Track last forced update time
 
     @override
     def start(self) -> None:
@@ -56,12 +68,12 @@ class PlayerController(Component):
 
     def handle_boost(self, keys: pg.key.ScancodeWrapper, rigid_body: RigidBody) -> None:
         current_time = pg.time.get_ticks() / 1000
-        if keys[pg.K_LSHIFT] and self.boost and self.last_boost_time + 0.5 < current_time:
+        if keys[pg.K_LSHIFT] and self.boost and self._last_boost_time + 0.5 < current_time:
             player_animation = self.parent.get_component(PlayerAnimation)
             impulse_direction = Vector2(-1, 0) if player_animation.flip_x else Vector2(1, 0)
             rigid_body.add_impulse(impulse_direction * self.move_speed / 2)
             self.boost = False
-            self.last_boost_time = current_time
+            self._last_boost_time = current_time
 
         if not self.boost and rigid_body.is_grounded:
             self.boost = True
@@ -97,11 +109,11 @@ class PlayerController(Component):
 
         current_time = pg.time.get_ticks() / 1000  # seconds
             
-        if self.last_position_update.distance_to(transform.position) > 5 or \
-            current_time - self.last_position_update_time >= 0.5:
+        if self._last_position_update.distance_to(transform.position) > 5 or \
+            current_time - self._last_position_update_time >= 0.5:
 
-            self.last_position_update = transform.position.copy()
-            self.last_position_update_time = current_time
+            self._last_position_update = transform.position.copy()
+            self._last_position_update_time = current_time
 
             Game.instance().client.move(
                 position=transform.position,
@@ -109,13 +121,20 @@ class PlayerController(Component):
                 velocity=rigid_body.velocity
             )
 
+    def take_damage(self, damage: int) -> None:
+        """Handle damage taken by the player."""
+        
+        self.health -= damage
+        if self.health <= 0:
+            print("Player has died.")
+
     @override
     def clone(self) -> PlayerController:
         """Create a copy of this PlayerController component."""
         
         new_controller = PlayerController(self.jump_force, self.move_speed)
         new_controller.boost = self.boost
-        new_controller.last_boost_time = self.last_boost_time
-        new_controller.last_position_update = self.last_position_update.copy()
-        new_controller.last_position_update_time = self.last_position_update_time
+        new_controller._last_boost_time = self._last_boost_time
+        new_controller._last_position_update = self._last_position_update.copy()
+        new_controller._last_position_update_time = self._last_position_update_time
         return new_controller

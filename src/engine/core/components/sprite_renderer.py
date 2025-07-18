@@ -101,7 +101,7 @@ class SpriteRenderer(Component):
         if sprite:
             transform = self.parent.get_component(Transform)
             if not transform:
-                raise RuntimeError("SpriteRenderer requires a Transform component on the owner.")
+                return 0
             return int(sprite.get_width() * transform.scale.x)
         return 0
 
@@ -113,7 +113,7 @@ class SpriteRenderer(Component):
         if sprite:
             transform = self.parent.get_component(Transform)
             if not transform:
-                raise RuntimeError("SpriteRenderer requires a Transform component on the owner.")
+                return 0
             return int(sprite.get_height() * transform.scale.y)
         return 0
 
@@ -211,19 +211,21 @@ class SpriteRenderer(Component):
         sprite = self._get_current_sprite()
         if sprite is None:
             raise RuntimeError("SpriteRenderer sprite not loaded.")
-        
+
         transform = self.parent.get_component(Transform)
-        
+
         image = pg.transform.flip(sprite, self.flip_x, self.flip_y)
         image = pg.transform.scale(image, (self.width, self.height))
-        
+
+        image.fill(pg.Color(self.color), special_flags=pg.BLEND_RGBA_MULT)
+
         rotated_image = pg.transform.rotate(image, -transform.rotation)
         rotated_offset = self.offset.rotate(transform.rotation)
-        
+
         width, height = rotated_image.get_size()
         center = Vector2(width / 2, height / 2)
         position = transform.screen_position + rotated_offset - center
-        
+
         surface.blit(rotated_image, position)
         
         if DEBUG_MODE:

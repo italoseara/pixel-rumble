@@ -124,7 +124,7 @@ class GunController(Component):
         bullet.add_component(BoxCollider(width=10, height=10, is_trigger=True))
         bullet_rigid_body = bullet.add_component(RigidBody(gravity=0, drag=0, is_trigger=True))
         bullet.add_component(SpriteRenderer("assets/img/bullet.png"))
-        bullet.add_component(BulletController(self.bullet_lifetime))
+        bullet.add_component(BulletController(self.bullet_lifetime, self.damage))
         self.parent.scene.add(bullet)
 
         velocity = Vector2(self.bullet_speed, 0).rotate(spread_angle)

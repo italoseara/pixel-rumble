@@ -49,7 +49,7 @@ class HostMenu(Scene):
         ))
 
         canvas.add(Button(
-            "ENTRAR >",
+            "CRIAR >",
             x="96%", y="90%",
             pivot="midright",
             font_size=42,

@@ -101,7 +101,10 @@ class GameScene(Scene):
         bullet.add_component(BoxCollider(width=10, height=10, is_trigger=True))
         bullet_rigid_body = bullet.add_component(RigidBody(gravity=0, drag=0, is_trigger=True))
         bullet.add_component(SpriteRenderer("assets/img/bullet.png"))
-        bullet.add_component(BulletController(GUN_ATTRIBUTES[gun_type]["bullet_lifetime"]))
+        bullet.add_component(BulletController(
+            GUN_ATTRIBUTES[gun_type]["bullet_lifetime"],
+            GUN_ATTRIBUTES[gun_type]["damage"]
+        ))
         self.add(bullet)
 
         bullet_speed = GUN_ATTRIBUTES[gun_type]["bullet_speed"]

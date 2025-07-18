@@ -1,52 +1,12 @@
-import pytmx
-import random
 from typing import override
 from pygame.math import Vector2
 
 from engine.ui import Image, Text
 from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
-from game.prefabs import PlayerPrefab, GunPrefab
-from ..scripts import PlayerController, PlayerAnimation, GunController
+from game.prefabs import PlayerPrefab, GunPrefab, ItemPrefab
 
-
-GUN_ATTRIBUTES = {
-    "uzi": {
-        "automatic": True,
-        "fire_rate": 0.05,
-        "camera_shake": 5,
-        "spread": 0.1,
-        "recoil": 0.05,
-        "damage": 10,
-        "bullet_speed": 1000,
-        "bullet_lifetime": 2,
-        "bullet_size": (10, 10),
-        "max_ammo": 60
-    },
-    "pistol": {
-        "automatic": False,
-        "fire_rate": 0.2,
-        "camera_shake": 5,
-        "spread": 0.0,
-        "recoil": 0.1,
-        "damage": 20,
-        "bullet_speed": 1000,
-        "bullet_lifetime": 2,
-        "bullet_size": (10, 10),
-        "max_ammo": 20
-    },
-    "awm": {
-        "automatic": False,
-        "fire_rate": 2.0,
-        "camera_shake": 50,
-        "spread": 0.0,
-        "recoil": 0.5,
-        "damage": 100,
-        "bullet_speed": 1500,
-        "bullet_lifetime": 3,
-        "bullet_size": (15, 15),
-        "max_ammo": 5
-    }
-}
+from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic, VisualGunController
+from ..consts import GUN_ATTRIBUTES
 
 
 class GameScene(Scene):
@@ -71,9 +31,14 @@ class GameScene(Scene):
         self.players = players.copy()
         self.map_name = map_name
 
+        self.local_player: GameObject | None = None
+        self.ammo_counter: Text | None = None
+        self.items: list[GameObject] = []
+
     @override
     def start(self) -> None:
         map_object = GameObject("Map")
+        map_object.add_component(GameLogic())
         map_object.add_component(Transform(x=0, y=0, scale=2.5))
         tilemap = map_object.add_component(Tilemap(f"assets/maps/{self.map_name}.tmx", pivot="center"))
         self.add(map_object)
@@ -97,7 +62,7 @@ class GameScene(Scene):
             pivot="topleft",
             opacity=0.4
         ))
-        ammo_counter = canvas.add(Text(
+        self.ammo_counter = canvas.add(Text(
             f"Ammo: 0",
             x="1%", y="-1%",
             font_size=24, 
@@ -106,23 +71,95 @@ class GameScene(Scene):
         ))
         self.add(ui)
 
-        # gun_type = random.choice(list(GUN_ATTRIBUTES.keys()))
-        gun_type = "pistol"
-        gun = GunPrefab(self.local_player, gun_type)
-        gun.add_component(GunController(
-            self.player_id,
-            self.local_player,
-            ammo_counter,
-            **GUN_ATTRIBUTES[gun_type]
-        ))
-        self.add(gun)
-
         for player in self.players.values():
             self.add(player)
         
         self.background_color = tilemap.background_color
         self.camera.set_target(self.local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+
+    def add_gun_item(self, gun_type: str, x: int = 0, y: int = 0) -> None:
+        """Adds a gun item to the local player.
+
+        Args:
+            gun_type (str): The type of gun to add.
+        """
+
+        if gun_type not in GUN_ATTRIBUTES:
+            print(f"[Game] Gun '{gun_type}' not found.")
+            return
+
+        item = ItemPrefab(self.local_player, gun_type, x=x, y=y)
+        self.items.append(item)
+        self.add(item)
+
+    def pickup_item(self, player_id: int, gun_type: str, object_id: int) -> None:
+        """Removes an item from the scene.
+
+        Args:
+            gun_type (str): The type of gun to remove.
+            object_id (int): The unique identifier of the item to remove.
+        """
+
+        item_name = f"Gun ({gun_type}) - {object_id}"
+        if item := self.find(item_name):
+            self.remove(item)
+
+        self.give_item(gun_type, player_id)
+
+    def give_item(self, gun_type: str, player_id: int = None) -> None:
+        """Sets the gun for the local player.
+
+        Args:
+            gun_name (str): The name of the gun to set.
+        """
+
+        if gun_type not in GUN_ATTRIBUTES:
+            print(f"[Game] Gun '{gun_type}' not found.")
+            return
+
+        if self.find(f"{self.local_player.name}'s Gun"):
+            print(f"[Game] Player already has a gun.")
+            return
+
+        if player_id is None:
+            gun = GunPrefab(self.local_player, gun_type)
+            gun.add_component(GunController(
+                self.player_id,
+                self.local_player,
+                self.ammo_counter,
+                **GUN_ATTRIBUTES[gun_type]
+            ))
+            gun.add_component(VisualGunController(self.local_player))
+        else:
+            player = self.find(f"Player ({player_id})")
+            if not player:
+                print(f"[Game] Player with ID {player_id} not found.")
+                return
+            
+            gun = GunPrefab(player, gun_type)
+            gun.add_component(VisualGunController(player))
+            
+        self.add(gun)
     
+    def drop_item(self, player_id: int) -> None:
+        """Drops the gun item for the specified player.
+
+        Args:
+            player_id (int): The unique ID of the player.
+        """
+
+        player = self.find(f"Player ({player_id})")
+        if not player:
+            print(f"[Game] Player with ID {player_id} not found.")
+            return
+
+        gun = self.find(f"{player.name}'s Gun")
+        if not gun:
+            print(f"[Game] Player {player.name} does not have a gun to drop.")
+            return
+
+        gun.destroy()
+
     def add_player(self, player_id: int, name: str) -> None:
         """Adds a player to the lobby scene.
 
@@ -169,5 +206,20 @@ class GameScene(Scene):
             rigid_body = player.get_component(RigidBody)
             rigid_body.acceleration = acceleration
             rigid_body.velocity = velocity
+        else:
+            print(f"[Game] Player with ID {player_id} not found.")
+
+    def player_look(self, player_id: int, angle: float) -> None:
+        """Updates the look direction of a player.
+
+        Args:
+            player_id (int): The unique ID of the player.
+            angle (float): The angle to look at.
+        """
+
+        player = self.find(f"Player ({player_id})")
+        if player:
+            player_animation = player.get_component(PlayerAnimation)
+            player_animation.look_angle = angle
         else:
             print(f"[Game] Player with ID {player_id} not found.")

@@ -1,7 +1,6 @@
 from typing import override
 
 import pygame as pg
-from pygame.math import Vector2
 
 from engine import Component, GameObject, Transform, SpriteRenderer, Game
 from engine.core.components.box_collider import BoxCollider
@@ -11,10 +10,8 @@ class ItemController(Component):
     """Controls the item pickup and usage logic."""
 
     item_type: str
-    position: Vector2 = Vector2(0, 0)
 
     hint : GameObject
-
 
     def __init__(self, item_type: str) -> None:
         """Initialize the ItemController with item type and position."""
@@ -22,11 +19,13 @@ class ItemController(Component):
         super().__init__()
 
         self.item_type = item_type
+        self.hint = None
+        self.catched = False
 
     def start(self) -> None:
         """Initialize the item controller, setting the position of the item."""
 
-        self.hint = GameObject(f"{self.item_type} - Hint", self.parent)
+        self.hint = GameObject(f"{self.parent.name} - Hint", self.parent)
         self.hint.add_component(Transform(y=-35, scale=1.25, z_index=2))
         self.hint.add_component(SpriteRenderer(
             "assets/img/keyboard/E.png",
@@ -35,19 +34,15 @@ class ItemController(Component):
             animation_duration=1.0,
             loop=True,
         ))
-
         self.hint.active = False
 
         Game.instance().current_scene.add(self.hint)
-
 
     @override
     def update(self, dt: float) -> None:
         """Update the item state, checking for player interaction."""
 
-        #update the position of the hint
         local_player = self.parent.scene.find("Local Player")
-
         if not local_player:
             return
 
@@ -65,8 +60,20 @@ class ItemController(Component):
             if not local_player:
                 return
 
+            if self.parent.scene.find(f"{local_player.name}'s Gun"):
+                return
+        
             # Add the item to the player's inventory
-            print(f"[ItemController] Player picked up item: {self.item_type}")
+            self.parent.scene.give_item(self.item_type)
+            self.gotten = True
+            print(f"[ItemController] {self.parent.name} picked up by {local_player.name}")
+
+            gun_type = self.item_type
+            object_id = self.parent.name.split(" - ")[-1]
+            Game.instance().client.pickup_item(
+                gun_type=gun_type,
+                object_id=int(object_id)
+            )
 
             # Optionally, destroy the item GameObject after pickup
             self.parent.destroy()

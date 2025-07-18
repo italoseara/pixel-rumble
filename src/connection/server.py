@@ -1,10 +1,12 @@
 import time
 import socket
-import threading
 import random
+import threading
 from typing import override
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+
+from pygame import Vector2
 
 from connection.packets import (
     Packet,
@@ -22,12 +24,20 @@ from connection.packets import (
     PacketPlayInChangeCharacter,
     PacketPlayOutChangeCharacter,
     PacketPlayInStartGame,
-    PacketPlayOutStartGame
+    PacketPlayOutStartGame,
+    PacketPlayInItemPickup,
+    PacketPlayInAddItem,
+    PacketPlayOutItemPickup,
+    PacketPlayOutAddItem,
+    PacketPlayInItemDrop,
+    PacketPlayOutItemDrop,
+    PacketPlayInPlayerLook,
+    PacketPlayOutPlayerLook
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
 BUFFER_SIZE = 1024  # bytes
-TICK_RATE = 64  # ticks per second
+TICK_RATE = 128  # ticks per second
 
 class BaseUDPServer(ABC):
     port: int
@@ -248,6 +258,41 @@ class Server(BaseUDPServer):
                 
                 start_game_packet = PacketPlayOutStartGame(map_name=start_game.map_name)
                 self.broadcast(start_game_packet, exclude=addr)
+
+            case item if isinstance(item, PacketPlayInAddItem):
+                client = self.clients.get(addr)
+
+                item_packet = PacketPlayOutAddItem(
+                    gun_type=item.gun_type,
+                    position= Vector2(item.position_x, item.position_y)
+                )
+                self.broadcast(item_packet, exclude=addr)
+
+            case item_pickup if isinstance(item_pickup, PacketPlayInItemPickup):
+                client = self.clients.get(addr)
+
+                pickup_packet = PacketPlayOutItemPickup(
+                    player_id=client.id,
+                    gun_type=item_pickup.gun_type,
+                    object_id=item_pickup.object_id
+                )
+                self.broadcast(pickup_packet, exclude=addr)
+
+            case item_drop if isinstance(item_drop, PacketPlayInItemDrop):
+                client = self.clients.get(addr)
+
+                drop_packet = PacketPlayOutItemDrop(player_id=client.id)
+                self.broadcast(drop_packet, exclude=addr)
+
+            case player_look if isinstance(player_look, PacketPlayInPlayerLook):
+                client = self.clients.get(addr)
+
+                look_packet = PacketPlayOutPlayerLook(
+                    player_id=client.id,
+                    angle=player_look.angle
+                )
+                self.broadcast(look_packet, exclude=addr)
+
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 

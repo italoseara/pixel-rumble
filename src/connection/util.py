@@ -4,6 +4,7 @@ import struct
 def to_uint32(value: int) -> bytes:
     """Convert an integer to a 4-byte unsigned integer."""
 
+    # value = 0xFFFFFFFF & value  # Ensure value is within 32-bit unsigned integer range
     return struct.pack('>I', value)
 
 def from_uint32(data: bytes) -> int:

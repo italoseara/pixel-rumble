@@ -97,7 +97,7 @@ class PlayerController(Component):
 
         current_time = pg.time.get_ticks() / 1000  # seconds
             
-        if self.last_position_update.distance_to(transform.position) > 10 or \
+        if self.last_position_update.distance_to(transform.position) > 5 or \
             current_time - self.last_position_update_time >= 0.5:
 
             self.last_position_update = transform.position.copy()

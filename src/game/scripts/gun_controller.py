@@ -5,8 +5,9 @@ import pygame as pg
 from typing import override
 from pygame.math import Vector2
 
-from engine import Component, GameObject, Transform, SpriteRenderer, RigidBody, BoxCollider
+from engine import Component, GameObject, Transform, SpriteRenderer, RigidBody, BoxCollider, Game
 from engine.ui import Text
+from .player_animation import PlayerAnimation
 
 
 class BulletController(Component):
@@ -45,8 +46,6 @@ class GunController(Component):
     ammo_count: int
     max_ammo: int
 
-    _angle: float
-    
     def __init__(
         self,
         player_id: int,
@@ -92,11 +91,13 @@ class GunController(Component):
             if event.button == pg.BUTTON_LEFT:
                 self.fire()
 
+        if event.type == pg.KEYDOWN and event.key == pg.K_g:
+            self.drop()
+
     @override
     def update(self, dt: float) -> None:
         """Update the gun's state, checking for firing input and managing bullets."""
 
-        self.find_angle()
         self.handle_automatic_fire(dt)
         self.update_ammo_counter()
 
@@ -129,25 +130,27 @@ class GunController(Component):
 
         if self.ammo_count <= 0:
             self.update_ammo_counter()
-            self.parent.destroy()
+            self.drop()
             return
 
         transform = self.player.get_component(Transform)
 
         window_size = pg.display.get_window_size()
-        angle = self._angle + (self.spread * (pg.mouse.get_pos()[0] - window_size[0] // 2) / (window_size[0] // 2))
+
+        look_angle = self.player.get_component(PlayerAnimation).look_angle
+        spread_angle = look_angle + (self.spread * (pg.mouse.get_pos()[0] - window_size[0] // 2) / (window_size[0] // 2))
         
         offset = Vector2(40, -60)
         
-        x = transform.x + offset.x * math.cos(math.radians(-angle))
-        y = (transform.y - 30) + offset.y * math.sin(math.radians(-angle))
+        x = transform.x + offset.x * math.cos(math.radians(-spread_angle))
+        y = (transform.y - 30) + offset.y * math.sin(math.radians(-spread_angle))
         
         # Create a bullet GameObject
         bullet = GameObject(f"Bullet_{self.player_id} {pg.time.get_ticks()}")
         bullet.add_component(Transform(
             x=x, y=y,
             scale=2,
-            rotation=angle,
+            rotation=spread_angle,
             z_index=2
         ))
         bullet.add_component(BoxCollider(width=self.bullet_size[0], height=self.bullet_size[1], is_trigger=True))
@@ -156,7 +159,7 @@ class GunController(Component):
         bullet.add_component(BulletController(self.bullet_lifetime))
         self.parent.scene.add(bullet)
 
-        velocity = Vector2(self.bullet_speed, 0).rotate(angle)
+        velocity = Vector2(self.bullet_speed, 0).rotate(spread_angle)
         bullet_rigid_body.add_impulse(velocity)
 
         # Apply recoil
@@ -175,24 +178,10 @@ class GunController(Component):
         self.ammo_count -= 1
         if self.ammo_count == 0:
             self.update_ammo_counter()
-            self.parent.destroy()
+            self.drop()
 
-    def find_angle(self) -> None:
-        """Finds the angle the player is aiming at based on mouse position."""
-
-        player_transform = self.player.get_component(Transform)
-        if not player_transform:
-            return
-
-        mouse_pos = pg.mouse.get_pos()
-        player_pos = player_transform.screen_position + Vector2(0, -20)  # Adjust for gun offset
+    def drop(self) -> None:
+        """Drops the gun item."""
         
-        self._angle = -(Vector2(mouse_pos) - Vector2(player_pos)).angle_to(Vector2(1, 0))
-
-        # Update the gun's rotation based on the angle
-        transform = self.parent.get_component(Transform)
-        sprite_renderer = self.parent.get_component(SpriteRenderer)
-        
-        transform.rotation = self._angle
-
-        sprite_renderer.flip_y = self._angle > 90 or self._angle < -90
+        self.parent.destroy()
+        Game.instance().client.drop_item()

@@ -99,6 +99,8 @@ class SpriteRenderer(Component):
         sprite = self._get_current_sprite()
         if sprite:
             transform = self.parent.get_component(Transform)
+            if not transform:
+                raise RuntimeError("SpriteRenderer requires a Transform component on the owner.")
             return int(sprite.get_width() * transform.scale.x)
         return 0
 
@@ -109,6 +111,8 @@ class SpriteRenderer(Component):
         sprite = self._get_current_sprite()
         if sprite:
             transform = self.parent.get_component(Transform)
+            if not transform:
+                raise RuntimeError("SpriteRenderer requires a Transform component on the owner.")
             return int(sprite.get_height() * transform.scale.y)
         return 0
 

@@ -9,7 +9,7 @@ class GunPrefab(GameObject):
     }
     
     def __init__(self, player: GameObject, gun_type: str) -> None:
-        super().__init__(f"{player.name}'s Gun ({gun_type})", player)
+        super().__init__(f"{player.name}'s Gun", player)
 
         # Add components for the gun
         self.add_component(Transform(y=-20, scale=2, z_index=2))

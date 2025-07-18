@@ -33,7 +33,9 @@ from connection.packets import (
     PacketPlayInItemDrop,
     PacketPlayOutItemDrop,
     PacketPlayInPlayerLook,
-    PacketPlayOutPlayerLook
+    PacketPlayOutPlayerLook,
+    PacketPlayInShoot,
+    PacketPlayOutShoot
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
@@ -294,6 +296,17 @@ class Server(BaseUDPServer):
                     angle=player_look.angle
                 )
                 self.broadcast(look_packet, exclude=addr)
+
+            case shoot if isinstance(shoot, PacketPlayInShoot):
+                client = self.clients.get(addr)
+
+                shoot_packet = PacketPlayOutShoot(
+                    player_id=client.id,
+                    gun_type=shoot.gun_type,
+                    angle=shoot.angle,
+                    position=shoot.position
+                )
+                self.broadcast(shoot_packet, exclude=addr)
 
             case _:
                 logging.warning(f"[Server] Unhandled packet type: {type(packet).__name__}")

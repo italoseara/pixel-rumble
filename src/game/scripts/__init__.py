@@ -5,3 +5,4 @@ from .gun_controller import GunController
 from .item_controller import ItemController
 from .game_logic import GameLogic
 from .visual_gun_controller import VisualGunController
+from .bullet_controller import BulletController

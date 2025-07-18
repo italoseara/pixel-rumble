@@ -32,7 +32,9 @@ from connection.packets import (
     PacketPlayInItemDrop,
     PacketPlayOutItemDrop,
     PacketPlayInPlayerLook,
-    PacketPlayOutPlayerLook
+    PacketPlayOutPlayerLook,
+    PacketPlayInShoot,
+    PacketPlayOutShoot
 )
 
 
@@ -151,8 +153,6 @@ class Client:
                 if hasattr(current_scene, 'add_player'):
                     current_scene.add_player(player_join.player_id, player_join.name)
                     logging.info(f"[Client] Player {player_join.name} with ID {player_join.player_id} joined the lobby.")
-                else:
-                    logging.warning("[Client] Current scene does not support adding players.")
 
             case player_leave if isinstance(player_leave, PacketPlayOutPlayerLeave):
                 current_scene = Game.instance().current_scene
@@ -160,8 +160,6 @@ class Client:
                 if hasattr(current_scene, 'remove_player'):
                     current_scene.remove_player(player_leave.player_id)
                     logging.info(f"[Client] Player with ID {player_leave.player_id} left the lobby.")
-                else:
-                    logging.warning("[Client] Current scene does not support removing players.")
 
             case player_move if isinstance(player_move, PacketPlayOutPlayerMove):
                 current_scene = Game.instance().current_scene
@@ -197,7 +195,6 @@ class Client:
 
             case item_pickup if isinstance(item_pickup, PacketPlayOutItemPickup):
                 current_scene = Game.instance().current_scene
-
                 if hasattr(current_scene, 'pickup_item'):
                     current_scene.pickup_item(
                         player_id=item_pickup.player_id,
@@ -216,6 +213,16 @@ class Client:
                     current_scene.player_look(
                         player_id=player_look.player_id,
                         angle=player_look.angle
+                    )
+
+            case shoot if isinstance(shoot, PacketPlayOutShoot):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'shoot'):
+                    current_scene.shoot(
+                        player_id=shoot.player_id,
+                        gun_type=shoot.gun_type,
+                        angle=shoot.angle,
+                        position=shoot.position
                     )
 
             case _:
@@ -330,12 +337,29 @@ class Client:
             acceleration (Vector2): The acceleration of the player.
             velocity (Vector2): The velocity of the player.
         """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before moving.")
         
         self.send(PacketPlayInPlayerMove(
             position=position,
             acceleration=acceleration,
             velocity=velocity
         ))
+
+    def shoot(self, gun_type: str, angle: float, position: Vector2) -> None:
+        """Sends a shoot packet to the server.
+
+        Args:
+            gun_type (str): The type of gun being used.
+            angle (float): The angle of the shot.
+            position (Vector2): The position where the shot is fired from.
+        """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before shooting.")
+
+        self.send(PacketPlayInShoot(gun_type=gun_type, angle=angle, position=position))
 
     def join(self) -> None:
         """Sends a join request to the server with the client's name."""

@@ -1,13 +1,15 @@
+import math
 import logging
+import pygame as pg
 from typing import override
 
 from pygame.math import Vector2
 
 from engine.ui import Image, Text
-from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
+from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, BoxCollider, SpriteRenderer
 from game.prefabs import PlayerPrefab, GunPrefab, ItemPrefab
 
-from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic, VisualGunController
+from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic, VisualGunController, BulletController
 from ..consts import GUN_ATTRIBUTES
 
 
@@ -79,6 +81,34 @@ class GameScene(Scene):
         self.background_color = tilemap.background_color
         self.camera.set_target(self.local_player, smooth=True, smooth_speed=10, offset=(0, -100))
 
+    def shoot(self, player_id: int, gun_type: str, angle: float, position: Vector2) -> None:
+        """Handles shooting logic for the player.
+
+        Args:
+            player_id (int): The unique ID of the player.
+            gun_type (str): The type of gun being used.
+            angle (float): The angle at which the player is shooting.
+            position (Vector2): The position from where the shot is fired.
+        """
+
+        bullet = GameObject(f"Bullet_{player_id} {pg.time.get_ticks()}")
+        bullet.add_component(Transform(
+            x=position.x, y=position.y,
+            scale=2,
+            rotation=angle,
+            z_index=2
+        ))
+        bullet.add_component(BoxCollider(width=10, height=10, is_trigger=True))
+        bullet_rigid_body = bullet.add_component(RigidBody(gravity=0, drag=0, is_trigger=True))
+        bullet.add_component(SpriteRenderer("assets/img/bullet.png"))
+        bullet.add_component(BulletController(GUN_ATTRIBUTES[gun_type]["bullet_lifetime"]))
+        self.add(bullet)
+
+        bullet_speed = GUN_ATTRIBUTES[gun_type]["bullet_speed"]
+
+        velocity = Vector2(bullet_speed, 0).rotate(angle)
+        bullet_rigid_body.add_impulse(velocity)
+
     def add_gun_item(self, gun_type: str, x: int = 0, y: int = 0) -> None:
         """Adds a gun item to the local player.
 
@@ -125,12 +155,7 @@ class GameScene(Scene):
                 return
         
             gun = GunPrefab(self.local_player, gun_type)
-            gun.add_component(GunController(
-                self.player_id,
-                self.local_player,
-                self.ammo_counter,
-                **GUN_ATTRIBUTES[gun_type]
-            ))
+            gun.add_component(GunController( self.player_id, self.local_player, self.ammo_counter, gun_type))
             gun.add_component(VisualGunController(self.local_player))
         else:
             if self.find(f"Player ({player_id})'s Gun"):

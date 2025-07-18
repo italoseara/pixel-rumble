@@ -1,5 +1,5 @@
 GUN_ATTRIBUTES = {
-    "uzi": {
+    "ak47": {
         "automatic": True,
         "fire_rate": 0.05,
         "camera_shake": 5,
@@ -8,7 +8,6 @@ GUN_ATTRIBUTES = {
         "damage": 10,
         "bullet_speed": 1000,
         "bullet_lifetime": 2,
-        "bullet_size": (10, 10),
         "max_ammo": 60
     },
     "pistol": {
@@ -20,7 +19,6 @@ GUN_ATTRIBUTES = {
         "damage": 20,
         "bullet_speed": 1000,
         "bullet_lifetime": 2,
-        "bullet_size": (10, 10),
         "max_ammo": 20
     },
     "awm": {
@@ -32,7 +30,6 @@ GUN_ATTRIBUTES = {
         "damage": 100,
         "bullet_speed": 1500,
         "bullet_lifetime": 3,
-        "bullet_size": (15, 15),
         "max_ammo": 5
     }
 }

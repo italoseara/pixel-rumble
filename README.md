@@ -22,6 +22,7 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Disconnect](#disconnect)
      - [Player Move](#player-move)
      - [Player Look](#player-look)
+     - [Shoot](#shoot)
      - [Change Character](#change-character)
      - [Start Game](#start-game)
      - [Add Item](#add-item)
@@ -34,6 +35,7 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Player Join](#player-join)
      - [Player Leave](#player-leave)
      - [Player Look](#player-look-1)
+     - [Shoot](#shoot-1)
      - [Change Character](#change-character-1)
      - [Start Game](#start-game-1)
      - [Add Item](#add-item-1)
@@ -167,6 +169,41 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                                     |
 | --------- | ------ | -------- | ---------- | ---------- | ----------------------------------------------- |
 | `0x15`    | `Play` | `Server` | Angle      | `float`    | The angle the player is looking at, in degrees. |
+
+#### Shoot
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><code>0x17</code></td>
+      <td rowspan="3"><code>Play</code></td>
+      <td rowspan="3"><code>Server</code></td>
+      <td>Gun Type</td>
+      <td><code>string</code></td>
+      <td>The type of gun being used to shoot.</td>
+    </tr>
+    <tr>
+      <td>Angle</td>
+      <td><code>float</code></td>
+      <td>The angle of the shot, in degrees.</td>
+    </tr>
+    <tr>
+      <td>Position</td>
+      <td><code>float[2]</code></td>
+      <td>The position where the shot was fired in the game world.</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Change Character
 
@@ -391,6 +428,46 @@ The play state is used during the game. It includes packets for player actions, 
       <td>Angle</td>
       <td><code>float</code></td>
       <td>The angle the player is looking at, in degrees.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Shoot
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4"><code>0x18</code></td>
+      <td rowspan="4"><code>Play</code></td>
+      <td rowspan="4"><code>Client</code></td>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>The joining player's ID.</td>
+    </tr>
+    <tr>
+      <td>Gun Type</td>
+      <td><code>string</code></td>
+      <td>The type of gun being used to shoot.</td>
+    </tr>
+    <tr>
+      <td>Angle</td>
+      <td><code>float</code></td>
+      <td>The angle of the shot, in degrees.</td>
+    </tr>
+    <tr>
+      <td>Position</td>
+      <td><code>float[2]</code></td>
+      <td>The position where the shot was fired in the game world.</td>
     </tr>
   </tbody>
 </table>

@@ -7,27 +7,10 @@ from pygame.math import Vector2
 
 from engine import Component, GameObject, Transform, SpriteRenderer, RigidBody, BoxCollider, Game
 from engine.ui import Text
+
 from .player_animation import PlayerAnimation
-
-
-class BulletController(Component):
-    """Controls the bullet's behavior, including movement and collision detection."""
-
-    def __init__(self, lifetime: float) -> None:
-        super().__init__()
-        self.lifetime = lifetime
-        self.start_time = time.time()
-
-    @override
-    def update(self, dt: float) -> None:
-        """Update the bullet's position and check for lifetime expiration."""
-        if time.time() - self.start_time > self.lifetime:
-            self.parent.destroy()
-            return
-
-        box_collider = self.parent.get_component(BoxCollider)
-        if box_collider and box_collider.is_colliding():
-            self.parent.destroy()
+from .bullet_controller import BulletController
+from ..consts import GUN_ATTRIBUTES
 
 class GunController(Component):
     """Controls the gun's firing logic and bullet management."""
@@ -46,40 +29,25 @@ class GunController(Component):
     ammo_count: int
     max_ammo: int
 
-    def __init__(
-        self,
-        player_id: int,
-        player: GameObject,
-        ammo_counter: Text,
-        automatic: bool = False,
-        fire_rate: float = 0.5,
-        camera_shake: float = 2,
-        spread: float = 0.0,
-        recoil: float = 0.1,
-        damage: int = 10,
-        bullet_speed: float = 500,
-        bullet_lifetime: float = 2,
-        bullet_size: tuple[int, int] = (10, 10),
-        max_ammo: int = 30
-    ) -> None:
-    
-        super().__init__()
+    _gun_type: str
+
+    def __init__(self, player_id: int, player: GameObject, ammo_counter: Text, gun_type: str) -> None:
+        self._gun_type = gun_type
 
         self.player_id = player_id
         self.player = player
         self.ammo_counter = ammo_counter
         
-        self.automatic = automatic
-        self.fire_rate = fire_rate
-        self.camera_shake = camera_shake
-        self.spread = spread
-        self.damage = damage
-        self.recoil = recoil
-        self.bullet_speed = bullet_speed
-        self.bullet_lifetime = bullet_lifetime
-        self.bullet_size = bullet_size
-        self.max_ammo = max_ammo
-        self.ammo_count = max_ammo
+        self.automatic = GUN_ATTRIBUTES[gun_type]["automatic"]
+        self.fire_rate = GUN_ATTRIBUTES[gun_type]["fire_rate"]
+        self.camera_shake = GUN_ATTRIBUTES[gun_type]["camera_shake"]
+        self.spread = GUN_ATTRIBUTES[gun_type]["spread"]
+        self.damage = GUN_ATTRIBUTES[gun_type]["damage"]
+        self.recoil = GUN_ATTRIBUTES[gun_type]["recoil"]
+        self.bullet_speed = GUN_ATTRIBUTES[gun_type]["bullet_speed"]
+        self.bullet_lifetime = GUN_ATTRIBUTES[gun_type]["bullet_lifetime"]
+        self.max_ammo = GUN_ATTRIBUTES[gun_type]["max_ammo"]
+        self.ammo_count = self.max_ammo
 
         self._last_fire_time = 0.0
 
@@ -153,7 +121,7 @@ class GunController(Component):
             rotation=spread_angle,
             z_index=2
         ))
-        bullet.add_component(BoxCollider(width=self.bullet_size[0], height=self.bullet_size[1], is_trigger=True))
+        bullet.add_component(BoxCollider(width=10, height=10, is_trigger=True))
         bullet_rigid_body = bullet.add_component(RigidBody(gravity=0, drag=0, is_trigger=True))
         bullet.add_component(SpriteRenderer("assets/img/bullet.png"))
         bullet.add_component(BulletController(self.bullet_lifetime))
@@ -171,6 +139,12 @@ class GunController(Component):
         camera.position += Vector2(
             -random.random() * self.camera_shake,
             -random.random() * self.camera_shake
+        )
+
+        Game.instance().client.shoot(
+            self._gun_type,
+            spread_angle,
+            Vector2(x, y)
         )
 
         # Update the last fire time

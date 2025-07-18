@@ -22,6 +22,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Desconectar](#desconectar)
      - [Mover Jogador](#mover-jogador)
      - [Olhar Jogador](#olhar-jogador)
+     - [Atirar](#atirar)
      - [Mudar Personagem](#mudar-personagem)
      - [Iniciar Jogo](#iniciar-jogo)
      - [Adicionar Item](#adicionar-item)
@@ -34,6 +35,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Olhar Jogador](#olhar-jogador-1)
      - [Jogador Entrou](#jogador-entrou)
      - [Jogador Saiu](#jogador-saiu)
+     - [Atirar](#atirar-1)
      - [Mudar Personagem](#mudar-personagem-1)
      - [Iniciar Jogo](#iniciar-jogo-1)
      - [Adicionar Item](#adicionar-item-1)
@@ -167,6 +169,41 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                                      |
 | ------------ | ------- | ---------- | ------------- | ------------- | ---------------------------------------------- |
 | `0x15`       | `Jogar` | `Servidor` | Ângulo        | `float`       | O ângulo que o jogador está olhando, em graus. |
+
+#### Atirar
+
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><code>0x17</code></td>
+      <td rowspan="3"><code>Jogar</code></td>
+      <td rowspan="3"><code>Servidor</code></td>
+      <td>Tipo da Arma</td>
+      <td><code>string</code></td>
+      <td>O tipo de arma utilizada para atirar.</td>
+    </tr>
+    <tr>
+      <td>Ângulo</td>
+      <td><code>float</code></td>
+      <td>O ângulo do disparo, em graus.</td>
+    </tr>
+    <tr>
+      <td>Posição</td>
+      <td><code>float[2]</code></td>
+      <td>A posição onde o disparo foi realizado no mundo do jogo.</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Mudar Personagem
 
@@ -394,6 +431,46 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
 | ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                                |
 | ------------ | ------- | --------- | ------------- | ------------- | ---------------------------------------- |
 | `0x0A`       | `Jogar` | `Cliente` | ID do Jogador | `uint32`      | O ID do jogador que está saindo do jogo. |
+
+#### Atirar
+
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4"><code>0x18</code></td>
+      <td rowspan="4"><code>Jogar</code></td>
+      <td rowspan="4"><code>Servidor</code></td>
+      <td>ID do Jogador</td>
+      <td><code>uint32</code></td>
+      <td>O ID do jogador que está atirando.</td>
+    </tr>
+    <tr>
+      <td>Tipo da Arma</td>
+      <td><code>string</code></td>
+      <td>O tipo de arma utilizada para atirar.</td>
+    </tr>
+    <tr>
+      <td>Ângulo</td>
+      <td><code>float</code></td>
+      <td>O ângulo do disparo, em graus.</td>
+    </tr>
+    <tr>
+      <td>Posição</td>
+      <td><code>float[2]</code></td>
+      <td>A posição onde o disparo foi realizado no mundo do jogo.</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Mudar Personagem
 

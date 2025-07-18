@@ -13,6 +13,15 @@ def setup_logger() -> None:
         if f.startswith(today) and f.endswith(".log")
     ]
 
+    # Also check logs inside today's zip file
+    zip_filename = f"logs/{today}.zip"
+    if os.path.exists(zip_filename):
+        with zipfile.ZipFile(zip_filename, "r") as zipf:
+            existing_logs += [
+                f for f in zipf.namelist()
+                if f.startswith(today) and f.endswith(".log")
+            ]
+
     nums = [
         int(f.split("_")[-1].split(".")[0])
         for f in existing_logs

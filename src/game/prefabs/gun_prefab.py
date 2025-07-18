@@ -5,7 +5,7 @@ class GunPrefab(GameObject):
     _gun_pivot: dict[str, tuple[float, float]] = {
         "pistol": (-0.5, 0.5),
         "awm": (0.1, 0.5),
-        "uzi": (-0.5, 0.5),
+        "ak47": (0.2, 0.5),
     }
     
     def __init__(self, player: GameObject, gun_type: str) -> None:

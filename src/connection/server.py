@@ -42,7 +42,6 @@ from connection.packets.play.server.player_die import PacketPlayOutPlayerDie
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
 BUFFER_SIZE = 1024  # bytes
-TICK_RATE = 128  # ticks per second
 
 class BaseUDPServer(ABC):
     port: int
@@ -83,21 +82,13 @@ class BaseUDPServer(ABC):
         logging.info(f"[{type(self).__name__}] Sent packet to {addr[0]}:{addr[1]}: {packet}")
 
     def _listen_for_requests(self) -> None:
-        tick_interval = 1.0 / TICK_RATE
-
         while self.running:
-            start_time = time.time()
             try:
                 data, addr = self.sock.recvfrom(self.buffer_size)
                 packet = Packet.from_bytes(data)
                 self.on_packet_received(packet, addr)
             except Exception as e:
                 logging.error(f"[{type(self).__name__}] Error while listening for requests: {e}")
-
-            elapsed = time.time() - start_time
-            sleep_time = tick_interval - elapsed
-            if sleep_time > 0:
-                time.sleep(sleep_time)
 
     @abstractmethod
     def on_packet_received(self, packet: Packet, addr: tuple[str, int]) -> None:

@@ -41,7 +41,6 @@ from connection.packets import (
 
 
 TIMEOUT = 2  # seconds
-TICK_RATE = 128  # ticks per second
 
 
 @dataclass(unsafe_hash=True)
@@ -430,9 +429,7 @@ class Client:
     def _listen_for_packets(self) -> None:
         """Listens for incoming packets from the server and handles them."""
 
-        tick_interval = 1.0 / TICK_RATE
         while self.running:                
-            start_time = time.time()
             try:
                 data, _ = self.sock.recvfrom(self.buffer_size)
 
@@ -452,11 +449,6 @@ class Client:
                     Game.instance().push_scene(MainMenu())
                 else:
                     logging.error(f"[Client] Error receiving packet: {e}")
-
-            elapsed = time.time() - start_time
-            sleep_time = tick_interval - elapsed
-            if sleep_time > 0:
-                time.sleep(sleep_time)
 
     def __repr__(self) -> str:
         return f"<Client name='{self.name}' address={self.address}>"

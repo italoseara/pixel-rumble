@@ -21,6 +21,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Entrar](#entrar)
      - [Desconectar](#desconectar)
      - [Mover Jogador](#mover-jogador)
+     - [Olhar Jogador](#olhar-jogador)
      - [Mudar Personagem](#mudar-personagem)
      - [Iniciar Jogo](#iniciar-jogo)
      - [Adicionar Item](#adicionar-item)
@@ -30,6 +31,7 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Manter Vivo](#manter-vivo-1)
      - [Boas-vindas](#boas-vindas)
      - [Mover Jogador](#mover-jogador-1)
+     - [Olhar Jogador](#olhar-jogador-1)
      - [Jogador Entrou](#jogador-entrou)
      - [Jogador Saiu](#jogador-saiu)
      - [Mudar Personagem](#mudar-personagem-1)
@@ -159,6 +161,12 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
     </tr>
   </tbody>
 </table>
+
+#### Olhar Jogador
+
+| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                                      |
+| ------------ | ------- | ---------- | ------------- | ------------- | ---------------------------------------------- |
+| `0x15`       | `Jogar` | `Servidor` | Ângulo        | `float`       | O ângulo que o jogador está olhando, em graus. |
 
 #### Mudar Personagem
 
@@ -317,6 +325,36 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
       <td>Velocidade</td>
       <td><code>float[2]</code></td>
       <td>O vetor de velocidade do jogador.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Olhar Jogador
+
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x16</code></td>
+      <td rowspan="2"><code>Jogar</code></td>
+      <td rowspan="2"><code>Cliente</code></td>
+      <td>ID do Jogador</td>
+      <td><code>uint32</code></td>
+      <td>O ID do jogador.</td>
+    </tr>
+    <tr>
+      <td>Ângulo</td>
+      <td><code>float</code></td>
+      <td>O ângulo que o jogador está olhando, em graus.</td>
     </tr>
   </tbody>
 </table>

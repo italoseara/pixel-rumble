@@ -141,7 +141,7 @@ class GameScene(Scene):
             if not player:
                 logging.warning(f"[Game] Player with ID {player_id} not found.")
                 return
-            
+
             gun = GunPrefab(player, gun_type)
             gun.add_component(VisualGunController(player))
             

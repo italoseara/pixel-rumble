@@ -21,6 +21,7 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Join](#join)
      - [Disconnect](#disconnect)
      - [Player Move](#player-move)
+     - [Player Look](#player-look)
      - [Change Character](#change-character)
      - [Start Game](#start-game)
      - [Add Item](#add-item)
@@ -29,9 +30,10 @@ The game uses a custom protocol for network communication, which is defined in t
    - [Server](#server-1)
      - [Keep Alive](#keep-alive-1)
      - [Welcome](#welcome)
-     - [Player Move](#player-move)
+     - [Player Move](#player-move-1)
      - [Player Join](#player-join)
      - [Player Leave](#player-leave)
+     - [Player Look](#player-look-1)
      - [Change Character](#change-character-1)
      - [Start Game](#start-game-1)
      - [Add Item](#add-item-1)
@@ -159,6 +161,12 @@ The play state is used during the game. It includes packets for player actions, 
     </tr>
   </tbody>
 </table>
+
+#### Player Look
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                                     |
+| --------- | ------ | -------- | ---------- | ---------- | ----------------------------------------------- |
+| `0x15`    | `Play` | `Server` | Angle      | `float`    | The angle the player is looking at, in degrees. |
 
 #### Change Character
 
@@ -356,6 +364,36 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                            |
 | --------- | ------ | -------- | ---------- | ---------- | -------------------------------------- |
 | `0x0A`    | `Play` | `Client` | Player ID  | `uint32`   | The ID of the player leaving the game. |
+
+#### Player Look
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x16</code></td>
+      <td rowspan="2"><code>Play</code></td>
+      <td rowspan="2"><code>Client</code></td>
+      <td>Player ID</td>
+      <td><code>uint32</code></td>
+      <td>The joining player's ID.</td>
+    </tr>
+    <tr>
+      <td>Angle</td>
+      <td><code>float</code></td>
+      <td>The angle the player is looking at, in degrees.</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Change Character
 

@@ -3,6 +3,8 @@ import pytmx
 import random
 from engine import Component, Tilemap, Game
 
+from ..consts import GUN_ATTRIBUTES
+
 
 class GameLogic(Component):
     """Base class for game logic components."""
@@ -44,7 +46,7 @@ class GameLogic(Component):
 
         x, y = random.choice(spawn_points)
         position = tilemap.get_position(x, y)
-        gun_type= random.choice(["uzi___", "awm___", "pistol"])
+        gun_type= random.choice(list(GUN_ATTRIBUTES.keys()))
         self.parent.scene.add_gun_item(
             gun_type= gun_type,
             x=position[0],
@@ -52,7 +54,7 @@ class GameLogic(Component):
         )
 
         Game.instance().client.spawn_item(
-            item_id= gun_type,
+            item_id=gun_type,
             x=position[0],
             y=position[1]
         )

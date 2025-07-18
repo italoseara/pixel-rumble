@@ -2,49 +2,11 @@ from typing import override
 from pygame.math import Vector2
 
 from engine.ui import Image, Text
-from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, Game
+from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
 from game.prefabs import PlayerPrefab, GunPrefab, ItemPrefab
+
 from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic
-
-
-GUN_ATTRIBUTES = {
-    "uzi___": {
-        "automatic": True,
-        "fire_rate": 0.05,
-        "camera_shake": 5,
-        "spread": 0.1,
-        "recoil": 0.05,
-        "damage": 10,
-        "bullet_speed": 1000,
-        "bullet_lifetime": 2,
-        "bullet_size": (10, 10),
-        "max_ammo": 60
-    },
-    "pistol": {
-        "automatic": False,
-        "fire_rate": 0.2,
-        "camera_shake": 5,
-        "spread": 0.0,
-        "recoil": 0.1,
-        "damage": 20,
-        "bullet_speed": 1000,
-        "bullet_lifetime": 2,
-        "bullet_size": (10, 10),
-        "max_ammo": 20
-    },
-    "awm___": {
-        "automatic": False,
-        "fire_rate": 2.0,
-        "camera_shake": 50,
-        "spread": 0.0,
-        "recoil": 0.5,
-        "damage": 100,
-        "bullet_speed": 1500,
-        "bullet_lifetime": 3,
-        "bullet_size": (15, 15),
-        "max_ammo": 5
-    }
-}
+from ..consts import GUN_ATTRIBUTES
 
 
 class GameScene(Scene):

@@ -1,7 +1,7 @@
 import time
 import socket
-import threading
 import random
+import threading
 from typing import override
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -24,12 +24,12 @@ from connection.packets import (
     PacketPlayInChangeCharacter,
     PacketPlayOutChangeCharacter,
     PacketPlayInStartGame,
-    PacketPlayOutStartGame
+    PacketPlayOutStartGame,
+    PacketPlayInDestroyItem,
+    PacketPlayInAddItem,
+    PacketPlayOutDestroyItem,
+    PacketPlayOutAddItem,
 )
-from connection.packets.play.client.destroy import PacketPlayInDestroyItem
-from connection.packets.play.client.item import PacketPlayInAddItem
-from connection.packets.play.server.destroy import PacketPlayOutDestroyItem
-from connection.packets.play.server.item import PacketPlayOutAddItem
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
 BUFFER_SIZE = 1024  # bytes
@@ -262,7 +262,7 @@ class Server(BaseUDPServer):
                     return
 
                 item_packet = PacketPlayOutAddItem(
-                    item_id= item.item_id,
+                    item_id=item.item_id,
                     position= Vector2(item.position_x, item.position_y)
                 )
                 self.broadcast(item_packet, exclude=addr)
@@ -274,7 +274,7 @@ class Server(BaseUDPServer):
                     return
 
                 destroy_packet = PacketPlayOutDestroyItem(
-                    item_id= dItem.item_id
+                    item_name= dItem.item_name
                 )
                 self.broadcast(destroy_packet, exclude=addr)
             case _:

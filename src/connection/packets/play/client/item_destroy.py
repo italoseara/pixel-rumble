@@ -8,12 +8,12 @@ class PacketPlayInDestroyItem(Packet):
 
     id = 0x1C
 
-    item_id: str
+    item_name: str
 
-    def __init__(self, item_id: str) -> None:
-        self.item_id = item_id
+    def __init__(self, item_name: str) -> None:
+        self.item_name = item_name
 
-        super().__init__(data=item_id.encode())
+        super().__init__(data=item_name.encode())
 
     @classmethod
     def from_bytes(cls, data: bytes) -> PacketPlayInDestroyItem:
@@ -22,9 +22,9 @@ class PacketPlayInDestroyItem(Packet):
         if len(data) < 10:
             raise ValueError("Data must be at least 10 bytes long in PacketPlayInDestroyItem")
 
-        item_id = data.decode()
+        item_name = data.decode()
 
-        return cls(item_id)
+        return cls(item_name)
 
     def __repr__(self) -> str:
-        return f"<PacketPlayInDestroyItem item_id={self.item_id}>"
+        return f"<PacketPlayInDestroyItem item_name={self.item_name}>"

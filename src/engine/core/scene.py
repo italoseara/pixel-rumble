@@ -50,7 +50,6 @@ class Scene:
             raise ValueError(f"GameObject with name '{game_object.name}' not found in the scene")
 
         del self._game_objects[game_object.name]
-        game_object.scene = None
 
     def add(self, game_object: GameObject) -> None:
         """Add a GameObject to the scene.

@@ -104,9 +104,9 @@ class GameScene(Scene):
         if item := self.find(item_name):
             self.remove(item)
 
-        self.set_player_gun(gun_type, player_id)
+        self.give_item(gun_type, player_id)
 
-    def set_player_gun(self, gun_type: str, player_id: int = None) -> None:
+    def give_item(self, gun_type: str, player_id: int = None) -> None:
         """Sets the gun for the local player.
 
         Args:
@@ -138,7 +138,25 @@ class GameScene(Scene):
             gun = GunPrefab(player, gun_type)
             
         self.add(gun)
+    
+    def drop_item(self, player_id: int) -> None:
+        """Drops the gun item for the specified player.
 
+        Args:
+            player_id (int): The unique ID of the player.
+        """
+
+        player = self.find(f"Player ({player_id})")
+        if not player:
+            print(f"[Game] Player with ID {player_id} not found.")
+            return
+
+        gun = self.find(f"{player.name}'s Gun")
+        if not gun:
+            print(f"[Game] Player {player.name} does not have a gun to drop.")
+            return
+
+        gun.destroy()
 
     def add_player(self, player_id: int, name: str) -> None:
         """Adds a player to the lobby scene.

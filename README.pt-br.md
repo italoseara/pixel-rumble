@@ -24,7 +24,8 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Mudar Personagem](#mudar-personagem)
      - [Iniciar Jogo](#iniciar-jogo)
      - [Adicionar Item](#adicionar-item)
-     - [Destruir Item](#destruir-item)
+     - [Pegar Item](#pegar-item)
+     - [Dropar Item](#dropar-item)
    - [Servidor](#servidor-1)
      - [Manter Vivo](#manter-vivo-1)
      - [Boas-vindas](#boas-vindas)
@@ -34,7 +35,8 @@ O jogo utiliza um protocolo customizado para comunicação em rede, definido no 
      - [Mudar Personagem](#mudar-personagem-1)
      - [Iniciar Jogo](#iniciar-jogo-1)
      - [Adicionar Item](#adicionar-item-1)
-     - [Destruir Item](#destruir-item-1)
+     - [Pegar Item](#pegar-item-1)
+     - [Dropar Item](#dropar-item-1)
 
 ## Formato do Pacote
 
@@ -200,11 +202,41 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
   </tbody>
 </table>
 
-#### Destruir Item
+#### Pegar Item
 
-| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                             |
-| ------------ | ------- | ---------- | ------------- | ------------- | ------------------------------------- |
-| `0x10`       | `Jogar` | `Servidor` | Nome do Item  | `string`      | O nome do GameObject a ser destruído. |
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x10</code></td>
+      <td rowspan="2"><code>Jogar</code></td>
+      <td rowspan="2"><code>Servidor</code></td>
+      <td>Tipo da Arma</td>
+      <td><code>string</code></td>
+      <td>O tipo de arma que está sendo pega.</td>
+    </tr>
+    <tr>
+      <td>ID do Objeto</td>
+      <td><code>uint32</code></td>
+      <td>O identificador único do item que está sendo pego.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Dropar Item
+
+| ID do Pacote | Estado  | Destino    | Nome do Campo | Tipo do Campo | Descrição                                   |
+| ------------ | ------- | ---------- | ------------- | ------------- | ------------------------------------------- |
+| `0x13`       | `Jogar` | `Servidor` | _Sem campos_  |               | Indica que o jogador está dropando um item. |
 
 ### Servidor
 
@@ -391,8 +423,43 @@ O estado "Jogar" é utilizado durante a partida. Inclui pacotes para ações dos
   </tbody>
 </table>
 
-#### Destruir Item
+#### Pegar Item
 
-| ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                             |
-| ------------ | ------- | --------- | ------------- | ------------- | ------------------------------------- |
-| `0x12`       | `Jogar` | `Cliente` | Nome do Item  | `string`      | O nome do GameObject a ser destruído. |
+<table>
+  <thead>
+    <tr>
+      <th>ID do Pacote</th>
+      <th>Estado</th>
+      <th>Destino</th>
+      <th>Nome do Campo</th>
+      <th>Tipo do Campo</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><code>0x12</code></td>
+      <td rowspan="3"><code>Jogar</code></td>
+      <td rowspan="3"><code>Cliente</code></td>
+      <td>ID do Jogador</td>
+      <td><code>uint32</code></td>
+      <td>O ID do jogador que está pegando o item.</td>
+    </tr>
+    <tr>
+      <td>Tipo da Arma</td>
+      <td><code>string</code></td>
+      <td>O tipo de arma que está sendo pega.</td>
+    </tr>
+    <tr>
+      <td>ID do Objeto</td>
+      <td><code>uint32</code></td>
+      <td>O identificador único do item que está sendo pego.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Dropar Item
+
+| ID do Pacote | Estado  | Destino   | Nome do Campo | Tipo do Campo | Descrição                                 |
+| ------------ | ------- | --------- | ------------- | ------------- | ----------------------------------------- |
+| `0x14`       | `Jogar` | `Cliente` | ID do Jogador | `uint32`      | O ID do jogador que está dropando o item. |

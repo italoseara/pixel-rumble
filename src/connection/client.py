@@ -28,6 +28,8 @@ from connection.packets import (
     PacketPlayInAddItem,
     PacketPlayOutItemPickup,
     PacketPlayOutAddItem,
+    PacketPlayInItemDrop,
+    PacketPlayOutItemDrop
 )
 
 
@@ -204,6 +206,12 @@ class Client:
                     )
                     print(f"[Client] Player {item_pickup.player_id} picked up item '{item_pickup.gun_type}' with object ID {item_pickup.object_id}.")
 
+            case item_drop if isinstance(item_drop, PacketPlayOutItemDrop):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'drop_item'):
+                    current_scene.drop_item(player_id=item_drop.player_id)
+                    print(f"[Client] Player {item_drop.player_id} dropped their item.")
+
             case _:
                 print(f"[Client] Unhandled packet type: {packet}")
 
@@ -274,6 +282,15 @@ class Client:
 
         self.send(PacketPlayInItemPickup(gun_type=gun_type, object_id=object_id))
         print(f"[Client] Requesting to pick up item '{gun_type}' with object ID {object_id}.")
+
+    def drop_item(self) -> None:
+        """Sends a request to drop the current item."""
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before dropping items.")
+
+        self.send(PacketPlayInItemDrop())
+        print("[Client] Requesting to drop the current item.")
 
     def change_character(self, index: int) -> None:
         """Changes the character of the local player.

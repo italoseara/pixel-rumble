@@ -5,7 +5,7 @@ from connection.packets import Packet
 
 
 class PacketPlayOutItemPickup(Packet):
-    """Destroy item packet for the play state."""
+    """Item pickup packet for the play state."""
 
     id = 0x12
 
@@ -27,7 +27,7 @@ class PacketPlayOutItemPickup(Packet):
 
     @classmethod
     def from_bytes(cls, data: bytes) -> PacketPlayOutItemPickup:
-        """Create a destroy item packet from bytes."""
+        """Create a item pickup packet from bytes."""
 
         player_id = from_uint32(data[0:4])
         gun_type_length = from_uint8(data[4:5])

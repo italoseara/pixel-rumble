@@ -29,6 +29,8 @@ from connection.packets import (
     PacketPlayInAddItem,
     PacketPlayOutItemPickup,
     PacketPlayOutAddItem,
+    PacketPlayInItemDrop,
+    PacketPlayOutItemDrop
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
@@ -273,6 +275,12 @@ class Server(BaseUDPServer):
                     object_id=item_pickup.object_id
                 )
                 self.broadcast(pickup_packet, exclude=addr)
+
+            case item_drop if isinstance(item_drop, PacketPlayInItemDrop):
+                client = self.clients.get(addr)
+
+                drop_packet = PacketPlayOutItemDrop(player_id=client.id)
+                self.broadcast(drop_packet, exclude=addr)
 
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")

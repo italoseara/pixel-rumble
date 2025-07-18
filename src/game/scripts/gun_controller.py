@@ -5,7 +5,7 @@ import pygame as pg
 from typing import override
 from pygame.math import Vector2
 
-from engine import Component, GameObject, Transform, SpriteRenderer, RigidBody, BoxCollider
+from engine import Component, GameObject, Transform, SpriteRenderer, RigidBody, BoxCollider, Game
 from engine.ui import Text
 
 
@@ -129,7 +129,7 @@ class GunController(Component):
 
         if self.ammo_count <= 0:
             self.update_ammo_counter()
-            self.parent.destroy()
+            self.drop()
             return
 
         transform = self.player.get_component(Transform)
@@ -175,7 +175,13 @@ class GunController(Component):
         self.ammo_count -= 1
         if self.ammo_count == 0:
             self.update_ammo_counter()
-            self.parent.destroy()
+            self.drop()
+
+    def drop(self) -> None:
+        """Drops the gun item."""
+        
+        self.parent.destroy()
+        Game.instance().client.drop_item()
 
     def find_angle(self) -> None:
         """Finds the angle the player is aiming at based on mouse position."""

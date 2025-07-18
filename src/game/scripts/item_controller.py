@@ -64,7 +64,7 @@ class ItemController(Component):
                 return
         
             # Add the item to the player's inventory
-            self.parent.scene.set_player_gun(self.item_type)
+            self.parent.scene.give_item(self.item_type)
             self.gotten = True
             print(f"[ItemController] {self.parent.name} picked up by {local_player.name}")
 

@@ -5,9 +5,30 @@ A 2d platformer game built using a custom Pygame game engine. This engine provid
 > [!NOTE]
 > Clique [aqui](README.pt-br.md) para a versão em ![Brazil](https://raw.githubusercontent.com/stevenrskelton/flag-icon/master/png/16/country-4x3/br.png "Brazil") Português.
 
+## Installation
+
+To install the game, you need to have Python 3.12 or higher installed. You can download it from [python.org](https://www.python.org/downloads/).
+
+After installing Python, you can clone the repository and install the required dependencies:
+
+```bash
+git clone https://github.com/italoseara/pixel-rumble.git
+cd pixel-rumble
+pip install -r requirements.txt
+```
+
+## Running the Game
+
+To run the game, execute the following command in your terminal:
+
+```bash
+cd src
+python main.py
+```
+
 ## Protocol
 
-The game uses a custom protocol for network communication, which is defined in the `packets` module. The protocol includes various packet types for different game events and states.
+The game uses a custom protocol for network communication, which is defined in the `packets` module. The protocol includes various packet types for different game events and states. It uses the UDP protocol for communication, as it is lighter and more suitable for real-time games where losing some packets is not critical.
 
 1. [Packet Format](#packet-format)
 2. [Status](#status)

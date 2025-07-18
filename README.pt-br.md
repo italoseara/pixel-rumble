@@ -5,9 +5,30 @@ Um jogo de plataforma 2D construído com um motor de jogo customizado em Pygame.
 > [!NOTE]
 > Clique [aqui](README.md) para a versão em ![Estados Unidos](https://raw.githubusercontent.com/stevenrskelton/flag-icon/master/png/16/country-4x3/us.png "United States") English.
 
+## Instalação
+
+Para instalar o jogo, você precisa ter o Python 3.12 ou superior instalado. Você pode baixá-lo em [python.org](https://www.python.org/downloads/).
+
+Após instalar o Python, você pode clonar o repositório e instalar as dependências necessárias:
+
+```bash
+git clone https://github.com/italoseara/pixel-rumble.git
+cd pixel-rumble
+pip install -r requirements.txt
+```
+
+## Executando o Jogo
+
+Para rodar o jogo, execute o seguinte comando no seu terminal:
+
+```bash
+cd src
+python main.py
+```
+
 ## Protocolo
 
-O jogo utiliza um protocolo customizado para comunicação em rede, definido no módulo `packets`. O protocolo inclui vários tipos de pacotes para diferentes eventos e estados do jogo.
+O jogo utiliza um protocolo customizado para comunicação em rede, definido no módulo `packets`. O protocolo inclui vários tipos de pacotes para diferentes eventos e estados do jogo. Foi escolhido o protocolo UDP para comunicação, pois ele é mais leve e adequado para jogos em tempo real, onde a perda de alguns pacotes não é crítica.
 
 1. [Formato do Pacote](#formato-do-pacote)
 2. [Status](#status)

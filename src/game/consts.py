@@ -5,7 +5,7 @@ GUN_ATTRIBUTES = {
         "camera_shake": 5,
         "spread": 0.1,
         "recoil": 0.05,
-        "damage": 10,
+        "damage": 5,
         "bullet_speed": 1000,
         "bullet_lifetime": 2,
         "max_ammo": 60
@@ -16,7 +16,7 @@ GUN_ATTRIBUTES = {
         "camera_shake": 5,
         "spread": 0.0,
         "recoil": 0.1,
-        "damage": 20,
+        "damage": 10,
         "bullet_speed": 1000,
         "bullet_lifetime": 2,
         "max_ammo": 20
@@ -27,7 +27,7 @@ GUN_ATTRIBUTES = {
         "camera_shake": 50,
         "spread": 0.0,
         "recoil": 0.5,
-        "damage": 100,
+        "damage": 90,
         "bullet_speed": 1500,
         "bullet_lifetime": 3,
         "max_ammo": 5

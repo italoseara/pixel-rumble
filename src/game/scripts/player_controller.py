@@ -9,6 +9,7 @@ from pygame.math import Vector2
 from typing import override
 
 from engine import Game, Tilemap, Transform, Component, RigidBody
+from engine.ui import Text
 from .player_animation import PlayerAnimation
 
 class PlayerController(Component):
@@ -22,9 +23,12 @@ class PlayerController(Component):
     _last_position_update: Vector2
     _last_position_update_time: float
 
-    def __init__(self, jump_force: float = 700, move_speed: float = 1700) -> None:
+    _health_text: Text
+
+    def __init__(self, health_text: Text = None, jump_force: float = 700, move_speed: float = 1700) -> None:
         super().__init__()
 
+        self._health_text = health_text
         self.health = 100
 
         self.jump_force = jump_force
@@ -52,11 +56,18 @@ class PlayerController(Component):
         transform = self.parent.get_component(Transform)
         rigid_body = self.parent.get_component(RigidBody)
 
+        self.handle_update_health()
         self.handle_movement(keys, rigid_body)
         self.handle_jump(keys, rigid_body)
         self.handle_boost(keys, rigid_body)
         self.reset_if_fallen(transform, rigid_body)
         self.handle_position_packet(transform, rigid_body)
+
+    def handle_update_health(self) -> None:
+        """Update the health text display."""
+
+        if self._health_text:
+            self._health_text.text = str(self.health)
 
     def handle_movement(self, keys: pg.key.ScancodeWrapper, rigid_body: RigidBody) -> None:
         if keys[pg.K_a]:
@@ -128,6 +139,7 @@ class PlayerController(Component):
         
         self.health -= damage
         if self.health <= 0:
+            self.health = 0
             Game.instance().client.kill_player()
             logging.info(f"[PlayerController] {self.parent.name} has died.")
 

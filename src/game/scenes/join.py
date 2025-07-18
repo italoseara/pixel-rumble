@@ -177,7 +177,7 @@ class JoinMenu(Scene):
         loading = GameObject("Loading")
         loading.add_component(Transform(scale=10))
         loading.add_component(SpriteRenderer(
-            "assets/img/loading.png",
+            "assets/img/icons/loading.png",
             animation_frames=[(i, 0) for i in range(20)][::-1],
             animation_duration=0.5,
             loop=True,

@@ -1,12 +1,10 @@
 from engine import Game
 from game.scenes.menu import MainMenu
 from logger_config import setup_logger
-import logging
 
 
 def main() -> None:
     setup_logger()
-    
 
     try:
         game = Game(title="Pixel Rumble - Demo", icon="assets/img/logo.png")
@@ -14,7 +12,6 @@ def main() -> None:
         game.run()
     except KeyboardInterrupt:
         game.quit()
-        
 
 
 if __name__ == "__main__":

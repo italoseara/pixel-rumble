@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import pygame as pg
 import logging
+import pygame as pg
+from logger_config import compress_logs
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -167,6 +168,8 @@ class Game:
 
     def quit(self) -> None:
         """Exit the main loop and clear all scenes."""
+
+        compress_logs()
         
         self.running = False
         while self._scenes:

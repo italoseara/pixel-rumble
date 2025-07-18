@@ -103,7 +103,7 @@ class Client:
                         logging.warning("[Client] Received packet is not a Pong packet")
                         continue
                     
-                    servers.add(ServerData(name=packet.name, ip=packet.ip, port=packet.port))
+                    servers.add(ServerData(name=packet.name, ip=addr[0], port=packet.port))
                     logging.info(f"[Client] Received response from {addr[0]}:{addr[1]}: {packet}")
 
                 except ValueError as e:
@@ -172,7 +172,6 @@ class Client:
                         player_move.acceleration,
                         player_move.velocity
                     )
-                    logging.info(f"[Client] Player {player_move.player_id} moved to {player_move.position}.")
 
             case change_character if isinstance(change_character, PacketPlayOutChangeCharacter):
                 current_scene = Game.instance().current_scene

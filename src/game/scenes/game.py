@@ -87,7 +87,7 @@ class GameScene(Scene):
         """
 
         if gun_type not in GUN_ATTRIBUTES:
-            logging.warning("[Game] Gun '{gun_type}' not found.")
+            logging.warning(f"[Game] Gun '{gun_type}' not found.")
             return
 
         item = ItemPrefab(self.local_player, gun_type, x=x, y=y)
@@ -119,11 +119,11 @@ class GameScene(Scene):
             logging.warning(f"[Game] Gun '{gun_type}' not found.")
             return
 
-        if self.find(f"{self.local_player.name}'s Gun"):
-            logging.warning(f"[Game] Player already has a gun.")
-            return
-
         if player_id is None:
+            if self.find(f"{self.local_player.name}'s Gun"):
+                logging.warning(f"[Game] Player already has a gun.")
+                return
+        
             gun = GunPrefab(self.local_player, gun_type)
             gun.add_component(GunController(
                 self.player_id,
@@ -133,6 +133,10 @@ class GameScene(Scene):
             ))
             gun.add_component(VisualGunController(self.local_player))
         else:
+            if self.find(f"Player ({player_id})'s Gun"):
+                logging.warning(f"[Game] Player {player_id} already has a gun.")
+                return
+            
             player = self.find(f"Player ({player_id})")
             if not player:
                 logging.warning(f"[Game] Player with ID {player_id} not found.")
@@ -161,20 +165,6 @@ class GameScene(Scene):
             return
 
         gun.destroy()
-
-    def add_player(self, player_id: int, name: str) -> None:
-        """Adds a player to the lobby scene.
-
-        Args:
-            player_id (int): The unique ID of the player.
-            name (str): The name of the player.
-        """
-
-        player = PlayerPrefab(player_id, name)
-        player.add_component(PlayerAnimation())
-        self.add(player)
-
-        self.players[player_id] = player
 
     def remove_player(self, player_id: int) -> None:
         """Removes a player from the lobby scene.

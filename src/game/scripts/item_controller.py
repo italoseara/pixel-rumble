@@ -49,6 +49,9 @@ class ItemController(Component):
         player_collider = local_player.get_component(BoxCollider)
         box_collider = self.parent.get_component(BoxCollider)
 
+        if self.hint is None or not player_collider or not box_collider:
+            return
+
         self.hint.active = player_collider.collides_with(box_collider)
 
     @override

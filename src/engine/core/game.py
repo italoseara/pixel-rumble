@@ -162,6 +162,21 @@ class Game:
                 
                 pg.display.flip()
 
+            
+            for game_object in self.current_scene._deleted_game_objects:
+                if game_object.name in self.current_scene._game_objects:
+                    del self.current_scene._game_objects[game_object.name]
+                    
+            for game_object in self.current_scene._added_game_objects:
+                if game_object.name not in self.current_scene._game_objects:
+                    self.current_scene._game_objects[game_object.name] = game_object
+
+                    for component in game_object._components.values():
+                        component.start()
+
+            self.current_scene._deleted_game_objects.clear()
+            self.current_scene._added_game_objects.clear()
+
         pg.quit()
 
     def quit(self) -> None:
@@ -178,7 +193,3 @@ class Game:
         if self.client:
             self.client.disconnect()
             self.client = None
-
-    def notify(self, gameObject : str, compType, addType, **kwargs) -> None:
-        """Display a notification message in the console."""
-        self.current_scene.find(gameObject).get_component(compType).add(addType(**kwargs))

@@ -129,7 +129,6 @@ class GameObject:
         """Clean up the GameObject and its components."""
 
         for comp in self._components.values():
-            comp.parent = None
             comp.destroy()
 
         if self.scene:

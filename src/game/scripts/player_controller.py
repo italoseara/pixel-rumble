@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 import pytmx
 import random
 import pygame as pg
@@ -138,7 +140,8 @@ class PlayerController(Component):
         self.health -= damage
         if self.health <= 0:
             self.health = 0
-            print("Player has died.")
+            Game.instance().client.kill_player()
+            logging.info(f"[PlayerController] {self.parent.name} has died.")
 
     @override
     def clone(self) -> PlayerController:

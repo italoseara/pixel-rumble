@@ -37,6 +37,8 @@ from connection.packets import (
     PacketPlayInShoot,
     PacketPlayOutShoot
 )
+from connection.packets.play.client.player_die import PacketPlayInPlayerDie
+from connection.packets.play.server.player_die import PacketPlayOutPlayerDie
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
 BUFFER_SIZE = 1024  # bytes
@@ -308,6 +310,11 @@ class Server(BaseUDPServer):
                 )
                 self.broadcast(shoot_packet, exclude=addr)
 
+            case player_die if isinstance(player_die, PacketPlayInPlayerDie):
+                client = self.clients.get(addr)
+
+                die_packet = PacketPlayOutPlayerDie(player_id=client.id)
+                self.broadcast(die_packet, exclude=addr)
             case _:
                 logging.warning(f"[Server] Unhandled packet type: {type(packet).__name__}")
 

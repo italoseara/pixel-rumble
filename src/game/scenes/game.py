@@ -92,20 +92,21 @@ class GameScene(Scene):
         self.items.append(item)
         self.add(item)
 
-    def remove_item(self, item_name: str) -> None:
+    def pickup_item(self, player_id: int, gun_type: str, object_id: int) -> None:
         """Removes an item from the scene.
 
         Args:
-            item_name (str): The name of the item to remove.
+            gun_type (str): The type of gun to remove.
+            object_id (int): The unique identifier of the item to remove.
         """
-        item = self.find(item_name)
-        if item:
-            self.remove(item)
-            print(f"[Game] Item '{item_name}' removed.")
-        else:
-            print(f"[Game] Item '{item_name}' not found.")
 
-    def set_player_gun(self, gun_type: str) -> None:
+        item_name = f"Gun ({gun_type}) - {object_id}"
+        if item := self.find(item_name):
+            self.remove(item)
+
+        self.set_player_gun(gun_type, player_id)
+
+    def set_player_gun(self, gun_type: str, player_id: int = None) -> None:
         """Sets the gun for the local player.
 
         Args:
@@ -120,13 +121,22 @@ class GameScene(Scene):
             print(f"[Game] Player already has a gun.")
             return
 
-        gun = GunPrefab(self.local_player, gun_type)
-        gun.add_component(GunController(
-            self.player_id,
-            self.local_player,
-            self.ammo_counter,
-            **GUN_ATTRIBUTES[gun_type]
-        ))
+        if player_id is None:
+            gun = GunPrefab(self.local_player, gun_type)
+            gun.add_component(GunController(
+                self.player_id,
+                self.local_player,
+                self.ammo_counter,
+                **GUN_ATTRIBUTES[gun_type]
+            ))
+        else:
+            player = self.find(f"Player ({player_id})")
+            if not player:
+                print(f"[Game] Player with ID {player_id} not found.")
+                return
+            
+            gun = GunPrefab(player, gun_type)
+            
         self.add(gun)
 
 

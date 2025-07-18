@@ -25,9 +25,9 @@ from connection.packets import (
     PacketPlayOutChangeCharacter,
     PacketPlayInStartGame,
     PacketPlayOutStartGame,
-    PacketPlayInDestroyItem,
+    PacketPlayInItemPickup,
     PacketPlayInAddItem,
-    PacketPlayOutDestroyItem,
+    PacketPlayOutItemPickup,
     PacketPlayOutAddItem,
 )
 
@@ -257,9 +257,6 @@ class Server(BaseUDPServer):
 
             case item if isinstance(item, PacketPlayInAddItem):
                 client = self.clients.get(addr)
-                if not client:
-                    print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring item packet.")
-                    return
 
                 item_packet = PacketPlayOutAddItem(
                     gun_type=item.gun_type,
@@ -267,16 +264,16 @@ class Server(BaseUDPServer):
                 )
                 self.broadcast(item_packet, exclude=addr)
 
-            case dItem if isinstance(dItem, PacketPlayInDestroyItem):
+            case item_pickup if isinstance(item_pickup, PacketPlayInItemPickup):
                 client = self.clients.get(addr)
-                if not client:
-                    print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring destroy item packet.")
-                    return
 
-                destroy_packet = PacketPlayOutDestroyItem(
-                    item_name= dItem.item_name
+                pickup_packet = PacketPlayOutItemPickup(
+                    player_id=client.id,
+                    gun_type=item_pickup.gun_type,
+                    object_id=item_pickup.object_id
                 )
-                self.broadcast(destroy_packet, exclude=addr)
+                self.broadcast(pickup_packet, exclude=addr)
+
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 

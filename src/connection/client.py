@@ -24,9 +24,9 @@ from connection.packets import (
     PacketPlayOutChangeCharacter,
     PacketPlayInStartGame,
     PacketPlayOutStartGame,
-    PacketPlayInDestroyItem,
+    PacketPlayInItemPickup,
     PacketPlayInAddItem,
-    PacketPlayOutDestroyItem,
+    PacketPlayOutItemPickup,
     PacketPlayOutAddItem,
 )
 
@@ -193,9 +193,17 @@ class Client:
                     )
                     print(f"[Client] Added item of type '{item.gun_type}' at position ({item.position_x}, {item.position_y}).")
 
-            case dItem if isinstance(dItem, PacketPlayOutDestroyItem):
+            case item_pickup if isinstance(item_pickup, PacketPlayOutItemPickup):
                 current_scene = Game.instance().current_scene
-                current_scene.remove_item(f'{dItem.item_name}')
+
+                if hasattr(current_scene, 'pickup_item'):
+                    current_scene.pickup_item(
+                        player_id=item_pickup.player_id,
+                        gun_type=item_pickup.gun_type,
+                        object_id=item_pickup.object_id
+                    )
+                    print(f"[Client] Player {item_pickup.player_id} picked up item '{item_pickup.gun_type}' with object ID {item_pickup.object_id}.")
+
             case _:
                 print(f"[Client] Unhandled packet type: {packet}")
 
@@ -252,18 +260,20 @@ class Client:
         self.send(PacketPlayInAddItem(gun_type=gun_type, position=Vector2(x, y)))
         print(f"[Client] Requesting to spawn item '{gun_type}' at ({x}, {y}).")
 
-    def destroy_item(self, item_name: str) -> None:
-        """Sends a request to destroy an item with the specified ID.
+    def pickup_item(self, gun_type: str, object_id: int) -> None:
+        """Sends a request to pick up an item.
 
         Args:
-            item_id (str): The ID of the item to destroy.
+            player_id (int): The ID of the player picking up the item.
+            gun_type (str): The type of the gun being picked up.
+            object_id (int): The ID of the object being picked up.
         """
 
         if not self.running:
             raise RuntimeError("Client is not running. Start the client before destroying items.")
 
-        self.send(PacketPlayInDestroyItem(item_name=item_name))
-        print(f"[Client] Requesting to destroy item '{item_name}'.")
+        self.send(PacketPlayInItemPickup(gun_type=gun_type, object_id=object_id))
+        print(f"[Client] Requesting to pick up item '{gun_type}' with object ID {object_id}.")
 
     def change_character(self, index: int) -> None:
         """Changes the character of the local player.

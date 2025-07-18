@@ -67,7 +67,13 @@ class ItemController(Component):
             self.parent.scene.set_player_gun(self.item_type)
             self.gotten = True
             print(f"[ItemController] {self.parent.name} picked up by {local_player.name}")
-            Game.instance().client.destroy_item(self.parent.name)
+
+            gun_type = self.item_type
+            object_id = self.parent.name.split(" - ")[-1]
+            Game.instance().client.pickup_item(
+                gun_type=gun_type,
+                object_id=int(object_id)
+            )
 
             # Optionally, destroy the item GameObject after pickup
             self.parent.destroy()

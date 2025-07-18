@@ -1,4 +1,5 @@
 import pygame as pg
+import logging
 
 
 class SpriteSheet:
@@ -25,7 +26,7 @@ class SpriteSheet:
             scale (int, optional): The scale factor for the sprites. Defaults to 1.
         """
 
-        print("[Game] Loading spritesheet:", filename)
+        logging.info("[Game] Loading spritesheet: %s", filename)
 
         self._spritesheet = pg.image.load(filename).convert_alpha()
         self.size = size if size else (self._spritesheet.get_width(), self._spritesheet.get_height())

@@ -1,6 +1,7 @@
 import time
 import socket
 import random
+import logging
 import threading
 from typing import override
 from abc import ABC, abstractmethod
@@ -59,7 +60,7 @@ class BaseUDPServer(ABC):
         self.running = True
 
         threading.Thread(target=self._listen_for_requests, daemon=True).start()
-        print(f"[{type(self).__name__}] Started on port {self.port}.")
+        logging.info(f"[{type(self).__name__}] Started on port {self.port}.")
 
     def stop(self) -> None:
         if not self.running:
@@ -67,7 +68,7 @@ class BaseUDPServer(ABC):
 
         self.running = False
         self.sock.close()
-        print(f"[{type(self).__name__}] Stopped.")
+        logging.info(f"[{type(self).__name__}] Stopped.")
 
     def send(self, packet: Packet, addr: tuple[str, int]) -> None:
         if not self.running:
@@ -75,7 +76,7 @@ class BaseUDPServer(ABC):
 
         data = packet.to_bytes()
         self.sock.sendto(data, addr)
-        print(f"[{type(self).__name__}] Sent packet to {addr[0]}:{addr[1]}: {packet}")
+        logging.info(f"[{type(self).__name__}] Sent packet to {addr[0]}:{addr[1]}: {packet}")
 
     def _listen_for_requests(self) -> None:
         tick_interval = 1.0 / TICK_RATE
@@ -87,7 +88,7 @@ class BaseUDPServer(ABC):
                 packet = Packet.from_bytes(data)
                 self.on_packet_received(packet, addr)
             except Exception as e:
-                print(f"[{type(self).__name__}] Error while listening for requests: {e}")
+                logging.error(f"[{type(self).__name__}] Error while listening for requests: {e}")
 
             elapsed = time.time() - start_time
             sleep_time = tick_interval - elapsed
@@ -111,12 +112,12 @@ class DiscoveryServer(BaseUDPServer):
 
     @override
     def on_packet_received(self, packet: Packet, addr: tuple[str, int]) -> None:
-        print(f"[DiscoveryServer] Received packet from {addr[0]}:{addr[1]}: {packet}")
+        logging.info(f"[DiscoveryServer] Received packet from {addr[0]}:{addr[1]}: {packet}")
         if isinstance(packet, PacketStatusInPing):
             response_packet = PacketStatusOutPong(self.name, self.target_port)
             self.send(response_packet, addr)
         else:
-            print(f"[DiscoveryServer] Unhandled packet type: {type(packet).__name__}")
+            logging.warning(f"[DiscoveryServer] Unhandled packet type: {type(packet).__name__}")
 
     def __repr__(self) -> str:
         return f"<DiscoveryServer name={self.name} port={self.port} target_port={self.target_port} running={self.running}>"
@@ -163,7 +164,7 @@ class Server(BaseUDPServer):
             for addr, client in list(self.clients.items()):
                 client.missed_keep_alive += 1
                 if client.missed_keep_alive >= 4:
-                    print(f"[Server] Client {addr[0]}:{addr[1]} missed too many keep-alives. Disconnecting.")
+                    logging.warning(f"[Server] Client {addr[0]}:{addr[1]} missed too many keep-alives. Disconnecting.")
                     self.remove_client(addr)
                     continue
 
@@ -176,7 +177,7 @@ class Server(BaseUDPServer):
 
     @override
     def on_packet_received(self, packet: Packet, addr: tuple[str, int]) -> None:
-        print(f"[Server] Received packet from {addr[0]}:{addr[1]}: {packet}")
+        logging.info(f"[Server] Received packet from {addr[0]}:{addr[1]}: {packet}")
         match packet:
             case join if isinstance(join, PacketPlayInJoin):
                 from engine import Game
@@ -203,7 +204,7 @@ class Server(BaseUDPServer):
                         port=addr[1]
                     )
 
-                    print(f"[Server] Client {addr[0]}:{addr[1]} joined with name: {join.name}")
+                    logging.info(f"[Server] Client {addr[0]}:{addr[1]} joined with name: {join.name}")
                     welcome_packet = PacketPlayOutWelcome(True, client_id, "Welcome to the server!")
                     self.send(welcome_packet, addr)
 
@@ -215,7 +216,7 @@ class Server(BaseUDPServer):
                             player_join_packet = PacketPlayOutPlayerJoin(player_id=client_data.id, name=client_data.name)
                             self.send(player_join_packet, addr)
                 else:
-                    print(f"[Server] Client {addr[0]}:{addr[1]} already connected.")
+                    logging.info(f"[Server] Client {addr[0]}:{addr[1]} already connected.")
                     welcome_packet = PacketPlayOutWelcome(False, 0, "You are already connected.")
                     self.send(welcome_packet, addr)
 
@@ -223,7 +224,7 @@ class Server(BaseUDPServer):
                 self.remove_client(addr)
 
         if addr not in self.clients:
-            print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring packet.")
+            logging.warning(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring packet.")
             return
 
         match packet:
@@ -233,7 +234,8 @@ class Server(BaseUDPServer):
                     client.missed_keep_alive = 0
                     client.last_active = time.time()
                 else:
-                    print(f"[Server] Invalid keep-alive response from {addr[0]}:{addr[1]}")
+                    logging.warning(f"[Server] Invalid keep-alive response from {addr[0]}:{addr[1]}")
+                return
 
             case player_move if isinstance(player_move, PacketPlayInPlayerMove):
                 client = self.clients.get(addr)
@@ -294,13 +296,13 @@ class Server(BaseUDPServer):
                 self.broadcast(look_packet, exclude=addr)
 
             case _:
-                print(f"[Server] Unhandled packet type: {type(packet).__name__}")
+                logging.warning(f"[Server] Unhandled packet type: {type(packet).__name__}")
 
     def broadcast(self, packet: Packet, exclude: tuple[str, int] = None) -> None:
         if not self.running:
             raise RuntimeError("Server is not running.")
 
-        print(f"[Server] Broadcasting packet: {packet}")
+        logging.info(f"[Server] Broadcasting packet: {packet}")
         data = packet.to_bytes()
         for client in self.clients:
             if exclude and client == exclude:
@@ -318,9 +320,9 @@ class Server(BaseUDPServer):
             client = self.clients.pop(addr)
             leave_packet = PacketPlayOutPlayerLeave(player_id=client.id)
             self.broadcast(leave_packet, exclude=addr)
-            print(f"[Server] Client {addr[0]}:{addr[1]} disconnected.")
+            logging.info(f"[Server] Client {addr[0]}:{addr[1]} disconnected.")
         else:
-            print(f"[Server] Client {addr[0]}:{addr[1]} is not connected.")
+            logging.warning(f"[Server] Client {addr[0]}:{addr[1]} is not connected.")
 
     def __repr__(self) -> str:
         return f"<Server name='{self.name}' port={self.port} running={self.running} clients={len(self.clients)}>"

@@ -2,6 +2,7 @@ import pytmx
 import random
 from typing import override
 from pygame.math import Vector2
+import logging
 
 from game.prefabs import PlayerPrefab
 from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, SpriteRenderer, Game
@@ -175,9 +176,9 @@ class LobbyScene(Scene):
         player = self.find(f"Player ({player_id})")
         if player:
             self.remove(player)
-            print(f"[Game] Player with ID {player_id} removed.")
+            logging.info(f"[LobbyScene] Player with ID {player_id} removed.")
         else:
-            print(f"[Game] Player with ID {player_id} not found.")
+            logging.warning(f"[LobbyScene] Player with ID {player_id} not found.")
 
     def move_player(self, player_id: int, position: Vector2, acceleration: Vector2, velocity: Vector2) -> None:
         """Updates the position and movement of a player in the lobby.
@@ -198,7 +199,7 @@ class LobbyScene(Scene):
             rigid_body.acceleration = acceleration
             rigid_body.velocity = velocity
         else:
-            print(f"[Game] Player with ID {player_id} not found.")
+            logging.warning(f"[LobbyScene] Player with ID {player_id} not found.")
 
     def exit(self):
         """Exits the lobby scene and returns to the main menu."""

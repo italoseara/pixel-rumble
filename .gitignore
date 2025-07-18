@@ -144,6 +144,7 @@ ENV/
 env.bak/
 venv.bak/
 .idea/
+logs/
 
 # Spyder project settings
 .spyderproject

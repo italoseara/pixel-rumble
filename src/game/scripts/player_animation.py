@@ -20,7 +20,7 @@ class PlayerAnimation(Component):
     look_angle: float
 
     _hit_time: float
-    
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -28,8 +28,8 @@ class PlayerAnimation(Component):
         self.desired_position = None
         self.look_angle = 0.0
 
-        self._hit_time = 0 
-    
+        self._hit_time = 0
+
     @override
     def update(self, dt: float) -> None:
         transform = self.parent.get_component(Transform)

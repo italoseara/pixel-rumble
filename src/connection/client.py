@@ -6,6 +6,8 @@ import logging
 from pygame.math import Vector2
 from dataclasses import dataclass
 
+from connection.packets.play.client.player_die import PacketPlayInPlayerDie
+from connection.packets.play.server.player_die import PacketPlayOutPlayerDie
 from engine import Game
 from connection.server import DISCOVERY_PORT
 from connection.packets import (
@@ -225,6 +227,12 @@ class Client:
                         position=shoot.position
                     )
 
+            case die if isinstance(die, PacketPlayOutPlayerDie):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'player_die'):
+                    current_scene.player_die(player_id=die.player_id)
+                    logging.info(f"[Client] Player with ID {die.player_id} has died.")
+
             case _:
                 logging.warning(f"[Client] Unhandled packet type: {packet}")
 
@@ -304,6 +312,18 @@ class Client:
 
         self.send(PacketPlayInItemDrop())
         logging.info("[Client] Requesting to drop the current item.")
+
+    def kill_player(self) -> None:
+        """Sends a request to kill a player.
+
+        Args:
+            player_id (int): The ID of the player to kill.
+        """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before killing players.")
+        logging.info(f"[Client] Requesting to kill player.")
+        self.send(PacketPlayInPlayerDie())
 
     def change_character(self, index: int) -> None:
         """Changes the character of the local player.

@@ -6,7 +6,7 @@ from typing import override
 from pygame.math import Vector2
 
 from engine.ui import Image, Text
-from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, BoxCollider, SpriteRenderer
+from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, BoxCollider, SpriteRenderer, Game
 from game.prefabs import PlayerPrefab, GunPrefab, ItemPrefab
 
 from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic, VisualGunController, BulletController
@@ -244,3 +244,16 @@ class GameScene(Scene):
             player_animation.look_angle = angle
         else:
             logging.warning(f"[Game] Player with ID {player_id} not found.")
+
+    def player_die(self, player_id: int) -> None:
+        """Handles the death of a player.
+
+        Args:
+            player_id (int): The unique ID of the player.
+        """
+
+        player = self.find(f"Player ({player_id})")
+        if player:
+            logging.info(f"[Game] Player with ID {player_id} has died.")
+        else:
+            logging.warning(f"[Game] Player with ID {player_id} not found for death handling.")

@@ -73,6 +73,7 @@ class GameScene(Scene):
             color=(255, 255, 255),
             pivot="bottomleft"
         ))
+        self.ammo_counter.active = False
         self.add(ui)
 
         for player in self.players.values():

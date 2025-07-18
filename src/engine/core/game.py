@@ -20,6 +20,7 @@ class Game:
     client: Client | None
     server: Server | None
 
+    is_admin: bool
     _scenes: list['Scene']
     _running: bool
     _instance: Game = None
@@ -65,6 +66,8 @@ class Game:
 
         self.client = None
         self.server = None
+
+        self.is_admin = False
 
     @classmethod
     def instance(cls) -> Game:
@@ -138,30 +141,27 @@ class Game:
         while self.running and self.current_scene:
             dt = self.clock.tick(self.fps) / 1000.0  # seconds since last frame
 
-            try:
-                # 1) Event handling
-                for event in pg.event.get():
-                    if event.type == pg.QUIT:
-                        self.quit()
-                        break
-                    else:
-                        # give scene a chance to consume it
-                        self.current_scene._handle_event(event)
+            # 1) Event handling
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.quit()
+                    break
                 else:
-                    # 2) Update
-                    self.current_scene._update(dt)
+                    # give scene a chance to consume it
+                    self.current_scene._handle_event(event)
+            else:
+                # 2) Update
+                self.current_scene._update(dt)
 
-                    # 3) Draw
-                    def draw_scene(scene: "Scene", surface: pg.Surface) -> None:
-                        if scene.transparent and len(self._scenes) > 1:
-                            draw_scene(self._scenes[-2], surface)
-                        scene._draw(surface)
-                    self.screen.fill((0, 0, 0))
-                    draw_scene(self.current_scene, self.screen)
-                    
-                    pg.display.flip()
-            except Exception as e:
-                logging.error(f"[Game] Error in main loop: {e}")
+                # 3) Draw
+                def draw_scene(scene: "Scene", surface: pg.Surface) -> None:
+                    if scene.transparent and len(self._scenes) > 1:
+                        draw_scene(self._scenes[-2], surface)
+                    scene._draw(surface)
+                self.screen.fill((0, 0, 0))
+                draw_scene(self.current_scene, self.screen)
+                
+                pg.display.flip()
 
         pg.quit()
 
@@ -179,7 +179,3 @@ class Game:
         if self.client:
             self.client.disconnect()
             self.client = None
-
-    def notify(self, gameObject : str, compType, addType, **kwargs) -> None:
-        """Display a notification message in the console."""
-        self.current_scene.find(gameObject).get_component(compType).add(addType(**kwargs))

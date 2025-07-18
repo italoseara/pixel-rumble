@@ -51,7 +51,6 @@ class Scene:
             raise ValueError(f"GameObject with name '{game_object.name}' not found in the scene")
 
         del self._game_objects[game_object.name]
-        game_object.scene = None
 
     def add(self, game_object: GameObject) -> None:
         """Add a GameObject to the scene.
@@ -107,7 +106,7 @@ class Scene:
             event (pg.event.Event): The event to handle.
         """
 
-        for game_object in self._game_objects.values():
+        for game_object in list(self._game_objects.values()):
             game_object.handle_event(event)
 
         self.handle_event(event)
@@ -118,9 +117,10 @@ class Scene:
         Args:
             dt (float): The time since the last update in seconds.
         """
-        
-        for game_object in self._game_objects.values():
+
+        for game_object in list(self._game_objects.values()):
             game_object.update(dt)
+
 
         self.camera.update(dt)
             
@@ -144,6 +144,6 @@ class Scene:
             transform = game_object.get_component(Transform)
             return transform.z_index if transform else 0
 
-        game_objects = sorted(self._game_objects.values(), key=get_z_index)
+        game_objects = sorted(list(self._game_objects.values()), key=get_z_index)
         for game_object in game_objects:
             game_object.draw(surface)

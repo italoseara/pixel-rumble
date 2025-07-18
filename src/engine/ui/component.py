@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pygame as pg
 from pygame.math import Vector2
 from typing import TYPE_CHECKING
@@ -133,3 +135,17 @@ class UIComponent:
                 color = (0, 255, 0)
             
             pg.draw.rect(surface, color, self.rect, 1)
+
+    def clone(self) -> UIComponent:
+        """Create a copy of this UIComponent."""
+        
+        new_component = UIComponent(
+            x=self._position.x,
+            y=self._position.y,
+            width=self.width,
+            height=self.height,
+            pivot=self.pivot
+        )
+        new_component._rel_position = self._rel_position.copy()
+        new_component.active = self.active
+        return new_component

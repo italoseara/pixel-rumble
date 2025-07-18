@@ -8,7 +8,7 @@ class Component:
     """Base class for all components."""
 
     parent: 'GameObject'
-    
+
     def __init__(self) -> None:
         pass
 
@@ -31,6 +31,10 @@ class Component:
     def destroy(self) -> None:
         """Called when the component is removed from the GameObject."""
         pass
+
+    def clone(self) -> 'Component':
+        """Create a copy of this component."""
+        raise NotImplementedError(f"{self.__class__.__name__} does not implement clone method.")
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__} parent=\"{self.parent.name}\","

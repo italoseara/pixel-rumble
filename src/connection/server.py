@@ -1,11 +1,13 @@
 import time
 import socket
-import threading
 import random
 import logging
+import threading
 from typing import override
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+
+from pygame import Vector2
 
 from connection.packets import (
     Packet,
@@ -19,12 +21,24 @@ from connection.packets import (
     PacketPlayOutPlayerJoin,
     PacketPlayOutPlayerLeave,
     PacketPlayInPlayerMove,
-    PacketPlayOutPlayerMove
+    PacketPlayOutPlayerMove,
+    PacketPlayInChangeCharacter,
+    PacketPlayOutChangeCharacter,
+    PacketPlayInStartGame,
+    PacketPlayOutStartGame,
+    PacketPlayInItemPickup,
+    PacketPlayInAddItem,
+    PacketPlayOutItemPickup,
+    PacketPlayOutAddItem,
+    PacketPlayInItemDrop,
+    PacketPlayOutItemDrop,
+    PacketPlayInPlayerLook,
+    PacketPlayOutPlayerLook
 )
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
 BUFFER_SIZE = 1024  # bytes
-TICK_RATE = 64  # ticks per second
+TICK_RATE = 128  # ticks per second
 
 class BaseUDPServer(ABC):
     port: int
@@ -88,13 +102,11 @@ class BaseUDPServer(ABC):
 
 class DiscoveryServer(BaseUDPServer):
     name: str
-    ip: str
     target_port: int
     
-    def __init__(self, name: str, ip: str, port: int, buffer_size: int = BUFFER_SIZE) -> None:
+    def __init__(self, name: str, port: int, buffer_size: int = BUFFER_SIZE) -> None:
         super().__init__(DISCOVERY_PORT, buffer_size)
         self.name = name
-        self.ip = ip
         self.target_port = port
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
@@ -102,13 +114,13 @@ class DiscoveryServer(BaseUDPServer):
     def on_packet_received(self, packet: Packet, addr: tuple[str, int]) -> None:
         logging.info(f"[DiscoveryServer] Received packet from {addr[0]}:{addr[1]}: {packet}")
         if isinstance(packet, PacketStatusInPing):
-            response_packet = PacketStatusOutPong(self.name, self.ip, self.target_port)
+            response_packet = PacketStatusOutPong(self.name, self.target_port)
             self.send(response_packet, addr)
         else:
             logging.warning(f"[DiscoveryServer] Unhandled packet type: {type(packet).__name__}")
 
     def __repr__(self) -> str:
-        return f"<DiscoveryServer name={self.name} ip={self.ip} port={self.port} target_port={self.target_port} running={self.running}>"
+        return f"<DiscoveryServer name={self.name} port={self.port} target_port={self.target_port} running={self.running}>"
 
 
 @dataclass
@@ -123,7 +135,6 @@ class ClientData:
 
 class Server(BaseUDPServer):
     name: str
-    ip: str
     clients: dict[tuple[str, int], ClientData]
     discovery_server: DiscoveryServer
 
@@ -132,17 +143,9 @@ class Server(BaseUDPServer):
     def __init__(self, name: str, port: int, buffer_size: int = BUFFER_SIZE) -> None:
         super().__init__(port, buffer_size)
         self.name = name
-        self.ip = self._get_ip()
         self.clients = {}
-        self.discovery_server = DiscoveryServer(name=self.name, ip=self.ip, port=self.port)
+        self.discovery_server = DiscoveryServer(name=self.name, port=self.port)
         self._keep_alive_thread = threading.Thread(target=self._send_keep_alive_loop, daemon=True)
-
-    def _get_ip(self) -> str:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.connect(('8.8.8.8', 1))
-        ip = sock.getsockname()[0]
-        sock.close()
-        return ip
 
     @override
     def start(self) -> None:
@@ -177,7 +180,17 @@ class Server(BaseUDPServer):
         logging.info(f"[Server] Received packet from {addr[0]}:{addr[1]}: {packet}")
         match packet:
             case join if isinstance(join, PacketPlayInJoin):
+                from engine import Game
+                from game.scenes.lobby import LobbyScene
+                from game.scenes.host import HostMenu
+
                 if addr not in self.clients:
+                    if not isinstance(Game.instance().current_scene, (LobbyScene, HostMenu)):
+                        print(f"[Server] Client {addr[0]}:{addr[1]} tried to join while not in lobby. Ignoring.")
+                        welcome_packet = PacketPlayOutWelcome(False, 0, "Game already started.")
+                        self.send(welcome_packet, addr)
+                        return
+
                     client_id = random.randint(1, 1_000_000)
 
                     # Ensure the 1 in a million chance of duplicate client IDs is handled
@@ -206,11 +219,9 @@ class Server(BaseUDPServer):
                     logging.info(f"[Server] Client {addr[0]}:{addr[1]} already connected.")
                     welcome_packet = PacketPlayOutWelcome(False, 0, "You are already connected.")
                     self.send(welcome_packet, addr)
-                return
 
             case disconnect if isinstance(disconnect, PacketPlayInDisconnect):
                 self.remove_client(addr)
-                return
 
         if addr not in self.clients:
             logging.warning(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring packet.")
@@ -229,12 +240,60 @@ class Server(BaseUDPServer):
             case player_move if isinstance(player_move, PacketPlayInPlayerMove):
                 client = self.clients.get(addr)
                 move_packet = PacketPlayOutPlayerMove(
-                    player_id=client.id, 
+                    player_id=client.id,
                     position=player_move.position,
                     acceleration=player_move.acceleration,
                     velocity=player_move.velocity
                 )
                 self.broadcast(move_packet, exclude=addr)
+
+            case change_character if isinstance(change_character, PacketPlayInChangeCharacter):
+                client = self.clients.get(addr)
+                change_packet = PacketPlayOutChangeCharacter(
+                    player_id=client.id, 
+                    character_index=change_character.character_index
+                )
+                self.broadcast(change_packet, exclude=addr)
+
+            case start_game if isinstance(start_game, PacketPlayInStartGame):
+                client = self.clients.get(addr)
+                
+                start_game_packet = PacketPlayOutStartGame(map_name=start_game.map_name)
+                self.broadcast(start_game_packet, exclude=addr)
+
+            case item if isinstance(item, PacketPlayInAddItem):
+                client = self.clients.get(addr)
+
+                item_packet = PacketPlayOutAddItem(
+                    gun_type=item.gun_type,
+                    position= Vector2(item.position_x, item.position_y)
+                )
+                self.broadcast(item_packet, exclude=addr)
+
+            case item_pickup if isinstance(item_pickup, PacketPlayInItemPickup):
+                client = self.clients.get(addr)
+
+                pickup_packet = PacketPlayOutItemPickup(
+                    player_id=client.id,
+                    gun_type=item_pickup.gun_type,
+                    object_id=item_pickup.object_id
+                )
+                self.broadcast(pickup_packet, exclude=addr)
+
+            case item_drop if isinstance(item_drop, PacketPlayInItemDrop):
+                client = self.clients.get(addr)
+
+                drop_packet = PacketPlayOutItemDrop(player_id=client.id)
+                self.broadcast(drop_packet, exclude=addr)
+
+            case player_look if isinstance(player_look, PacketPlayInPlayerLook):
+                client = self.clients.get(addr)
+
+                look_packet = PacketPlayOutPlayerLook(
+                    player_id=client.id,
+                    angle=player_look.angle
+                )
+                self.broadcast(look_packet, exclude=addr)
 
             case _:
                 logging.warning(f"[Server] Unhandled packet type: {type(packet).__name__}")
@@ -254,9 +313,6 @@ class Server(BaseUDPServer):
         if not self.running:
             raise RuntimeError("Server is not running.")
 
-        if addr not in self.clients:
-            raise ValueError(f"Client {addr[0]}:{addr[1]} is not connected.")
-
         super().send(packet, addr)
 
     def remove_client(self, addr: tuple[str, int]) -> None:
@@ -269,5 +325,4 @@ class Server(BaseUDPServer):
             logging.warning(f"[Server] Client {addr[0]}:{addr[1]} is not connected.")
 
     def __repr__(self) -> str:
-        return f"<Server name='{self.name}' ip={self.ip} port={self.port} running={self.running} clients={len(self.clients)}>"
-    
+        return f"<Server name='{self.name}' port={self.port} running={self.running} clients={len(self.clients)}>"

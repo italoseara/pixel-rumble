@@ -14,12 +14,15 @@ class BoxCollider(Component):
     width: float
     height: float
     offset: Vector2
+
+    is_trigger: bool
     
     def __init__(
         self, 
         width: float = None, 
         height: float = None, 
-        offset: Vector2 | tuple[float, float] = None
+        offset: Vector2 | tuple[float, float] = None,
+        is_trigger: bool = False
     ) -> None:
         """Initialize the BoxCollider component.
 
@@ -37,6 +40,7 @@ class BoxCollider(Component):
         self.width = width
         self.height = height
         self.offset = offset
+        self.is_trigger = is_trigger
 
     @override
     def start(self) -> None:
@@ -138,6 +142,19 @@ class BoxCollider(Component):
                 return True
         
         return False
+
+    @override
+    def clone(self) -> BoxCollider:
+        """Create a copy of this BoxCollider."""
+        
+        new_box_collider = BoxCollider(
+            width=self.width,
+            height=self.height,
+            offset=self.offset.copy(),
+            is_trigger=self.is_trigger
+        )
+        new_box_collider.parent = self.parent
+        return new_box_collider
 
     def __repr__(self) -> str:
         return f"<{super().__repr__()} width={self.width} height={self.height} offset={self.offset}>"

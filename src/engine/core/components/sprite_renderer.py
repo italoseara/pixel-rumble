@@ -100,6 +100,8 @@ class SpriteRenderer(Component):
         sprite = self._get_current_sprite()
         if sprite:
             transform = self.parent.get_component(Transform)
+            if not transform:
+                raise RuntimeError("SpriteRenderer requires a Transform component on the owner.")
             return int(sprite.get_width() * transform.scale.x)
         return 0
 
@@ -110,6 +112,8 @@ class SpriteRenderer(Component):
         sprite = self._get_current_sprite()
         if sprite:
             transform = self.parent.get_component(Transform)
+            if not transform:
+                raise RuntimeError("SpriteRenderer requires a Transform component on the owner.")
             return int(sprite.get_height() * transform.scale.y)
         return 0
 
@@ -119,6 +123,19 @@ class SpriteRenderer(Component):
 
         return Vector2(self.width * -(self.pivot.x - 0.5), 
                        self.height * -(self.pivot.y - 0.5))
+
+    def set_index(self, index: tuple[int | str, int | str]) -> None:
+        """Set the sprite index for the SpriteRenderer.
+
+        Args:
+            index (tuple[int | str, int | str]): The new sprite index.
+        """
+        
+        if not isinstance(index, tuple) or len(index) != 2:
+            raise ValueError("Index must be a tuple of two elements")
+
+        self.sprite_index = index
+        self._current_frame = 0
 
     def _get_current_sprite(self) -> pg.Surface | None:
         if not self.sprite_sheet:
@@ -223,6 +240,27 @@ class SpriteRenderer(Component):
             surface.blit(path_text, debug_pos)
             surface.blit(flip_text, debug_pos + Vector2(0, 10))
             surface.blit(animation_text, debug_pos + Vector2(0, 20))
+
+    @override
+    def clone(self) -> SpriteRenderer:
+        """Create a copy of this SpriteRenderer component."""
+        
+        new_renderer = SpriteRenderer(
+            path=self._path,
+            color=self.color,
+            flip_x=self.flip_x,
+            flip_y=self.flip_y,
+            pivot=self.pivot,
+            grid_size=self.sprite_size,
+            sprite_index=self.sprite_index,
+            animation_frames=self.animation_frames,
+            animation_duration=self.animation_duration,
+            loop=self.loop
+        )
+        new_renderer.parent = self.parent
+        new_renderer._current_frame = self._current_frame
+        new_renderer._animation_timer = self._animation_timer
+        return new_renderer
 
     def __repr__(self) -> str:
         return (

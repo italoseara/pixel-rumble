@@ -187,10 +187,6 @@ class JoinMenu(Scene):
         self.add(loading)
         self.add(ui)
 
-        Game.instance().notify("UI", Canvas, NotificationText,text="Carregando servidores...",
-            x=400, y=450,
-            lifespan=1300,
-            pivot="center")
 
     @override
     def handle_event(self, event: pg.event.Event) -> None:

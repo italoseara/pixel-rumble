@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import pygame as pg
 from pygame.math import Vector2
-from typing import Literal, Callable, override
+from typing import Callable, override
 
 from .component import UIComponent
-from ..constants import DEFAULT_FONT, PIVOT_POINTS
+from ..constants import DEFAULT_FONT
 
 class Button(UIComponent):
     text: pg.Surface
@@ -102,3 +104,23 @@ class Button(UIComponent):
         surface.blit(text, text.get_rect(center=(center_x, center_y)))
 
         super().draw(surface)
+
+    @override
+    def clone(self) -> Button:
+        """Create a copy of this Button component."""
+        
+        new_button = Button(
+            text=self.text,
+            x=self._position.x,
+            y=self._position.y,
+            width=self.width,
+            height=self.height,
+            font_size=self._font.get_height(),
+            color=self.color,
+            hover_color=self.hover_color,
+            disabled=self.disabled,
+            on_click=self.on_click,
+            pivot=self.pivot
+        )
+        new_button._is_clicked = self._is_clicked
+        return new_button

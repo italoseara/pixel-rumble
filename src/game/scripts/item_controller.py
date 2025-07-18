@@ -20,6 +20,7 @@ class ItemController(Component):
 
         self.item_type = item_type
         self.hint = None
+        self.catched = False
 
     def start(self) -> None:
         """Initialize the item controller, setting the position of the item."""
@@ -64,6 +65,9 @@ class ItemController(Component):
         
             # Add the item to the player's inventory
             self.parent.scene.set_player_gun(self.item_type)
+            self.gotten = True
+            print(f"[ItemController] {self.parent.name} picked up by {local_player.name}")
+            Game.instance().client.destroy_item(self.parent.name)
 
             # Optionally, destroy the item GameObject after pickup
             self.parent.destroy()

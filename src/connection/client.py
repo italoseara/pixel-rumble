@@ -7,7 +7,9 @@ from dataclasses import dataclass
 
 from sympy.codegen.ast import uint32
 
+from connection.packets.play.client.destroy import PacketPlayInDestroyItem
 from connection.packets.play.client.item import PacketPlayInAddItem
+from connection.packets.play.server.destroy import PacketPlayOutDestroyItem
 from connection.packets.play.server.item import PacketPlayOutAddItem
 from engine import Game
 from connection.server import DISCOVERY_PORT
@@ -192,6 +194,10 @@ class Client:
                         y=int(item.position_y)
                     )
                     print(f"[Client] Added item of type '{item.item_id}' at position ({item.position_x}, {item.position_y}).")
+
+            case dItem if isinstance(dItem, PacketPlayOutDestroyItem):
+                current_scene = Game.instance().current_scene
+                current_scene.remove_item(f'{dItem.item_id}')
             case _:
                 print(f"[Client] Unhandled packet type: {packet}")
 
@@ -247,6 +253,19 @@ class Client:
 
         self.send(PacketPlayInAddItem(item_id=item_id, position=Vector2(x, y)))
         print(f"[Client] Requesting to spawn item '{item_id}' at ({x}, {y}).")
+
+    def destroy_item(self, item_id: str) -> None:
+        """Sends a request to destroy an item with the specified ID.
+
+        Args:
+            item_id (str): The ID of the item to destroy.
+        """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before destroying items.")
+
+        self.send(PacketPlayInDestroyItem(item_id=item_id))
+        print(f"[Client] Requesting to destroy item '{item_id}'.")
 
     def change_character(self, index: int) -> None:
         """Changes the character of the local player.

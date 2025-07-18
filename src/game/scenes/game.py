@@ -2,7 +2,7 @@ from typing import override
 from pygame.math import Vector2
 
 from engine.ui import Image, Text
-from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
+from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody, Game
 from game.prefabs import PlayerPrefab, GunPrefab, ItemPrefab
 from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogic
 
@@ -71,6 +71,7 @@ class GameScene(Scene):
 
         self.local_player: GameObject | None = None
         self.ammo_counter: Text | None = None
+        self.items: list[GameObject] = []
 
     @override
     def start(self) -> None:
@@ -126,7 +127,21 @@ class GameScene(Scene):
             return
 
         item = ItemPrefab(self.local_player, gun_type, x=x, y=y)
+        self.items.append(item)
         self.add(item)
+
+    def remove_item(self, item_name: str) -> None:
+        """Removes an item from the scene.
+
+        Args:
+            item_name (str): The name of the item to remove.
+        """
+        item = self.find(item_name)
+        if item:
+            self.remove(item)
+            print(f"[Game] Item '{item_name}' removed.")
+        else:
+            print(f"[Game] Item '{item_name}' not found.")
 
     def set_player_gun(self, gun_type: str) -> None:
         """Sets the gun for the local player.
@@ -151,7 +166,8 @@ class GameScene(Scene):
             **GUN_ATTRIBUTES[gun_type]
         ))
         self.add(gun)
-    
+
+
     def add_player(self, player_id: int, name: str) -> None:
         """Adds a player to the lobby scene.
 

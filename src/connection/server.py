@@ -26,7 +26,9 @@ from connection.packets import (
     PacketPlayInStartGame,
     PacketPlayOutStartGame
 )
+from connection.packets.play.client.destroy import PacketPlayInDestroyItem
 from connection.packets.play.client.item import PacketPlayInAddItem
+from connection.packets.play.server.destroy import PacketPlayOutDestroyItem
 from connection.packets.play.server.item import PacketPlayOutAddItem
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
@@ -265,6 +267,16 @@ class Server(BaseUDPServer):
                 )
                 self.broadcast(item_packet, exclude=addr)
 
+            case dItem if isinstance(dItem, PacketPlayInDestroyItem):
+                client = self.clients.get(addr)
+                if not client:
+                    print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring destroy item packet.")
+                    return
+
+                destroy_packet = PacketPlayOutDestroyItem(
+                    item_id= dItem.item_id
+                )
+                self.broadcast(destroy_packet, exclude=addr)
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 

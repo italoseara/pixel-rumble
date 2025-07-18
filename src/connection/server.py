@@ -186,7 +186,7 @@ class Server(BaseUDPServer):
 
                 if addr not in self.clients:
                     if not isinstance(Game.instance().current_scene, (LobbyScene, HostMenu)):
-                        print(f"[Server] Client {addr[0]}:{addr[1]} tried to join while not in lobby. Ignoring.")
+                        logging.info(f"[Server] Client {addr[0]}:{addr[1]} tried to join while not in lobby. Ignoring.")
                         welcome_packet = PacketPlayOutWelcome(False, 0, "Game already started.")
                         self.send(welcome_packet, addr)
                         return

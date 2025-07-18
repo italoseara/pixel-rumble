@@ -1,4 +1,6 @@
+import logging
 from typing import override
+
 from pygame.math import Vector2
 
 from engine.ui import Image, Text
@@ -85,7 +87,7 @@ class GameScene(Scene):
         """
 
         if gun_type not in GUN_ATTRIBUTES:
-            print(f"[Game] Gun '{gun_type}' not found.")
+            logging.warning("[Game] Gun '{gun_type}' not found.")
             return
 
         item = ItemPrefab(self.local_player, gun_type, x=x, y=y)
@@ -114,11 +116,11 @@ class GameScene(Scene):
         """
 
         if gun_type not in GUN_ATTRIBUTES:
-            print(f"[Game] Gun '{gun_type}' not found.")
+            logging.warning(f"[Game] Gun '{gun_type}' not found.")
             return
 
         if self.find(f"{self.local_player.name}'s Gun"):
-            print(f"[Game] Player already has a gun.")
+            logging.warning(f"[Game] Player already has a gun.")
             return
 
         if player_id is None:
@@ -133,7 +135,7 @@ class GameScene(Scene):
         else:
             player = self.find(f"Player ({player_id})")
             if not player:
-                print(f"[Game] Player with ID {player_id} not found.")
+                logging.warning(f"[Game] Player with ID {player_id} not found.")
                 return
             
             gun = GunPrefab(player, gun_type)
@@ -150,12 +152,12 @@ class GameScene(Scene):
 
         player = self.find(f"Player ({player_id})")
         if not player:
-            print(f"[Game] Player with ID {player_id} not found.")
+            logging.warning(f"[Game] Player with ID {player_id} not found.")
             return
 
         gun = self.find(f"{player.name}'s Gun")
         if not gun:
-            print(f"[Game] Player {player.name} does not have a gun to drop.")
+            logging.warning(f"[Game] Player {player.name} does not have a gun to drop.")
             return
 
         gun.destroy()
@@ -184,9 +186,9 @@ class GameScene(Scene):
         player = self.find(f"Player ({player_id})")
         if player:
             self.remove(player)
-            print(f"[Game] Player with ID {player_id} removed.")
+            logging.info(f"[Game] Player with ID {player_id} removed.")
         else:
-            print(f"[Game] Player with ID {player_id} not found.")
+            logging.warning(f"[Game] Player with ID {player_id} not found.")
 
     def move_player(self, player_id: int, position: Vector2, acceleration: Vector2, velocity: Vector2) -> None:
         """Updates the position and movement of a player in the lobby.
@@ -207,7 +209,7 @@ class GameScene(Scene):
             rigid_body.acceleration = acceleration
             rigid_body.velocity = velocity
         else:
-            print(f"[Game] Player with ID {player_id} not found.")
+            logging.warning(f"[Game] Player with ID {player_id} not found.")
 
     def player_look(self, player_id: int, angle: float) -> None:
         """Updates the look direction of a player.
@@ -222,4 +224,4 @@ class GameScene(Scene):
             player_animation = player.get_component(PlayerAnimation)
             player_animation.look_angle = angle
         else:
-            print(f"[Game] Player with ID {player_id} not found.")
+            logging.warning(f"[Game] Player with ID {player_id} not found.")

@@ -258,7 +258,7 @@ class Client:
             raise RuntimeError("Client is not running. Start the client before starting the game.")
 
         self.send(PacketPlayInStartGame(map_name=map_name))
-        print(f"[Client] Requesting to start game on map '{map_name}'.")
+        logging.info(f"[Client] Requesting to start game on map '{map_name}'.")
 
     def spawn_item(self, gun_type: str, x, y) -> None:
         """Sends a request to spawn an item at the specified position.
@@ -273,7 +273,7 @@ class Client:
             raise RuntimeError("Client is not running. Start the client before spawning items.")
 
         self.send(PacketPlayInAddItem(gun_type=gun_type, position=Vector2(x, y)))
-        print(f"[Client] Requesting to spawn item '{gun_type}' at ({x}, {y}).")
+        logging.info(f"[Client] Requesting to spawn item '{gun_type}' at ({x}, {y}).")
 
     def pickup_item(self, gun_type: str, object_id: int) -> None:
         """Sends a request to pick up an item.
@@ -288,7 +288,7 @@ class Client:
             raise RuntimeError("Client is not running. Start the client before destroying items.")
 
         self.send(PacketPlayInItemPickup(gun_type=gun_type, object_id=object_id))
-        print(f"[Client] Requesting to pick up item '{gun_type}' with object ID {object_id}.")
+        logging.info(f"[Client] Requesting to pick up item '{gun_type}' with object ID {object_id}.")
 
     def drop_item(self) -> None:
         """Sends a request to drop the current item."""
@@ -297,7 +297,7 @@ class Client:
             raise RuntimeError("Client is not running. Start the client before dropping items.")
 
         self.send(PacketPlayInItemDrop())
-        print("[Client] Requesting to drop the current item.")
+        logging.info("[Client] Requesting to drop the current item.")
 
     def change_character(self, index: int) -> None:
         """Changes the character of the local player.

@@ -77,7 +77,7 @@ class LobbyScene(Scene):
         #     print("[Game] Not enough players to start the game.")
         #     return
 
-        print("[Game] Starting game...")
+        logging.info("[Game] Starting game...")
         if map_name is None:
             map_name = random.choice(["mario", "adventure_time"])
 
@@ -128,7 +128,7 @@ class LobbyScene(Scene):
 
             character_selector = game_object.add_component(CharacterSelector(character_index, hint))
 
-            print(f"[Game] Character selector initialized with index {character_selector.character_index}.")
+            logging.info(f"[Game] Character selector initialized with index {character_selector.character_index}.")
 
     def change_character(self, player_id: int, character_index: int) -> None:
         """Changes the character of a player in the lobby.
@@ -140,17 +140,17 @@ class LobbyScene(Scene):
 
         player = self.find(f"Player ({player_id})")
         if not player:
-            print(f"[Game] Player with ID {player_id} not found.")
+            logging.warning(f"[Game] Player with ID {player_id} not found.")
             return
 
         sprite_renderer = player.get_component(SpriteRenderer)
         if not sprite_renderer:
-            print(f"[Game] Player {player_id} does not have a SpriteRenderer component.")
+            logging.warning(f"[Game] Player {player_id} does not have a SpriteRenderer component.")
             return
 
         index = character_index % 16
         sprite_renderer.set_index((index % 4, index // 4))
-        print(f"[Game] Player {player_id} changed character to index {index}.")
+        logging.info(f"[Game] Player {player_id} changed character to index {index}.")
 
     def add_player(self, player_id: int, name: str) -> None:
         """Adds a player to the lobby scene.

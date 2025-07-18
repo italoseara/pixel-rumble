@@ -73,11 +73,9 @@ class GunController(Component):
         """Update the ammo counter text."""
 
         if self.ammo_count > 0:
-            self.ammo_counter.text = f"Ammo: {self.ammo_count}"
-            self.ammo_counter.active = True
+            self.ammo_counter.text = f"{self.ammo_count}"
         else:
-            self.ammo_counter.text = "Out of Ammo"
-            self.ammo_counter.active = False
+            self.ammo_counter.text = "--"
 
     def handle_automatic_fire(self, dt: float) -> None:
         """Handle automatic firing logic based on the fire rate."""

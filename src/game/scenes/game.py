@@ -47,16 +47,6 @@ class GameScene(Scene):
         tilemap = map_object.add_component(Tilemap(f"assets/maps/{self.map_name}.tmx", pivot="center"))
         self.add(map_object)
 
-        self.local_player = PlayerPrefab(
-            self.player_id, 
-            self.player_name, 
-            character_index=self.character_index, 
-            is_local=True
-        )
-        self.local_player.add_component(PlayerController())
-        self.local_player.add_component(PlayerAnimation())
-        self.add(self.local_player)
-
         ui = GameObject("UI")
         canvas = ui.add_component(Canvas())
         canvas.add(Image(
@@ -66,15 +56,45 @@ class GameScene(Scene):
             pivot="topleft",
             opacity=0.4
         ))
-        self.ammo_counter = canvas.add(Text(
-            f"Ammo: 0",
-            x="1%", y="-1%",
-            font_size=24, 
-            color=(255, 255, 255),
-            pivot="bottomleft"
+
+        canvas.add(Image(
+            "assets/img/icons/heart.png",
+            x="5%", y="-6%",
+            width=40, height=40,
+            pivot="center",
         ))
-        self.ammo_counter.active = False
+        self.health_text = canvas.add(Text(
+            "100",
+            x="9%", y="-6%",
+            font_size=40, 
+            color=(255, 255, 255),
+            pivot="midleft",
+        ))
+
+        canvas.add(Image(
+            "assets/img/icons/ammo.png",
+            x="5%", y="-13%",
+            width=18, height=36,
+            pivot="center",
+        ))
+        self.ammo_counter = canvas.add(Text(
+            "--",
+            x="9%", y="-13%",
+            font_size=40, 
+            color=(255, 255, 255),
+            pivot="midleft",
+        ))
         self.add(ui)
+
+        self.local_player = PlayerPrefab(
+            self.player_id, 
+            self.player_name, 
+            character_index=self.character_index, 
+            is_local=True
+        )
+        self.local_player.add_component(PlayerController(self.health_text))
+        self.local_player.add_component(PlayerAnimation())
+        self.add(self.local_player)
 
         for player in self.players.values():
             self.add(player)

@@ -1,11 +1,9 @@
-import pytmx
-import random
 from typing import override
 from pygame.math import Vector2
 
 from engine.ui import Image, Text
 from engine import GameObject, Tilemap, Scene, Transform, Canvas, RigidBody
-from game.prefabs import PlayerPrefab, GunPrefab
+from game.prefabs import PlayerPrefab, GunPrefab, ItemPrefab
 from ..scripts import PlayerController, PlayerAnimation, GunController
 
 
@@ -71,6 +69,9 @@ class GameScene(Scene):
         self.players = players.copy()
         self.map_name = map_name
 
+        self.local_player: GameObject | None = None
+        self.ammo_counter: Text | None = None
+
     @override
     def start(self) -> None:
         map_object = GameObject("Map")
@@ -97,7 +98,7 @@ class GameScene(Scene):
             pivot="topleft",
             opacity=0.4
         ))
-        ammo_counter = canvas.add(Text(
+        self.ammo_counter = canvas.add(Text(
             f"Ammo: 0",
             x="1%", y="-1%",
             font_size=24, 
@@ -106,22 +107,47 @@ class GameScene(Scene):
         ))
         self.add(ui)
 
-        # gun_type = random.choice(list(GUN_ATTRIBUTES.keys()))
-        gun_type = "pistol"
-        gun = GunPrefab(self.local_player, gun_type)
-        gun.add_component(GunController(
-            self.player_id,
-            self.local_player,
-            ammo_counter,
-            **GUN_ATTRIBUTES[gun_type]
-        ))
-        self.add(gun)
+        self.add_gun_item("uzi", x=0, y=100)
 
         for player in self.players.values():
             self.add(player)
         
         self.background_color = tilemap.background_color
         self.camera.set_target(self.local_player, smooth=True, smooth_speed=10, offset=(0, -100))
+
+    def add_gun_item(self, gun_type: str, x: int = 0, y: int = 0) -> None:
+        """Adds a gun item to the local player.
+
+        Args:
+            gun_type (str): The type of gun to add.
+        """
+
+        if gun_type not in GUN_ATTRIBUTES:
+            print(f"[Game] Gun '{gun_type}' not found.")
+            return
+
+        item = ItemPrefab(self.local_player, gun_type, x=x, y=y)
+        self.add(item)
+
+    def set_player_gun(self, gun_type: str) -> None:
+        """Sets the gun for the local player.
+
+        Args:
+            gun_name (str): The name of the gun to set.
+        """
+
+        if gun_type not in GUN_ATTRIBUTES:
+            print(f"[Game] Gun '{gun_type}' not found.")
+            return
+
+        gun = GunPrefab(self.local_player, gun_type)
+        gun.add_component(GunController(
+            self.player_id,
+            self.local_player,
+            self.ammo_counter,
+            **GUN_ATTRIBUTES[gun_type]
+        ))
+        self.add(gun)
     
     def add_player(self, player_id: int, name: str) -> None:
         """Adds a player to the lobby scene.

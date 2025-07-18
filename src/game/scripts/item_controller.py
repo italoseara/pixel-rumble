@@ -15,7 +15,6 @@ class ItemController(Component):
 
     hint : GameObject
 
-
     def __init__(self, item_type: str) -> None:
         """Initialize the ItemController with item type and position."""
 
@@ -26,7 +25,7 @@ class ItemController(Component):
     def start(self) -> None:
         """Initialize the item controller, setting the position of the item."""
 
-        self.hint = GameObject(f"{self.item_type} - Hint", self.parent)
+        self.hint = GameObject(f"{self.parent.name} - Hint", self.parent)
         self.hint.add_component(Transform(y=-35, scale=1.25, z_index=2))
         self.hint.add_component(SpriteRenderer(
             "assets/img/keyboard/E.png",
@@ -39,7 +38,6 @@ class ItemController(Component):
         self.hint.active = False
 
         Game.instance().current_scene.add(self.hint)
-
 
     @override
     def update(self, dt: float) -> None:
@@ -66,7 +64,7 @@ class ItemController(Component):
                 return
 
             # Add the item to the player's inventory
-            print(f"[ItemController] Player picked up item: {self.item_type}")
+            self.parent.scene.set_player_gun(self.item_type)
 
             # Optionally, destroy the item GameObject after pickup
             self.parent.destroy()

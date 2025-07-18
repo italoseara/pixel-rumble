@@ -7,6 +7,7 @@ from pygame.math import Vector2
 from .component import Component
 from .transform import Transform
 from .box_collider import BoxCollider
+from ..game_object import GameObject
 from ...constants import DEBUG_MODE
 
 
@@ -17,7 +18,6 @@ class RigidBody(Component):
     drag: float
     gravity: float
 
-    # Calculations
     acceleration: Vector2
     velocity: Vector2
 
@@ -26,13 +26,16 @@ class RigidBody(Component):
     _transform: Transform | None
     _collider: BoxCollider | None
 
+    _exceptions: list[type[GameObject]] | None = None
+
     def __init__(
         self, 
         mass: float = 1, 
         drag: float = 0.05, 
         gravity: float = 10,
         is_kinematic: bool = True,
-        is_trigger: bool = False
+        is_trigger: bool = False,
+        exceptions: list[type[GameObject]] | None = None
     ) -> None:
         """Initialize the RigidBody component.
 
@@ -55,6 +58,7 @@ class RigidBody(Component):
 
         self._transform = None
         self._collider = None
+        self._exceptions = exceptions if exceptions is not None else []
 
         self.is_grounded = False
         self.is_kinematic = is_kinematic
@@ -119,6 +123,9 @@ class RigidBody(Component):
         self._transform.x = new_pos.x
         for collider in colliders:
             if self._collider.collides_with(collider) and not collider.is_trigger and not self.is_trigger:
+                if any(isinstance(collider.parent, exc) for exc in self._exceptions):
+                    continue
+                
                 if self.velocity.x > 0:
                     self._transform.x = collider.get_rect().left - self._collider.width - self._collider.offset.x
                 elif self.velocity.x < 0:
@@ -129,6 +136,9 @@ class RigidBody(Component):
         self._transform.y = new_pos.y
         for collider in colliders:
             if self._collider.collides_with(collider) and not collider.is_trigger and not self.is_trigger:
+                if any(isinstance(collider.parent, exc) for exc in self._exceptions):
+                    continue
+                
                 if self.velocity.y > 0:
                     self._transform.y = collider.get_rect().top - self._collider.height - self._collider.offset.y
                     self.is_grounded = True

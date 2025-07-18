@@ -262,7 +262,7 @@ class Server(BaseUDPServer):
                     return
 
                 item_packet = PacketPlayOutAddItem(
-                    item_id=item.item_id,
+                    gun_type=item.gun_type,
                     position= Vector2(item.position_x, item.position_y)
                 )
                 self.broadcast(item_packet, exclude=addr)

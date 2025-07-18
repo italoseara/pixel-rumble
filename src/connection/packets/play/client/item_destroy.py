@@ -6,7 +6,7 @@ from connection.packets import Packet
 class PacketPlayInDestroyItem(Packet):
     """Destroy item packet for the play state."""
 
-    id = 0x1C
+    id = 0x10
 
     item_name: str
 

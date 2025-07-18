@@ -54,7 +54,7 @@ class GameLogic(Component):
         )
 
         Game.instance().client.spawn_item(
-            item_id=gun_type,
+            gun_type=gun_type,
             x=position[0],
             y=position[1]
         )

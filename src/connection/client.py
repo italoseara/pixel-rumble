@@ -187,11 +187,11 @@ class Client:
                 current_scene = Game.instance().current_scene
                 if hasattr(current_scene, 'add_gun_item'):
                     current_scene.add_gun_item(
-                        gun_type=item.item_id,
+                        gun_type=item.gun_type,
                         x=int(item.position_x),
                         y=int(item.position_y)
                     )
-                    print(f"[Client] Added item of type '{item.item_id}' at position ({item.position_x}, {item.position_y}).")
+                    print(f"[Client] Added item of type '{item.gun_type}' at position ({item.position_x}, {item.position_y}).")
 
             case dItem if isinstance(dItem, PacketPlayOutDestroyItem):
                 current_scene = Game.instance().current_scene
@@ -237,7 +237,7 @@ class Client:
         self.send(PacketPlayInStartGame(map_name=map_name))
         print(f"[Client] Requesting to start game on map '{map_name}'.")
 
-    def spawn_item(self, item_id: str, x, y) -> None:
+    def spawn_item(self, gun_type: str, x, y) -> None:
         """Sends a request to spawn an item at the specified position.
 
         Args:
@@ -249,8 +249,8 @@ class Client:
         if not self.running:
             raise RuntimeError("Client is not running. Start the client before spawning items.")
 
-        self.send(PacketPlayInAddItem(item_id=item_id, position=Vector2(x, y)))
-        print(f"[Client] Requesting to spawn item '{item_id}' at ({x}, {y}).")
+        self.send(PacketPlayInAddItem(gun_type=gun_type, position=Vector2(x, y)))
+        print(f"[Client] Requesting to spawn item '{gun_type}' at ({x}, {y}).")
 
     def destroy_item(self, item_name: str) -> None:
         """Sends a request to destroy an item with the specified ID.

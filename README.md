@@ -23,6 +23,8 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Player Move](#player-move)
      - [Change Character](#change-character)
      - [Start Game](#start-game)
+     - [Add Item](#add-item)
+     - [Item Destroy](#item-destroy)
    - [Server](#server-1)
      - [Keep Alive](#keep-alive-1)
      - [Welcome](#welcome)
@@ -31,6 +33,8 @@ The game uses a custom protocol for network communication, which is defined in t
      - [Player Leave](#player-leave)
      - [Change Character](#change-character-1)
      - [Start Game](#start-game-1)
+     - [Add Item](#add-item-1)
+     - [Item Destroy](#item-destroy-1)
 
 ## Packet Format
 
@@ -165,6 +169,42 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                               |
 | --------- | ------ | -------- | ---------- | ---------- | ----------------------------------------- |
 | `0x0D`    | `Play` | `Server` | Map Name   | `string`   | The name of the map to start the game on. |
+
+#### Add Item
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x0F</code></td>
+      <td rowspan="2"><code>Play</code></td>
+      <td rowspan="2"><code>Server</code></td>
+      <td>Gun Type</td>
+      <td><code>string</code></td>
+      <td>The type of the gun item being added.</td>
+    </tr>
+    <tr>
+      <td>Position</td>
+      <td><code>float[2]</code></td>
+      <td>The new position of the item in the game world.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Item Destroy
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                                 |
+| --------- | ------ | -------- | ---------- | ---------- | ------------------------------------------- |
+| `0x10`    | `Play` | `Server` | Item Name  | `string`   | The name of the GameObject to be destroyed. |
 
 ### Server
 
@@ -320,3 +360,39 @@ The play state is used during the game. It includes packets for player actions, 
 | Packet ID | State  | Bound To | Field Name | Field Type | Description                               |
 | --------- | ------ | -------- | ---------- | ---------- | ----------------------------------------- |
 | `0x0E`    | `Play` | `Client` | Map Name   | `string`   | The name of the map to start the game on. |
+
+#### Add Item
+
+<table>
+  <thead>
+    <tr>
+      <th>Packet ID</th>
+      <th>State</th>
+      <th>Bound To</th>
+      <th>Field Name</th>
+      <th>Field Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2"><code>0x11</code></td>
+      <td rowspan="2"><code>Play</code></td>
+      <td rowspan="2"><code>Client</code></td>
+      <td>Gun Type</td>
+      <td><code>string</code></td>
+      <td>The type of the gun item being added.</td>
+    </tr>
+    <tr>
+      <td>Position</td>
+      <td><code>float[2]</code></td>
+      <td>The new position of the item in the game world.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Item Destroy
+
+| Packet ID | State  | Bound To | Field Name | Field Type | Description                                 |
+| --------- | ------ | -------- | ---------- | ---------- | ------------------------------------------- |
+| `0x12`    | `Play` | `Client` | Item Name  | `string`   | The name of the GameObject to be destroyed. |

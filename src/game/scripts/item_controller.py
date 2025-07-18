@@ -1,7 +1,6 @@
 from typing import override
 
 import pygame as pg
-from pygame.math import Vector2
 
 from engine import Component, GameObject, Transform, SpriteRenderer, Game
 from engine.core.components.box_collider import BoxCollider
@@ -11,7 +10,6 @@ class ItemController(Component):
     """Controls the item pickup and usage logic."""
 
     item_type: str
-    position: Vector2
 
     hint : GameObject
 
@@ -21,7 +19,6 @@ class ItemController(Component):
         super().__init__()
 
         self.item_type = item_type
-        self.position = Vector2(0, 0)
         self.hint = None
 
     def start(self) -> None:

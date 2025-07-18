@@ -5,6 +5,10 @@ import threading
 from pygame.math import Vector2
 from dataclasses import dataclass
 
+from sympy.codegen.ast import uint32
+
+from connection.packets.play.client.item import PacketPlayInAddItem
+from connection.packets.play.server.item import PacketPlayOutAddItem
 from engine import Game
 from connection.server import DISCOVERY_PORT
 from connection.packets import (
@@ -178,7 +182,16 @@ class Client:
                 if hasattr(current_scene, 'start_game'):
                     current_scene.start_game(map_name=start_game.map_name)
                     print(f"[Client] Starting game on map '{start_game.map_name}'.")
-        
+
+            case item if isinstance(item, PacketPlayOutAddItem):
+                current_scene = Game.instance().current_scene
+                if hasattr(current_scene, 'add_gun_item'):
+                    current_scene.add_gun_item(
+                        gun_type=item.item_id,
+                        x=int(item.position_x),
+                        y=int(item.position_y)
+                    )
+                    print(f"[Client] Added item of type '{item.item_id}' at position ({item.position_x}, {item.position_y}).")
             case _:
                 print(f"[Client] Unhandled packet type: {packet}")
 
@@ -219,6 +232,21 @@ class Client:
 
         self.send(PacketPlayInStartGame(map_name=map_name))
         print(f"[Client] Requesting to start game on map '{map_name}'.")
+
+    def spawn_item(self, item_id: str, x, y) -> None:
+        """Sends a request to spawn an item at the specified position.
+
+        Args:
+            item_id (str): The ID of the item to spawn.
+            x (int): The x-coordinate of the item's position.
+            y (int): The y-coordinate of the item's position.
+        """
+
+        if not self.running:
+            raise RuntimeError("Client is not running. Start the client before spawning items.")
+
+        self.send(PacketPlayInAddItem(item_id=item_id, position=Vector2(x, y)))
+        print(f"[Client] Requesting to spawn item '{item_id}' at ({x}, {y}).")
 
     def change_character(self, index: int) -> None:
         """Changes the character of the local player.

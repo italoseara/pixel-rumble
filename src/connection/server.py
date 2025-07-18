@@ -6,6 +6,8 @@ from typing import override
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from pygame import Vector2
+
 from connection.packets import (
     Packet,
     PacketStatusInPing,
@@ -24,6 +26,8 @@ from connection.packets import (
     PacketPlayInStartGame,
     PacketPlayOutStartGame
 )
+from connection.packets.play.client.item import PacketPlayInAddItem
+from connection.packets.play.server.item import PacketPlayOutAddItem
 
 DISCOVERY_PORT = 1337  # Fixed port for discovery server
 BUFFER_SIZE = 1024  # bytes
@@ -248,6 +252,19 @@ class Server(BaseUDPServer):
                 
                 start_game_packet = PacketPlayOutStartGame(map_name=start_game.map_name)
                 self.broadcast(start_game_packet, exclude=addr)
+
+            case item if isinstance(item, PacketPlayInAddItem):
+                client = self.clients.get(addr)
+                if not client:
+                    print(f"[Server] Client {addr[0]}:{addr[1]} is not connected. Ignoring item packet.")
+                    return
+
+                item_packet = PacketPlayOutAddItem(
+                    item_id= item.item_id,
+                    position= Vector2(item.position_x, item.position_y)
+                )
+                self.broadcast(item_packet, exclude=addr)
+
             case _:
                 print(f"[Server] Unhandled packet type: {type(packet).__name__}")
 

@@ -8,7 +8,7 @@ from ..scripts import PlayerController, PlayerAnimation, GunController, GameLogi
 
 
 GUN_ATTRIBUTES = {
-    "uzi": {
+    "uzi___": {
         "automatic": True,
         "fire_rate": 0.05,
         "camera_shake": 5,
@@ -32,7 +32,7 @@ GUN_ATTRIBUTES = {
         "bullet_size": (10, 10),
         "max_ammo": 20
     },
-    "awm": {
+    "awm___": {
         "automatic": False,
         "fire_rate": 2.0,
         "camera_shake": 50,

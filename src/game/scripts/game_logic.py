@@ -44,9 +44,15 @@ class GameLogic(Component):
 
         x, y = random.choice(spawn_points)
         position = tilemap.get_position(x, y)
-
+        gun_type= random.choice(["uzi___", "awm___", "pistol"])
         self.parent.scene.add_gun_item(
-            random.choice(["uzi", "awm", "pistol"]),
+            gun_type= gun_type,
+            x=position[0],
+            y=position[1]
+        )
+
+        Game.instance().client.spawn_item(
+            item_id= gun_type,
             x=position[0],
             y=position[1]
         )

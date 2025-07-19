@@ -3,7 +3,7 @@
 Um jogo de plataforma 2D construído com um motor de jogo customizado em Pygame. Este motor oferece uma arquitetura flexível e modular para criar jogos com Pygame, incluindo componentes para física, renderização, UI e mais.
 
 > [!NOTE]
-> Clique [aqui](README.md) para a versão em ![Estados Unidos](https://raw.githubusercontent.com/stevenrskelton/flag-icon/master/png/16/country-4x3/us.png "United States") English.
+> Click [here](README.md) for the ![Estados Unidos](https://raw.githubusercontent.com/stevenrskelton/flag-icon/master/png/16/country-4x3/us.png "United States") English version.
 
 ## Instalação
 
